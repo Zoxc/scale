@@ -60,7 +60,6 @@ class Element
         bool Selected;
         bool Visible;
         bool Hovered;
-        bool TargetDown;
 
         Element* Links[sizeof(ElementLink)];
         Element* Owner;
@@ -72,6 +71,7 @@ class Element
         void Redraw();
         void Draw(SDL_Surface* Surface, int X, int Y);
         bool InElement(int X, int Y);
+        void Click();
         void MouseDown(int X, int Y, Element** Focused);
         void MouseUp(int X, int Y);
         void MouseMove(int X, int Y);

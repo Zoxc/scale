@@ -135,12 +135,7 @@ void Application::Run()
                         {
                             case SDLK_RETURN:
                                 if(Application::Focused != 0)
-                                {
-                                    Application::Focused->OnClick();
-
-                                    if(Application::Focused->EventClick != 0)
-                                        Application::Focused->EventClick(this);
-                                }
+                                    Application::Focused->Click();
                                 break;
 
                             case SDLK_LEFT:

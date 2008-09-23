@@ -19,6 +19,7 @@
 #include "Application.hpp"
 #include "Image.hpp"
 #include "Button.hpp"
+#include "Category.hpp"
 #include "Solid.hpp"
 #include "Label.hpp"
 
@@ -29,15 +30,15 @@ struct AppInfo
     Button* button;
 };
 
-struct Category
+struct CatInfo
 {
     char* Name;
     char* IconPath;
-    Button* button;
+    Category* button;
 };
 
 std::vector<AppInfo*> Running;
-std::vector<Category*> Categories;
+std::vector<CatInfo*> Categories;
 
 Application Menu;
 
@@ -63,22 +64,22 @@ int main( int argc, char* args[] )
     App->IconPath = "irc.png";
     Running.push_back(App);
 
-    Category* Cat = new Category();
+    CatInfo* Cat = new CatInfo();
     Cat->Name = "Games";
     Cat->IconPath = "games.png";
     Categories.push_back(Cat);
 
-    Cat = new Category();
+    Cat = new CatInfo();
     Cat->Name = "Media";
     Cat->IconPath = "media.png";
     Categories.push_back(Cat);
 
-    Cat = new Category();
+    Cat = new CatInfo();
     Cat->Name = "System";
     Cat->IconPath = "system.png";
     Categories.push_back(Cat);
 
-    Cat = new Category();
+    Cat = new CatInfo();
     Cat->Name = "Other";
     Cat->IconPath = "other.png";
     Categories.push_back(Cat);
@@ -98,7 +99,7 @@ int main( int argc, char* args[] )
     RunningLabel.Top = 55;
 
     // Power Button
-    Button Power(&Menu, ButtonTypePush);
+    Button Power(&Menu);
     Power.Left = 695;
     Power.Top = 5;
     Power.Width = 100;
@@ -121,7 +122,7 @@ int main( int argc, char* args[] )
 
     for(size_t i = 0; i < Running.size(); i++)
     {
-        Running[i]->button = new Button(&Applications, ButtonTypePush);
+        Running[i]->button = new Button(&Applications);
         Running[i]->button->Left = 0;
         Running[i]->button->Top = 52 * i;
         Running[i]->button->Height = 52;
@@ -138,28 +139,6 @@ int main( int argc, char* args[] )
         Running[i]->button->Width = AppLabel->Width + 5 + 8 + AppIcon->Width + 7;
     }
 
-    // Add D-pad bindings
-    for(size_t i = 0; i < Running.size(); i++)
-    {
-        Running[i]->button->Links[ElementRight] = &Power;
-
-        if(i > 0)
-            Running[i]->button->Links[ElementUp] = Running[i-1]->button;
-        else
-            Running[i]->button->Links[ElementUp] = Running[Running.size()-1]->button;
-
-        if(i < Running.size() - 1)
-            Running[i]->button->Links[ElementDown] = Running[i+1]->button;
-        else
-            Running[i]->button->Links[ElementDown] = Running[0]->button;
-    }
-
-    if(Running.size() > 0)
-    {
-        Power.Links[ElementLeft] = Running[0]->button;
-        Menu.Focus(Running[0]->button);
-    }
-
     Solid Tabs(&Menu);
     Tabs.Left = 0;
     Tabs.Height = 66;
@@ -171,7 +150,7 @@ int main( int argc, char* args[] )
 
     for(size_t i = 0; i < Categories.size(); i++)
     {
-        Categories[i]->button = new Button(&Tabs, ButtonTypeBlock);
+        Categories[i]->button = new Category(&Tabs);
         Categories[i]->button->Left = CategoryWidth * i;
         Categories[i]->button->Top = 0;
         Categories[i]->button->Height = Tabs.Height;
@@ -187,7 +166,53 @@ int main( int argc, char* args[] )
         CatLabel->Left = CatIcon->Left + CategorySpacing + CatIcon->Width;
     }
 
-    Menu.Title = "SDL Demo";
+    // Add Links
+    for(size_t i = 0; i < Running.size(); i++)
+    {
+        Running[i]->button->Links[ElementRight] = &Power;
+
+        if(i > 0)
+            Running[i]->button->Links[ElementUp] = Running[i-1]->button;
+        else
+            Running[i]->button->Links[ElementUp] = Categories[0]->button;
+
+        if(i < Running.size() - 1)
+            Running[i]->button->Links[ElementDown] = Running[i+1]->button;
+        else
+            Running[i]->button->Links[ElementDown] = Categories[0]->button;
+    }
+
+    if(Running.size() > 0)
+    {
+        Power.Links[ElementLeft] = Running[0]->button;
+        Menu.Focus(Running[0]->button);
+    }
+
+    for(size_t i = 0; i < Categories.size(); i++)
+    {
+        if(Running.size() > 0)
+        {
+            Categories[i]->button->Links[ElementUp] = Running[Running.size() - 1]->button;
+            Categories[i]->button->Links[ElementDown] = Running[0]->button;
+        }
+        else
+        {
+            Categories[i]->button->Links[ElementUp] = &Power;
+            Categories[i]->button->Links[ElementDown] = &Power;
+        }
+
+        if(i > 0)
+            Categories[i]->button->Links[ElementLeft] = Categories[i-1]->button;
+        else
+            Categories[i]->button->Links[ElementLeft] = Categories[Categories.size()-1]->button;
+
+        if(i < Categories.size() - 1)
+            Categories[i]->button->Links[ElementRight] = Categories[i+1]->button;
+        else
+            Categories[i]->button->Links[ElementRight] = Categories[0]->button;
+    }
+
+    Menu.Title = "Scale Demo";
 
     Menu.Run();
 

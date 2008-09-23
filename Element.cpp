@@ -30,7 +30,6 @@ Element::Element(Element* AOwner):
     Selected(false),
     Visible(true),
     Hovered(false),
-    TargetDown(0),
     Owner(AOwner),
     Root(0),
     SelectedElement(0)
@@ -103,13 +102,33 @@ void Element::Redraw()
     Root->RedrawElement(this);
 }
 
+void Element::Click()
+{
+    if(CanSelect)
+    {
+        if(Owner->SelectedElement != 0)
+        {
+            Owner->SelectedElement->Selected = false;
+            Owner->SelectedElement->OnDeselect();
+        }
+
+        Owner->SelectedElement = this;
+
+        Selected = true;
+        OnSelect();
+    }
+
+    OnClick();
+
+    if(EventClick != 0)
+        EventClick(this);
+}
+
 void Element::MouseLeave()
 {
     if(Hovered)
     {
         Hovered = false;
-
-        TargetDown = false;
 
         OnMouseLeave();
 
@@ -140,11 +159,7 @@ void Element::MouseMove(int X, int Y)
         if(Hovered)
             OnMouseEnter();
         else
-        {
-            TargetDown = false;
-
             OnMouseLeave();
-        }
     }
 }
 
@@ -152,42 +167,23 @@ void Element::MouseUp(int X, int Y)
 {
     OnMouseUp(X, Y);
 
-    if(TargetDown && Hovered)
-    {
-        OnClick();
-
-        if(EventClick != 0)
-            EventClick(this);
-    }
-
     for(size_t i = 0; i < Children.size(); i++)
         Children[i]->MouseUp(X - Left, Y - Top);
 }
 
 void Element::MouseDown(int X, int Y, Element** Focused)
 {
-    TargetDown = true;
-
     OnMouseDown(X, Y);
 
     for(size_t i = 0; i < Children.size(); i++)
         Children[i]->MouseDown(X - Left, Y - Top, Focused);
 
-    if(CanSelect && (Owner->SelectedElement != this) && InElement(X, Y))
+    if(Hovered)
     {
-        if(Owner->SelectedElement != 0)
-        {
-            Owner->SelectedElement->OnDeselect();
-        }
+        if(CanFocus)
+            *Focused = this;
 
-        Selected = true;
-
-        OnSelect();
-    }
-
-    if(CanFocus && InElement(X, Y))
-    {
-        *Focused = this;
+        Click();
     }
 }
 

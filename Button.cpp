@@ -25,11 +25,9 @@ SDL_Surface* BorderBL = NULL;
 SDL_Surface* BorderBR = NULL;
 int ButtonCount = 0;
 
-Button::Button(Element* AOwner, ButtonType type) :
+Button::Button(Element* AOwner) :
     Element::Element(AOwner),
-    Down(false),
-    Over(false),
-    Type(type)
+    Down(false)
 {
     CanFocus = true;
 
@@ -100,49 +98,22 @@ void Button::OnDeactivate()
 
 void Button::OnDraw(SDL_Surface* Surface, int X, int Y)
 {
-    switch(Type)
-    {
-        case ButtonTypePush:
-        {
-            if(!Focused)
-                return;
+    if(!Focused)
+        return;
 
-            SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 
-            SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
 
-            Graphics::ApplyAlpha(0, 0, BorderTL, Fill);
-            Graphics::ApplyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
-            Graphics::ApplyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
-            Graphics::ApplyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
+    Graphics::ApplyAlpha(0, 0, BorderTL, Fill);
+    Graphics::ApplyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
+    Graphics::ApplyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
+    Graphics::ApplyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
 
-            Graphics::HalfAlpha(Fill);
-            Graphics::HalfAlpha(Fill);
+    Graphics::HalfAlpha(Fill);
+    Graphics::HalfAlpha(Fill);
 
-            Graphics::ApplySurface(X, Y, Fill, Surface);
+    Graphics::ApplySurface(X, Y, Fill, Surface);
 
-            SDL_FreeSurface(Fill);
-            break;
-        }
-
-        case ButtonTypeBlock:
-        {
-            if(!(Hovered && Down))
-                return;
-
-            SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
-
-            SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
-
-            if(!Down)
-                Graphics::HalfAlpha(Fill);
-
-            Graphics::HalfAlpha(Fill);
-
-            Graphics::ApplySurface(X, Y, Fill, Surface);
-
-            SDL_FreeSurface(Fill);
-            break;
-        }
-    }
+    SDL_FreeSurface(Fill);
 }

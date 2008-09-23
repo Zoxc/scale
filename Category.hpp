@@ -22,15 +22,17 @@
 
 #include "Element.hpp"
 
-class Button:
+class Category:
     public Element
 {
     public:
-        Button(Element* AOwner);
-        virtual ~Button();
+        Category(Element* AOwner);
+        virtual ~Category();
 
         void OnDraw(SDL_Surface* Surface, int X, int Y);
 
+        void OnSelect();
+        void OnDeselect();
         void OnActivate();
         void OnDeactivate();
         void OnMouseEnter();
