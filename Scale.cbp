@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Scale" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="bin\Scale" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\" />
+				<Option object_output="obj\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="Application.cpp" />
+		<Unit filename="Application.hpp" />
+		<Unit filename="Button.cpp" />
+		<Unit filename="Button.hpp" />
+		<Unit filename="Element.cpp" />
+		<Unit filename="Element.hpp" />
+		<Unit filename="Graphics.cpp" />
+		<Unit filename="Graphics.hpp" />
+		<Unit filename="Image.cpp" />
+		<Unit filename="Image.hpp" />
+		<Unit filename="Label.cpp" />
+		<Unit filename="Label.hpp" />
+		<Unit filename="Main.cpp" />
+		<Unit filename="Solid.cpp" />
+		<Unit filename="Solid.hpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

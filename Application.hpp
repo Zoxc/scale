@@ -30,15 +30,18 @@ class Application:
         Application();
         virtual ~Application();
         virtual bool Initialize();
-        virtual void Finalize();
         virtual void Draw(SDL_Surface* Surface, int X, int Y);
+        void Focus(Element* NewFocus);
+        void QueryRedraw(Element* Owner);
         void Run();
 
         Element* Focused;
         std::string Title;
         bool Terminated;
-        SDL_Surface* Screen;
+        std::vector<Element*> Redraws;
 
     private:
-        void MouseDown(int X, int Y, bool* Redraw);
+        SDL_Surface* Screen;
+        void MouseDown(int X, int Y);
+        void RedrawElement(Element* Owner);
 };

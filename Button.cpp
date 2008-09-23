@@ -31,8 +31,7 @@ Button::Button(Element* AOwner, ButtonType type) :
     Over(false),
     Type(type)
 {
-    if(Type != ButtonTypePush)
-        CanFocus = true;
+    CanFocus = true;
 
     if(ButtonCount++ == 0)
     {
@@ -54,39 +53,49 @@ Button::~Button()
     }
 }
 
-void Button::OnMouseEnter(bool* Redraw)
+void Button::OnMouseEnter()
 {
     if(Down)
-        *Redraw = true;
+        Redraw();
 }
 
-void Button::OnMouseLeave(bool* Redraw)
+void Button::OnMouseLeave()
 {
     if(Down)
-        *Redraw = true;
+        Redraw();
 }
 
-void Button::OnMouseUp(int X, int Y, bool* Redraw)
+void Button::OnMouseUp(int X, int Y)
 {
     if(Down)
     {
         Down = false;
 
         if(Hovered)
-            *Redraw = true;
+            Redraw();
     }
 
 }
 
-void Button::OnMouseDown(int X, int Y, bool* Redraw)
+void Button::OnMouseDown(int X, int Y)
 {
     if(!Down)
     {
         Down = true;
 
         if(Hovered)
-            *Redraw = true;
+            Redraw();
     }
+}
+
+void Button::OnActivate()
+{
+    Redraw();
+}
+
+void Button::OnDeactivate()
+{
+    Redraw();
 }
 
 void Button::OnDraw(SDL_Surface* Surface, int X, int Y)
@@ -95,7 +104,7 @@ void Button::OnDraw(SDL_Surface* Surface, int X, int Y)
     {
         case ButtonTypePush:
         {
-            if(!(Hovered && Down))
+            if(!Focused)
                 return;
 
             SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
