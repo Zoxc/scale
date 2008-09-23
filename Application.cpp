@@ -25,6 +25,8 @@ Application::Application() : Element::Element(0)
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
 
+    Root = this;
+
     Application::Focused = 0;
 }
 
@@ -55,24 +57,51 @@ bool Application::Initialize()
     return true;
 }
 
-void Application::Finalize()
+void Application::RedrawElement(Element* Owner)
 {
+    Redraws.push_back(Owner);
 }
 
-void Application::MouseDown(int X, int Y, bool* Redraw)
+void Application::Focus(Element* NewFocus)
+{
+    if(NewFocus == 0)
+        return;
+
+    if(Application::Focused == NewFocus)
+        return;
+
+    if(Application::Focused != 0)
+    {
+        Application::Focused->Focused = false;
+        Application::Focused->OnDeactivate();
+    }
+
+    NewFocus->Focused = true;
+    NewFocus->OnActivate();
+
+    Application::Focused = NewFocus;
+}
+
+void Application::MouseDown(int X, int Y)
 {
     Element* NewFocus = 0;
 
     for(size_t i = 0; i < Children.size(); i++ )
-        Children[i]->MouseDown(X, Y, Redraw, &NewFocus);
+        Children[i]->MouseDown(X, Y, &NewFocus);
 
     if(NewFocus != 0 && NewFocus != Application::Focused)
     {
         if(Application::Focused != 0)
-             Application::Focused->OnDeactivate(Redraw);
+        {
+            Application::Focused->Focused = false;
+            Application::Focused->OnDeactivate();
+        }
 
         if(NewFocus != 0)
-            NewFocus->OnActivate(Redraw);
+        {
+            NewFocus->Focused = true;
+            NewFocus->OnActivate();
+        }
 
         Application::Focused = NewFocus;
     }
@@ -91,8 +120,6 @@ void Application::Run()
 
     while(Terminated == false)
     {
-        bool Redraw = false;
-
         while(SDL_PollEvent(&event))
         {
             switch(event.type)
@@ -101,29 +128,64 @@ void Application::Run()
                     Terminated = true;
                     break;
 
+                case SDL_KEYDOWN:
+                    if(Application::Focused != 0)
+                    {
+                        switch(event.key.keysym.sym)
+                        {
+                            case SDLK_RETURN:
+                                if(Application::Focused != 0)
+                                {
+                                    Application::Focused->OnClick();
+
+                                    if(Application::Focused->EventClick != 0)
+                                        Application::Focused->EventClick(this);
+                                }
+                                break;
+
+                            case SDLK_LEFT:
+                                Focus(Application::Focused->Links[ElementLeft]);
+                                break;
+
+                            case SDLK_UP:
+                                Focus(Application::Focused->Links[ElementUp]);
+                                break;
+
+                            case SDLK_RIGHT:
+                                Focus(Application::Focused->Links[ElementRight]);
+                                break;
+
+                            case SDLK_DOWN:
+                                Focus(Application::Focused->Links[ElementDown]);
+                                break;
+                        }
+                    }
+                    break;
+
                 case SDL_MOUSEMOTION:
                     for(size_t i = 0; i < Children.size(); i++ )
-                        Children[i]->MouseMove(event.motion.x, event.motion.y, &Redraw);
+                        Children[i]->MouseMove(event.motion.x, event.motion.y);
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
-                    MouseDown(event.button.x, event.button.y, &Redraw);
+                    MouseDown(event.button.x, event.button.y);
                     break;
 
                 case SDL_MOUSEBUTTONUP:
                     for(size_t i = 0; i < Children.size(); i++ )
-                        Children[i]->MouseUp(event.button.x, event.button.y, &Redraw);
+                        Children[i]->MouseUp(event.button.x, event.button.y);
 
                     break;
             }
         }
 
-        if(Redraw)
+        if(Redraws.size() > 0)
+        {
+            Redraws.clear();
             Draw(Screen, 0, 0);
+        }
 
         SDL_Delay(1);
     }
-
-    Finalize();
 }
 

@@ -126,6 +126,7 @@ int main( int argc, char* args[] )
         Running[i]->button->Top = 52 * i;
         Running[i]->button->Height = 52;
 
+
         Image* AppIcon = new Image(Running[i]->button, Running[i]->IconPath);
         AppIcon->Left = 5;
         AppIcon->Top = 2;
@@ -137,6 +138,27 @@ int main( int argc, char* args[] )
         Running[i]->button->Width = AppLabel->Width + 5 + 8 + AppIcon->Width + 7;
     }
 
+    // Add D-pad bindings
+    for(size_t i = 0; i < Running.size(); i++)
+    {
+        Running[i]->button->Links[ElementRight] = &Power;
+
+        if(i > 0)
+            Running[i]->button->Links[ElementUp] = Running[i-1]->button;
+        else
+            Running[i]->button->Links[ElementUp] = Running[Running.size()-1]->button;
+
+        if(i < Running.size() - 1)
+            Running[i]->button->Links[ElementDown] = Running[i+1]->button;
+        else
+            Running[i]->button->Links[ElementDown] = Running[0]->button;
+    }
+
+    if(Running.size() > 0)
+    {
+        Power.Links[ElementLeft] = Running[0]->button;
+        Menu.Focus(Running[0]->button);
+    }
 
     Solid Tabs(&Menu);
     Tabs.Left = 0;

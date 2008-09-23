@@ -22,7 +22,13 @@
 
 class Element;
 
+typedef void (*ElementRedraw)(Element* Owner);
 typedef void (*ElementNotify)(Element* Owner);
+
+enum ElementLink
+{
+    ElementLeft, ElementUp, ElementRight, ElementDown
+};
 
 class Element
 {
@@ -31,12 +37,14 @@ class Element
         virtual ~Element();
 
         virtual void OnClick();
-        virtual void OnMouseEnter(bool* Redraw);
-        virtual void OnMouseLeave(bool* Redraw);
-        virtual void OnMouseUp(int X, int Y, bool* Redraw);
-        virtual void OnMouseDown(int X, int Y, bool* Redraw);
-        virtual void OnActivate(bool* Redraw);
-        virtual void OnDeactivate(bool* Redraw);
+        virtual void OnMouseEnter();
+        virtual void OnMouseLeave();
+        virtual void OnMouseUp(int X, int Y);
+        virtual void OnMouseDown(int X, int Y);
+        virtual void OnActivate();
+        virtual void OnDeactivate();
+        virtual void OnSelect();
+        virtual void OnDeselect();
         virtual void OnDraw(SDL_Surface* Surface, int X, int Y);
 
         ElementNotify EventClick;
@@ -46,19 +54,29 @@ class Element
         int Width;
         int Height;
 
+        bool CanSelect;
         bool CanFocus;
+        bool Focused;
+        bool Selected;
         bool Visible;
         bool Hovered;
         bool TargetDown;
 
+        Element* Links[sizeof(ElementLink)];
         Element* Owner;
+        Element* Root;
+        Element* SelectedElement;
 
         std::vector<Element*> Children;
 
+        void Redraw();
         void Draw(SDL_Surface* Surface, int X, int Y);
         bool InElement(int X, int Y);
-        void MouseDown(int X, int Y, bool* Redraw, Element** Focused);
-        void MouseUp(int X, int Y, bool* Redraw);
-        void MouseMove(int X, int Y, bool* Redraw);
-        void MouseLeave(bool* Redraw);
+        void MouseDown(int X, int Y, Element** Focused);
+        void MouseUp(int X, int Y);
+        void MouseMove(int X, int Y);
+        void MouseLeave();
+
+    private:
+        virtual void RedrawElement(Element* Owner);
 };

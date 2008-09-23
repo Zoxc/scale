@@ -36,14 +36,15 @@ class Button:
 
         void OnDraw(SDL_Surface* Surface, int X, int Y);
 
-        void OnMouseEnter(bool* Redraw);
-        void OnMouseLeave(bool* Redraw);
-        void OnMouseUp(int X, int Y, bool* Redraw);
-        void OnMouseDown(int X, int Y, bool* Redraw);
+        void OnActivate();
+        void OnDeactivate();
+        void OnMouseEnter();
+        void OnMouseLeave();
+        void OnMouseUp(int X, int Y);
+        void OnMouseDown(int X, int Y);
 
         bool Down;
         bool Over;
-        bool Focused;
         ButtonType Type;
         SDL_Surface* ImageSurface;
 };
