@@ -131,28 +131,39 @@ void Application::Run()
                 case SDL_KEYDOWN:
                     if(Application::Focused != 0)
                     {
-                        switch(event.key.keysym.sym)
+                        bool Ignore = false;
+
+                        if(EventKeyDown != 0)
+                            EventKeyDown(this, event.key.keysym.sym, &Ignore);
+
+                        if(Application::Focused != 0)
+                            Application::Focused->KeyDown(event.key.keysym.sym);
+
+                        if(!Ignore)
                         {
-                            case SDLK_RETURN:
-                                if(Application::Focused != 0)
-                                    Application::Focused->Click();
-                                break;
+                            switch(event.key.keysym.sym)
+                            {
+                                case SDLK_RETURN:
+                                    if(Application::Focused != 0)
+                                        Application::Focused->Click();
+                                    break;
 
-                            case SDLK_LEFT:
-                                Focus(Application::Focused->Links[ElementLeft]);
-                                break;
+                                case SDLK_LEFT:
+                                    Focus(Application::Focused->Links[ElementLeft]);
+                                    break;
 
-                            case SDLK_UP:
-                                Focus(Application::Focused->Links[ElementUp]);
-                                break;
+                                case SDLK_UP:
+                                    Focus(Application::Focused->Links[ElementUp]);
+                                    break;
 
-                            case SDLK_RIGHT:
-                                Focus(Application::Focused->Links[ElementRight]);
-                                break;
+                                case SDLK_RIGHT:
+                                    Focus(Application::Focused->Links[ElementRight]);
+                                    break;
 
-                            case SDLK_DOWN:
-                                Focus(Application::Focused->Links[ElementDown]);
-                                break;
+                                case SDLK_DOWN:
+                                    Focus(Application::Focused->Links[ElementDown]);
+                                    break;
+                            }
                         }
                     }
                     break;

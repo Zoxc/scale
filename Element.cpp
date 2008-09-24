@@ -20,19 +20,20 @@
 
 Element::Element(Element* AOwner):
     EventClick(0),
+    EventKeyDown(0),
     Left(0),
     Top(0),
     Width(0),
     Height(0),
-    CanSelect(false),
+    Owner(AOwner),
+    Root(0),
+    SelectedElement(0),
+    AutoSelect(false),
     CanFocus(false),
     Focused(false),
     Selected(false),
     Visible(true),
-    Hovered(false),
-    Owner(AOwner),
-    Root(0),
-    SelectedElement(0)
+    Hovered(false)
 {
     memset(Links, 0, sizeof(Links));
 
@@ -54,6 +55,10 @@ Element::~Element()
     {
         // Remove from list
     }
+}
+
+void Element::OnKeyDown(SDLKey Key)
+{
 }
 
 void Element::OnSelect()
@@ -93,6 +98,10 @@ void Element::OnMouseDown(int X, int Y)
 {
 }
 
+void Element::OnDraw(SDL_Surface* Surface, int X, int Y)
+{
+}
+
 void Element::RedrawElement(Element* Owner)
 {
 }
@@ -102,26 +111,49 @@ void Element::Redraw()
     Root->RedrawElement(this);
 }
 
-void Element::Click()
+void Element::KeyDown(SDLKey Key)
 {
-    if(CanSelect)
+    bool Ignore = false;
+
+    if(EventKeyDown != 0)
+        EventKeyDown(this, Key, &Ignore);
+
+    if(Ignore)
+        return;
+
+    OnKeyDown(Key);
+
+    if(Key == SDLK_RETURN)
+        Click();
+}
+
+void Element::Select(Element* NewSelection)
+{
+    if(SelectedElement != 0)
     {
-        if(Owner->SelectedElement != 0)
-        {
-            Owner->SelectedElement->Selected = false;
-            Owner->SelectedElement->OnDeselect();
-        }
-
-        Owner->SelectedElement = this;
-
-        Selected = true;
-        OnSelect();
+        SelectedElement->Selected = false;
+        SelectedElement->OnDeselect();
     }
 
+    SelectedElement = NewSelection;
+
+    if(SelectedElement != 0)
+    {
+        SelectedElement->Selected = true;
+        SelectedElement->OnSelect();
+    }
+
+}
+
+void Element::Click()
+{
     OnClick();
 
     if(EventClick != 0)
         EventClick(this);
+
+    if(AutoSelect)
+        Owner->Select(this);
 }
 
 void Element::MouseLeave()
@@ -202,11 +234,6 @@ bool Element::InElement(int X, int Y)
         return false;
 
     return true;
-}
-
-void Element::OnDraw(SDL_Surface* Surface, int X, int Y)
-{
-
 }
 
 void Element::Draw(SDL_Surface* Surface, int X, int Y)

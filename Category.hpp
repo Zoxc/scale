@@ -31,15 +31,13 @@ class Category:
 
         void OnDraw(SDL_Surface* Surface, int X, int Y);
 
+        void OnClick();
+
         void OnSelect();
         void OnDeselect();
-        void OnActivate();
-        void OnDeactivate();
-        void OnMouseEnter();
-        void OnMouseLeave();
-        void OnMouseUp(int X, int Y);
-        void OnMouseDown(int X, int Y);
 
-        bool Down;
+        Element* Hide;
+        Element* Show;
+
         SDL_Surface* ImageSurface;
 };
