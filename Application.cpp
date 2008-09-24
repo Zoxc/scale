@@ -186,6 +186,9 @@ void Application::Run()
 
                     break;
             }
+
+            if(Terminated)
+                break;
         }
 
         if(Redraws.size() > 0)
@@ -194,7 +197,8 @@ void Application::Run()
             Draw(Screen, 0, 0);
         }
 
-        SDL_Delay(1);
+        SDL_WaitEvent(0);
     }
+
 }
 
