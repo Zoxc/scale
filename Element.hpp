@@ -33,7 +33,7 @@ enum ElementLink
 class Element
 {
     public:
-        Element(Element* AOwner);
+        Element(Element* Owner);
         virtual ~Element();
 
         virtual void OnKeyDown(SDLKey Key);
@@ -46,6 +46,8 @@ class Element
         virtual void OnDeactivate();
         virtual void OnSelect();
         virtual void OnDeselect();
+        virtual void OnShow();
+        virtual void OnHide();
         virtual void OnDraw(SDL_Surface* Surface, int X, int Y);
 
         ElementNotifyEvent EventClick;
@@ -72,6 +74,8 @@ class Element
         bool Visible;
         bool Hovered;
 
+        void Show();
+        void Hide();
         void Select(Element* NewSelection);
         void Redraw();
         void Draw(SDL_Surface* Surface, int X, int Y);

@@ -25,6 +25,9 @@ Application::Application() : Element::Element(0)
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
 
+    Width = 800;
+    Height = 480;
+
     Root = this;
 
     Application::Focused = 0;
@@ -45,7 +48,7 @@ void Application::Draw(SDL_Surface* Surface, int X, int Y)
 
 bool Application::Initialize()
 {
-    Screen = SDL_SetVideoMode(800, 480, 32, 0);
+    Screen = SDL_SetVideoMode(Width, Height, 32, 0);
 
     if(Screen == NULL)
     {

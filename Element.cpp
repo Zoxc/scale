@@ -18,14 +18,14 @@
 
 #include "Element.hpp"
 
-Element::Element(Element* AOwner):
+Element::Element(Element* Owner):
     EventClick(0),
     EventKeyDown(0),
     Left(0),
     Top(0),
     Width(0),
     Height(0),
-    Owner(AOwner),
+    Owner(Owner),
     Root(0),
     SelectedElement(0),
     AutoSelect(false),
@@ -61,13 +61,20 @@ void Element::OnKeyDown(SDLKey Key)
 {
 }
 
+void Element::OnShow()
+{
+}
+
+void Element::OnHide()
+{
+}
+
 void Element::OnSelect()
 {
 }
 
 void Element::OnDeselect()
 {
-
 }
 
 void Element::OnClick()
@@ -109,6 +116,20 @@ void Element::RedrawElement(Element* Owner)
 void Element::Redraw()
 {
     Root->RedrawElement(this);
+}
+
+void Element::Show()
+{
+    OnShow();
+
+    Visible = true;
+}
+
+void Element::Hide()
+{
+    OnHide();
+
+    Visible = false;
 }
 
 void Element::KeyDown(SDLKey Key)

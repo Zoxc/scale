@@ -25,8 +25,8 @@ SDL_Surface* BorderBL = NULL;
 SDL_Surface* BorderBR = NULL;
 int ButtonCount = 0;
 
-Button::Button(Element* AOwner) :
-    Element::Element(AOwner),
+Button::Button(Element* Owner) :
+    Element::Element(Owner),
     Down(false)
 {
     CanFocus = true;
@@ -53,13 +53,13 @@ Button::~Button()
 
 void Button::OnMouseEnter()
 {
-    if(Down)
+    //if(Down)
         Redraw();
 }
 
 void Button::OnMouseLeave()
 {
-    if(Down)
+    //if(Down)
         Redraw();
 }
 

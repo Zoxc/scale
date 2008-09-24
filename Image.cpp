@@ -19,7 +19,7 @@
 #include "Image.hpp"
 #include "Graphics.hpp"
 
-Image::Image(Element* AOwner, char* Path) : Element::Element(AOwner)
+Image::Image(Element* Owner, char* Path) : Element::Element(Owner)
 {
     ImageSurface = IMG_Load(Path);
     Width = ImageSurface->w;

@@ -18,6 +18,12 @@
 
 #include "Category.hpp"
 #include "Graphics.hpp"
+#include "Button.hpp"
+
+extern SDL_Surface* BorderBL;
+extern SDL_Surface* BorderBR;
+extern SDL_Surface* BorderTL;
+extern SDL_Surface* BorderTR;
 
 Category::Category(Element* AOwner) :
     Element::Element(AOwner),
@@ -44,10 +50,10 @@ void Category::OnSelect()
     Redraw();
 
     if(Show != 0)
-        Show->Visible = true;
+        Show->Show();
 
     if(Hide != 0)
-        Hide->Visible = false;
+        Hide->Hide();
 }
 
 void Category::OnDeselect()
@@ -55,10 +61,10 @@ void Category::OnDeselect()
     Redraw();
 
     if(Show != 0)
-        Show->Visible = false;
+        Show->Hide();
 
     if(Hide != 0)
-        Hide->Visible = true;
+        Hide->Show();
 }
 
 void Category::OnDraw(SDL_Surface* Surface, int X, int Y)
@@ -66,13 +72,14 @@ void Category::OnDraw(SDL_Surface* Surface, int X, int Y)
     if(!Selected)
         return;
 
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
 
+    Graphics::ApplyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
+    Graphics::ApplyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
 
-    if(Selected)
-        SDL_SetAlpha(Fill, SDL_SRCALPHA, 128);
+    Graphics::HalfAlpha(Fill);
 
     Graphics::ApplySurface(X, Y, Fill, Surface);
 

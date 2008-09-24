@@ -37,7 +37,7 @@ class Label:
     public Element
 {
     public:
-        Label(Element* AOwner, std::string ACaption, TTF_Font* AFont, FontColor AColor);
+        Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor);
         virtual ~Label();
         virtual void OnDraw(SDL_Surface* Surface, int X, int Y);
 

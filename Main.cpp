@@ -16,26 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Application.hpp"
-#include "Image.hpp"
-#include "Button.hpp"
-#include "Category.hpp"
-#include "Solid.hpp"
-#include "Label.hpp"
-
-struct AppInfo
-{
-    char* Name;
-    char* IconPath;
-    Button* button;
-};
-
-struct CatInfo
-{
-    char* Name;
-    char* IconPath;
-    Category* button;
-};
+#include "Main.hpp"
 
 std::vector<AppInfo*> Running;
 std::vector<CatInfo*> Categories;
@@ -44,7 +25,24 @@ Application Menu;
 Solid* Tabs;
 Element* TaskList;
 
-void PowerClick(Element* Owner)
+PowerButton::PowerButton(Element* Owner) : Button(Owner)
+{
+    PowerIcon = new Image(this, "power.png");
+    PowerIcon->Left = 5;
+    PowerIcon->Top = 5;
+
+    PowerLabel = new Label(this, "Power", FontNormal, FontColorBlack);
+    PowerLabel->Left = 36;
+    PowerLabel->Top = 8;
+}
+
+PowerButton::~PowerButton()
+{
+    delete PowerLabel;
+    delete PowerIcon;
+}
+
+void PowerButton::OnClick()
 {
     Menu.Terminated = true;
 }
@@ -118,6 +116,8 @@ int main( int argc, char* args[] )
     Image Background(&Menu, "back.png");
 
     TaskList = new Element(&Menu);
+    TaskList->Width = Menu.Width;
+    TaskList->Height = Menu.Height;
 
     FontSmall = TTF_OpenFont("FreeSans.ttf", 18);
     FontNormal = TTF_OpenFont("FreeSans.ttf", 22);
@@ -132,20 +132,11 @@ int main( int argc, char* args[] )
     RunningLabel.Top = 55;
 
     // Power Button
-    Button Power(TaskList);
-    Power.Left = 695;
+    PowerButton Power(TaskList);
+    Power.Left = 686;
     Power.Top = 5;
-    Power.Width = 100;
+    Power.Width = 107;
     Power.Height = 45;
-    Power.EventClick = &PowerClick;
-
-    Image PowerIcon(&Power, "power.png");
-    PowerIcon.Left = 5;
-    PowerIcon.Top = 5;
-
-    Label PowerLabel(&Power, "Power", FontSmall, FontColorBlack);
-    PowerLabel.Left = 36;
-    PowerLabel.Top = 10;
 
     Element Applications(TaskList);
     Applications.Left = 15;
@@ -193,7 +184,7 @@ int main( int argc, char* args[] )
         Categories[i]->button->Show = new Label(&Menu, Categories[i]->Name, FontBig, FontColorWhite);
         Categories[i]->button->Show->Left = 15;
         Categories[i]->button->Show->Top = 15;
-        Categories[i]->button->Show->Visible = false;
+        Categories[i]->button->Show->Hide();
         Categories[i]->button->Hide = TaskList;
 
         Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, FontBig, FontColorWhite);

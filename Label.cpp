@@ -23,8 +23,8 @@ TTF_Font* FontSmall = NULL;
 TTF_Font* FontNormal = NULL;
 TTF_Font* FontBig = NULL;
 
-Label::Label(Element* AOwner, std::string ACaption, TTF_Font* AFont, FontColor AColor) :
-    Element::Element(AOwner),
+Label::Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor) :
+    Element::Element(Owner),
     Font(AFont),
     Color(AColor)
 {

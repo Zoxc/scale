@@ -27,7 +27,7 @@ class Image:
     public Element
 {
     public:
-        Image(Element* AOwner, char* Path);
+        Image(Element* Owner, char* Path);
         virtual ~Image();
         virtual void OnDraw(SDL_Surface* Surface, int X, int Y);
 
