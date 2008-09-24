@@ -27,6 +27,8 @@
 		<Unit filename="Application.hpp" />
 		<Unit filename="Button.cpp" />
 		<Unit filename="Button.hpp" />
+		<Unit filename="Category.cpp" />
+		<Unit filename="Category.hpp" />
 		<Unit filename="Element.cpp" />
 		<Unit filename="Element.hpp" />
 		<Unit filename="Graphics.cpp" />
