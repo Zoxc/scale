@@ -21,74 +21,49 @@
 
 Category::Category(Element* AOwner) :
     Element::Element(AOwner),
-    Down(false)
+    Hide(0),
+    Show(0)
 {
-    CanFocus = true;
-    CanSelect = true;
+    AutoSelect = false;
 }
 
 Category::~Category()
 {
 }
 
+void Category::OnClick()
+{
+    if(Selected)
+        Owner->Select(0);
+    else
+        Owner->Select(this);
+}
+
 void Category::OnSelect()
 {
     Redraw();
+
+    if(Show != 0)
+        Show->Visible = true;
+
+    if(Hide != 0)
+        Hide->Visible = false;
 }
 
 void Category::OnDeselect()
 {
     Redraw();
-}
 
-void Category::OnMouseEnter()
-{
-    if(Down)
-        Redraw();
-}
+    if(Show != 0)
+        Show->Visible = false;
 
-void Category::OnMouseLeave()
-{
-    if(Down)
-        Redraw();
-}
-
-void Category::OnMouseUp(int X, int Y)
-{
-    if(Down)
-    {
-        Down = false;
-
-        if(Hovered)
-            Redraw();
-    }
-
-}
-
-void Category::OnMouseDown(int X, int Y)
-{
-    if(!Down)
-    {
-        Down = true;
-
-        if(Hovered)
-            Redraw();
-    }
-}
-
-void Category::OnActivate()
-{
-    Redraw();
-}
-
-void Category::OnDeactivate()
-{
-    Redraw();
+    if(Hide != 0)
+        Hide->Visible = true;
 }
 
 void Category::OnDraw(SDL_Surface* Surface, int X, int Y)
 {
-    if(!Focused && !Selected)
+    if(!Selected)
         return;
 
     SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
@@ -96,12 +71,8 @@ void Category::OnDraw(SDL_Surface* Surface, int X, int Y)
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
 
 
-    if(Selected && Focused)
-        SDL_SetAlpha(Fill, SDL_SRCALPHA, 150);
-    else if(Selected)
-        SDL_SetAlpha(Fill, SDL_SRCALPHA, 110);
-    else if(Focused)
-        SDL_SetAlpha(Fill, SDL_SRCALPHA, 80);
+    if(Selected)
+        SDL_SetAlpha(Fill, SDL_SRCALPHA, 128);
 
     Graphics::ApplySurface(X, Y, Fill, Surface);
 

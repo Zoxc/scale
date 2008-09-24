@@ -22,8 +22,8 @@
 
 class Element;
 
-typedef void (*ElementRedraw)(Element* Owner);
-typedef void (*ElementNotify)(Element* Owner);
+typedef void (*ElementNotifyEvent)(Element* Owner);
+typedef void (*ElementKeyEvent)(Element* Owner, SDLKey Key, bool* Ignore);
 
 enum ElementLink
 {
@@ -36,6 +36,7 @@ class Element
         Element(Element* AOwner);
         virtual ~Element();
 
+        virtual void OnKeyDown(SDLKey Key);
         virtual void OnClick();
         virtual void OnMouseEnter();
         virtual void OnMouseLeave();
@@ -47,19 +48,15 @@ class Element
         virtual void OnDeselect();
         virtual void OnDraw(SDL_Surface* Surface, int X, int Y);
 
-        ElementNotify EventClick;
+        ElementNotifyEvent EventClick;
+        ElementKeyEvent EventKeyDown;
 
         int Left;
         int Top;
         int Width;
         int Height;
 
-        bool CanSelect;
-        bool CanFocus;
-        bool Focused;
-        bool Selected;
-        bool Visible;
-        bool Hovered;
+        void* Tag;
 
         Element* Links[sizeof(ElementLink)];
         Element* Owner;
@@ -68,10 +65,19 @@ class Element
 
         std::vector<Element*> Children;
 
+        bool AutoSelect;
+        bool CanFocus;
+        bool Focused;
+        bool Selected;
+        bool Visible;
+        bool Hovered;
+
+        void Select(Element* NewSelection);
         void Redraw();
         void Draw(SDL_Surface* Surface, int X, int Y);
         bool InElement(int X, int Y);
-        void Click();
+        virtual void Click();
+        void KeyDown(SDLKey Key);
         void MouseDown(int X, int Y, Element** Focused);
         void MouseUp(int X, int Y);
         void MouseMove(int X, int Y);

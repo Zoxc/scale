@@ -30,10 +30,10 @@ class Application:
         Application();
         virtual ~Application();
         virtual bool Initialize();
-        virtual void Draw(SDL_Surface* Surface, int X, int Y);
+
         void Focus(Element* NewFocus);
-        void QueryRedraw(Element* Owner);
         void Run();
+        void Draw(SDL_Surface* Surface, int X, int Y);
 
         Element* Focused;
         std::string Title;
