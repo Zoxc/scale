@@ -55,5 +55,5 @@ class PowerButton:
         Label* PowerLabel;
         Image* PowerIcon;
 
-        void OnClick();
+        void Click();
 };

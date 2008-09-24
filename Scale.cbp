@@ -38,6 +38,7 @@
 		<Unit filename="Label.cpp" />
 		<Unit filename="Label.hpp" />
 		<Unit filename="Main.cpp" />
+		<Unit filename="Main.hpp" />
 		<Unit filename="Solid.cpp" />
 		<Unit filename="Solid.hpp" />
 		<Extensions>

@@ -29,11 +29,13 @@ class Application:
     public:
         Application();
         virtual ~Application();
-        virtual bool Initialize();
 
+        void Allocate();
+        void Deallocate();
         void Focus(Element* NewFocus);
         void Run();
-        void Draw(SDL_Surface* Surface, int X, int Y);
+
+        void _Draw(SDL_Surface* Surface, int X, int Y);
 
         Element* Focused;
         std::string Title;

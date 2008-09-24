@@ -27,8 +27,10 @@ Solid::~Solid()
 {
 }
 
-void Solid::OnDraw(SDL_Surface* Surface, int X, int Y)
+void Solid::Draw(SDL_Surface* Surface, int X, int Y)
 {
+    Element::Draw(Surface, X, Y);
+
     SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0,0));

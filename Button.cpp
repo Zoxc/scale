@@ -51,20 +51,26 @@ Button::~Button()
     }
 }
 
-void Button::OnMouseEnter()
+void Button::MouseEnter()
 {
-    //if(Down)
+    Element::MouseEnter();
+
+    if(Down)
         Redraw();
 }
 
-void Button::OnMouseLeave()
+void Button::MouseLeave()
 {
-    //if(Down)
+    Element::MouseLeave();
+
+    if(Down)
         Redraw();
 }
 
-void Button::OnMouseUp(int X, int Y)
+void Button::MouseUp(int X, int Y)
 {
+    Element::MouseUp(X, Y);
+
     if(Down)
     {
         Down = false;
@@ -75,8 +81,10 @@ void Button::OnMouseUp(int X, int Y)
 
 }
 
-void Button::OnMouseDown(int X, int Y)
+void Button::MouseDown(int X, int Y, Element** NewFocus)
 {
+    Element::MouseDown(X, Y, NewFocus);
+
     if(!Down)
     {
         Down = true;
@@ -86,18 +94,24 @@ void Button::OnMouseDown(int X, int Y)
     }
 }
 
-void Button::OnActivate()
+void Button::Activate()
 {
+    Element::Activate();
+
     Redraw();
 }
 
-void Button::OnDeactivate()
+void Button::Deactivate()
 {
+    Element::Deactivate();
+
     Redraw();
 }
 
-void Button::OnDraw(SDL_Surface* Surface, int X, int Y)
+void Button::Draw(SDL_Surface* Surface, int X, int Y)
 {
+    Element::Draw(Surface, X, Y);
+
     if(!Focused)
         return;
 

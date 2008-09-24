@@ -35,29 +35,35 @@ Application::Application() : Element::Element(0)
 
 Application::~Application()
 {
-    SDL_Quit();
+
 }
 
-void Application::Draw(SDL_Surface* Surface, int X, int Y)
-{
-    for(size_t i = 0; i < Children.size(); i++ )
-        Children[i]->Draw(Surface, 0, 0);
-
-    SDL_Flip(Screen);
-}
-
-bool Application::Initialize()
+void Application::Allocate()
 {
     Screen = SDL_SetVideoMode(Width, Height, 32, 0);
 
     if(Screen == NULL)
     {
-        return false;
+        Terminated = true;
+        return;
     }
 
     SDL_WM_SetCaption(Title.c_str(), NULL);
 
-    return true;
+    Element::Allocate();
+}
+
+void Application::Deallocate()
+{
+    SDL_Quit();
+}
+
+void Application::_Draw(SDL_Surface* Surface, int X, int Y)
+{
+    for(size_t i = 0; i < Children.size(); i++ )
+        Children[i]->_Draw(Surface, 0, 0);
+
+    SDL_Flip(Screen);
 }
 
 void Application::RedrawElement(Element* Owner)
@@ -74,13 +80,9 @@ void Application::Focus(Element* NewFocus)
         return;
 
     if(Application::Focused != 0)
-    {
-        Application::Focused->Focused = false;
-        Application::Focused->OnDeactivate();
-    }
+        Application::Focused->Deactivate();
 
-    NewFocus->Focused = true;
-    NewFocus->OnActivate();
+    NewFocus->Activate();
 
     Application::Focused = NewFocus;
 }
@@ -95,16 +97,10 @@ void Application::MouseDown(int X, int Y)
     if(NewFocus != 0 && NewFocus != Application::Focused)
     {
         if(Application::Focused != 0)
-        {
-            Application::Focused->Focused = false;
-            Application::Focused->OnDeactivate();
-        }
+            Application::Focused->Deactivate();
 
         if(NewFocus != 0)
-        {
-            NewFocus->Focused = true;
-            NewFocus->OnActivate();
-        }
+            NewFocus->Activate();
 
         Application::Focused = NewFocus;
     }
@@ -112,14 +108,16 @@ void Application::MouseDown(int X, int Y)
 
 void Application::Run()
 {
-    if(!Initialize())
+    Terminated = false;
+
+    Allocate();
+
+    if(Terminated)
         return;
 
     SDL_Event event;
 
-    Terminated = false;
-
-    Draw(Screen, 0, 0);
+    _Draw(Screen, 0, 0);
 
     while(Terminated == false)
     {
@@ -173,7 +171,7 @@ void Application::Run()
 
                 case SDL_MOUSEMOTION:
                     for(size_t i = 0; i < Children.size(); i++ )
-                        Children[i]->MouseMove(event.motion.x, event.motion.y);
+                        Children[i]->_MouseMove(event.motion.x, event.motion.y);
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
@@ -191,10 +189,13 @@ void Application::Run()
                 break;
         }
 
+        if(Terminated)
+            break;
+
         if(Redraws.size() > 0)
         {
             Redraws.clear();
-            Draw(Screen, 0, 0);
+            _Draw(Screen, 0, 0);
         }
 
         SDL_WaitEvent(0);

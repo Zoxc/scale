@@ -29,14 +29,13 @@ class Button:
         Button(Element* Owner);
         virtual ~Button();
 
-        void OnDraw(SDL_Surface* Surface, int X, int Y);
-
-        void OnActivate();
-        void OnDeactivate();
-        void OnMouseEnter();
-        void OnMouseLeave();
-        void OnMouseUp(int X, int Y);
-        void OnMouseDown(int X, int Y);
+        void Draw(SDL_Surface* Surface, int X, int Y);
+        void Activate();
+        void Deactivate();
+        void MouseEnter();
+        void MouseLeave();
+        void MouseUp(int X, int Y);
+        void MouseDown(int X, int Y, Element** NewFocus);
 
         bool Down;
         SDL_Surface* ImageSurface;

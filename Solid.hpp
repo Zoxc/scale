@@ -27,7 +27,8 @@ class Solid:
     public:
         Solid(Element* AOwner);
         virtual ~Solid();
-        virtual void OnDraw(SDL_Surface* Surface, int X, int Y);
+
+        void Draw(SDL_Surface* Surface, int X, int Y);
 
         SDL_Surface* ImageSurface;
 };

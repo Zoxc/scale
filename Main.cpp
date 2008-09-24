@@ -42,36 +42,38 @@ PowerButton::~PowerButton()
     delete PowerIcon;
 }
 
-void PowerButton::OnClick()
+void PowerButton::Click()
 {
+    Element::Click();
+
     Menu.Terminated = true;
 }
 
 void KeyDown(Element* Owner, SDLKey Key, bool* Ignore)
 {
-    int Index = -1;
+    intptr_t Index = -1;
 
     if(Tabs->SelectedElement != 0)
-        Index = (int)Tabs->SelectedElement->Tag;
+        Index = (intptr_t)Tabs->SelectedElement->Tag;
 
     switch(Key)
     {
         case SDLK_a:
             if(Index == -1)
-                Tabs->Select(Categories[Categories.size()-1]->button);
+                Tabs->SelectElement(Categories[Categories.size()-1]->button);
             else if(Index == 0)
-                Tabs->Select(0);
+                Tabs->SelectElement(0);
             else
-                Tabs->Select(Categories[Index-1]->button);
+                Tabs->SelectElement(Categories[Index-1]->button);
             break;
 
         case SDLK_d:
             if(Index == -1)
-                Tabs->Select(Categories[0]->button);
+                Tabs->SelectElement(Categories[0]->button);
             else if(Index == int(Categories.size())-1)
-                Tabs->Select(0);
+                Tabs->SelectElement(0);
             else
-                Tabs->Select(Categories[Index+1]->button);
+                Tabs->SelectElement(Categories[Index+1]->button);
             break;
     }
 }
@@ -179,7 +181,7 @@ int main( int argc, char* args[] )
         Categories[i]->button->Top = 0;
         Categories[i]->button->Height = Tabs->Height;
         Categories[i]->button->Width = CategoryWidth;
-        Categories[i]->button->Tag = (void*)(int)i;
+        Categories[i]->button->Tag = (void*)(intptr_t)i;
 
         Categories[i]->button->Show = new Label(&Menu, Categories[i]->Name, FontBig, FontColorWhite);
         Categories[i]->button->Show->Left = 15;

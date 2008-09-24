@@ -29,12 +29,12 @@ class Category:
         Category(Element* AOwner);
         virtual ~Category();
 
-        void OnDraw(SDL_Surface* Surface, int X, int Y);
+        void Draw(SDL_Surface* Surface, int X, int Y);
 
-        void OnClick();
+        void Click();
 
-        void OnSelect();
-        void OnDeselect();
+        void Select();
+        void Deselect();
 
         Element* Hide;
         Element* Show;

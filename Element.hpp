@@ -36,19 +36,21 @@ class Element
         Element(Element* Owner);
         virtual ~Element();
 
-        virtual void OnKeyDown(SDLKey Key);
-        virtual void OnClick();
-        virtual void OnMouseEnter();
-        virtual void OnMouseLeave();
-        virtual void OnMouseUp(int X, int Y);
-        virtual void OnMouseDown(int X, int Y);
-        virtual void OnActivate();
-        virtual void OnDeactivate();
-        virtual void OnSelect();
-        virtual void OnDeselect();
-        virtual void OnShow();
-        virtual void OnHide();
-        virtual void OnDraw(SDL_Surface* Surface, int X, int Y);
+        virtual void Allocate();
+        virtual void Deallocate();
+        virtual void KeyDown(SDLKey Key);
+        virtual void Click();
+        virtual void MouseEnter();
+        virtual void MouseLeave();
+        virtual void MouseUp(int X, int Y);
+        virtual void MouseDown(int X, int Y, Element** NewFocus);
+        virtual void Activate();
+        virtual void Deactivate();
+        virtual void Select();
+        virtual void Deselect();
+        virtual void Show();
+        virtual void Hide();
+        virtual void Draw(SDL_Surface* Surface, int X, int Y);
 
         ElementNotifyEvent EventClick;
         ElementKeyEvent EventKeyDown;
@@ -74,18 +76,14 @@ class Element
         bool Visible;
         bool Hovered;
 
-        void Show();
-        void Hide();
-        void Select(Element* NewSelection);
+        void SelectElement(Element* NewSelection);
         void Redraw();
-        void Draw(SDL_Surface* Surface, int X, int Y);
-        bool InElement(int X, int Y);
-        virtual void Click();
-        void KeyDown(SDLKey Key);
-        void MouseDown(int X, int Y, Element** Focused);
-        void MouseUp(int X, int Y);
-        void MouseMove(int X, int Y);
-        void MouseLeave();
+        bool Inside(int X, int Y);
+
+        // Local, used by Application
+        void _Draw(SDL_Surface* Surface, int X, int Y);
+        void _MouseMove(int X, int Y);
+        void _MouseLeave();
 
     private:
         virtual void RedrawElement(Element* Owner);

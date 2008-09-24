@@ -19,8 +19,6 @@
 #include "Element.hpp"
 
 Element::Element(Element* Owner):
-    EventClick(0),
-    EventKeyDown(0),
     Left(0),
     Top(0),
     Width(0),
@@ -57,55 +55,87 @@ Element::~Element()
     }
 }
 
-void Element::OnKeyDown(SDLKey Key)
+void Element::Allocate()
+{
+    for(size_t i = 0; i < Children.size(); i++ )
+        Children[i]->Allocate();
+}
+
+void Element::Deallocate()
 {
 }
 
-void Element::OnShow()
+void Element::KeyDown(SDLKey Key)
+{
+    if(Key == SDLK_RETURN)
+        Click();
+}
+
+void Element::Show()
+{
+    Visible = true;
+}
+
+void Element::Hide()
+{
+    Visible = false;
+}
+
+void Element::Select()
+{
+    Selected = true;
+}
+
+void Element::Deselect()
+{
+    Selected = false;
+}
+
+void Element::Click()
+{
+    if(AutoSelect)
+        Owner->SelectElement(this);
+}
+
+void Element::Activate()
+{
+    Focused = true;
+}
+
+void Element::Deactivate()
+{
+    Focused = false;
+}
+
+void Element::MouseLeave()
 {
 }
 
-void Element::OnHide()
+void Element::MouseEnter()
 {
 }
 
-void Element::OnSelect()
+void Element::MouseUp(int X, int Y)
 {
+    for(size_t i = 0; i < Children.size(); i++)
+        Children[i]->MouseUp(X - Left, Y - Top);
 }
 
-void Element::OnDeselect()
+void Element::MouseDown(int X, int Y, Element** NewFocus)
 {
+    for(size_t i = 0; i < Children.size(); i++)
+        Children[i]->MouseDown(X - Left, Y - Top, NewFocus);
+
+    if(Hovered)
+    {
+        if(CanFocus)
+            *NewFocus = this;
+
+        Click();
+    }
 }
 
-void Element::OnClick()
-{
-}
-
-void Element::OnActivate()
-{
-}
-
-void Element::OnDeactivate()
-{
-}
-
-void Element::OnMouseLeave()
-{
-}
-
-void Element::OnMouseEnter()
-{
-}
-
-void Element::OnMouseUp(int X, int Y)
-{
-}
-
-void Element::OnMouseDown(int X, int Y)
-{
-}
-
-void Element::OnDraw(SDL_Surface* Surface, int X, int Y)
+void Element::Draw(SDL_Surface* Surface, int X, int Y)
 {
 }
 
@@ -118,91 +148,43 @@ void Element::Redraw()
     Root->RedrawElement(this);
 }
 
-void Element::Show()
-{
-    OnShow();
-
-    Visible = true;
-}
-
-void Element::Hide()
-{
-    OnHide();
-
-    Visible = false;
-}
-
-void Element::KeyDown(SDLKey Key)
-{
-    bool Ignore = false;
-
-    if(EventKeyDown != 0)
-        EventKeyDown(this, Key, &Ignore);
-
-    if(Ignore)
-        return;
-
-    OnKeyDown(Key);
-
-    if(Key == SDLK_RETURN)
-        Click();
-}
-
-void Element::Select(Element* NewSelection)
+void Element::SelectElement(Element* NewSelection)
 {
     if(SelectedElement != 0)
-    {
-        SelectedElement->Selected = false;
-        SelectedElement->OnDeselect();
-    }
+        SelectedElement->Deselect();
 
     SelectedElement = NewSelection;
 
     if(SelectedElement != 0)
-    {
-        SelectedElement->Selected = true;
-        SelectedElement->OnSelect();
-    }
-
+        SelectedElement->Select();
 }
 
-void Element::Click()
-{
-    OnClick();
-
-    if(EventClick != 0)
-        EventClick(this);
-
-    if(AutoSelect)
-        Owner->Select(this);
-}
-
-void Element::MouseLeave()
+void Element::_MouseLeave()
 {
     if(Hovered)
     {
         Hovered = false;
 
-        OnMouseLeave();
+        MouseLeave();
 
         for(size_t i = 0; i < Children.size(); i++)
-            Children[i]->MouseLeave();
+            Children[i]->_MouseLeave();
     }
 }
 
-void Element::MouseMove(int X, int Y)
+void Element::_MouseMove(int X, int Y)
 {
-    bool Status = InElement(X, Y);
+    bool Status = Inside(X, Y);
 
     if(Status)
     {
         for(size_t i = 0; i < Children.size(); i++)
-            Children[i]->MouseMove(X - Left, Y - Top);
+            Children[i]->_MouseMove(X - Left, Y - Top);
     }
     else if(Hovered)
     {
         for(size_t i = 0; i < Children.size(); i++)
-            Children[i]->MouseLeave();
+            Children[i]->_MouseLeave();
     }
 
     if(Status != Hovered)
@@ -210,37 +192,13 @@ void Element::MouseMove(int X, int Y)
         Hovered = Status;
 
         if(Hovered)
-            OnMouseEnter();
+            MouseEnter();
         else
-            OnMouseLeave();
+            MouseLeave();
     }
 }
 
-void Element::MouseUp(int X, int Y)
-{
-    OnMouseUp(X, Y);
-
-    for(size_t i = 0; i < Children.size(); i++)
-        Children[i]->MouseUp(X - Left, Y - Top);
-}
-
-void Element::MouseDown(int X, int Y, Element** Focused)
-{
-    OnMouseDown(X, Y);
-
-    for(size_t i = 0; i < Children.size(); i++)
-        Children[i]->MouseDown(X - Left, Y - Top, Focused);
-
-    if(Hovered)
-    {
-        if(CanFocus)
-            *Focused = this;
-
-        Click();
-    }
-}
-
-bool Element::InElement(int X, int Y)
+bool Element::Inside(int X, int Y)
 {
     if(X < Left)
         return false;
@@ -257,31 +215,16 @@ bool Element::InElement(int X, int Y)
     return true;
 }
 
-void Element::Draw(SDL_Surface* Surface, int X, int Y)
+void Element::_Draw(SDL_Surface* Surface, int X, int Y)
 {
     if(!Visible)
         return;
 
     X += Left;
     Y += Top;
-/*
-    SDL_Rect OldClip;
 
-    SDL_GetClipRect(Surface, &OldClip);
-
-    SDL_Rect Clip;
-
-    Clip.x = Left + OldClip.x;
-    Clip.y = Top + OldClip.y;
-    Clip.w = Width;
-    Clip.h = Height;
-
-    SDL_SetClipRect(Surface, &Clip);
-*/
-    OnDraw(Surface, X, Y);
+    Draw(Surface, X, Y);
 
     for(size_t i = 0; i < Children.size(); i++ )
-        Children[i]->Draw(Surface, X, Y);
-
-//    SDL_SetClipRect(Surface, &OldClip);
+        Children[i]->_Draw(Surface, X, Y);
 }

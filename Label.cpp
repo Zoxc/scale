@@ -43,8 +43,10 @@ Label::~Label()
 
 }
 
-void Label::OnDraw(SDL_Surface* Surface, int X, int Y)
+void Label::Draw(SDL_Surface* Surface, int X, int Y)
 {
+    Element::Draw(Surface, X, Y);
+
     if(Color == FontColorBlack)
     {
         Graphics::RenderTextBlack(Font, (char*)Caption.c_str(), X, Y, Surface);

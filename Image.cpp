@@ -31,7 +31,9 @@ Image::~Image()
     SDL_FreeSurface(ImageSurface);
 }
 
-void Image::OnDraw(SDL_Surface* Surface, int X, int Y)
+void Image::Draw(SDL_Surface* Surface, int X, int Y)
 {
+    Element::Draw(Surface, X, Y);
+
     Graphics::ApplySurface(X, Y, ImageSurface, Surface);
 }

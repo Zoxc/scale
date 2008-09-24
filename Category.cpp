@@ -37,16 +37,18 @@ Category::~Category()
 {
 }
 
-void Category::OnClick()
+void Category::Click()
 {
     if(Selected)
-        Owner->Select(0);
+        Owner->SelectElement(0);
     else
-        Owner->Select(this);
+        Owner->SelectElement(this);
 }
 
-void Category::OnSelect()
+void Category::Select()
 {
+    Element::Select();
+
     Redraw();
 
     if(Show != 0)
@@ -56,8 +58,10 @@ void Category::OnSelect()
         Hide->Hide();
 }
 
-void Category::OnDeselect()
+void Category::Deselect()
 {
+    Element::Deselect();
+
     Redraw();
 
     if(Show != 0)
@@ -67,8 +71,10 @@ void Category::OnDeselect()
         Hide->Show();
 }
 
-void Category::OnDraw(SDL_Surface* Surface, int X, int Y)
+void Category::Draw(SDL_Surface* Surface, int X, int Y)
 {
+    Element::Draw(Surface, X, Y);
+
     if(!Selected)
         return;
 
