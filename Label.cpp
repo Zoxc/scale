@@ -49,36 +49,36 @@ void Label::Allocate()
 
     if(Color == FontColorBlack)
     {
-        Shadow = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), White);
+        SDL_Surface* Shadow = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), White);
 
-        Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), Black);
+        SDL_Surface* Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), Black);
 
         Graphics::HalfAlpha(Shadow);
 
-        //Bitmap = SDL_CreateRGBSurface(SDL_SRCALPHA, Text->w + 10, Text->h + 10, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+        Bitmap = SDL_CreateRGBSurface(SDL_SRCALPHA, Text->w + 10, Text->h + 10, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 
-        //Graphics::ApplyAlphaSurface(0, 1, Shadow, Bitmap);
-        //Graphics::ApplyAlphaSurface(0, 0, Text, Bitmap);
+        Graphics::ApplySurfaceEx(0, 1, Shadow, Bitmap);
+        Graphics::ApplySurfaceEx(0, 0, Text, Bitmap);
 
-        //SDL_FreeSurface(Shadow);
-        //SDL_FreeSurface(Text);
+        SDL_FreeSurface(Shadow);
+        SDL_FreeSurface(Text);
     }
     else
     {
         // Create shadow
-        Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), Black);
-        Shadow = Graphics::BlurAlpha(Text);
+        SDL_Surface* Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), Black);
+        SDL_Surface* Shadow = Graphics::BlurAlpha(Text);
         SDL_FreeSurface(Text);
 
         Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), White);
 
-        //Bitmap = SDL_CreateRGBSurface(SDL_SRCALPHA, Text->w + 40, Text->h + 20, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+        Bitmap = SDL_CreateRGBSurface(SDL_SRCALPHA, Text->w + 40, Text->h + 20, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 
-        //Graphics::ApplyAlphaSurface(0, 0, Shadow, Bitmap);
-        //Graphics::ApplyAlphaSurface(2, 1, Text, Bitmap);
+        Graphics::ApplySurfaceEx(0, 0, Shadow, Bitmap);
+        Graphics::ApplySurfaceEx(2, 1, Text, Bitmap);
 
-        //SDL_FreeSurface(Shadow);
-        //SDL_FreeSurface(Text);
+        SDL_FreeSurface(Shadow);
+        SDL_FreeSurface(Text);
     }
 }
 
@@ -86,9 +86,9 @@ void Label::Deallocate()
 {
     Element::Deallocate();
 
-    SDL_FreeSurface(Text);
-    SDL_FreeSurface(Shadow);
-    //SDL_FreeSurface(Bitmap);
+    //SDL_FreeSurface(Text);
+    //SDL_FreeSurface(Shadow);
+    SDL_FreeSurface(Bitmap);
 }
 
 void Label::Draw(SDL_Surface* Surface, int X, int Y)
@@ -96,13 +96,8 @@ void Label::Draw(SDL_Surface* Surface, int X, int Y)
     Element::Draw(Surface, X, Y);
 
     if(Color == FontColorBlack)
-    {
-        Graphics::ApplySurface(X, Y + 1, Shadow, Surface);
-        Graphics::ApplySurface(X, Y, Text, Surface);
-    }
+        Graphics::ApplySurface(X, Y + 1, Bitmap, Surface);
     else
-    {
-        Graphics::ApplySurface(X - 2, Y - 1, Shadow, Surface);
-        Graphics::ApplySurface(X, Y, Text, Surface);
-    }
+        Graphics::ApplySurface(X - 2, Y - 1, Bitmap, Surface);
+
 }

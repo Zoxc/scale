@@ -162,6 +162,7 @@ void Element::Start()
 {
     if(!Animated)
     {
+        Frame = SDL_GetTicks();
         Animated = true;
         Root->_Start(this);
     }

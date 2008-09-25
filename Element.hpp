@@ -60,6 +60,7 @@ class Element
         int Top;
         int Width;
         int Height;
+        int Frame;
 
         void* Tag;
 

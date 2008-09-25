@@ -16,7 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <math.h>
+
 #include "Graphics.hpp"
+
 
 SDL_Color Black = {0, 0, 0};
 SDL_Color White  = {255, 255, 255};
@@ -41,8 +44,8 @@ SDL_Surface* Graphics::ConvertSurface(SDL_Surface* source)
 
     return result;
 }
-/*
-void Graphics::ApplyAlphaSurface(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
+
+void Graphics::ApplySurfaceEx(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
 {
     SDL_LockSurface(source);
     SDL_LockSurface(dest);
@@ -54,22 +57,43 @@ void Graphics::ApplyAlphaSurface(int tx, int ty, SDL_Surface* source, SDL_Surfac
     {
         Uint32* Dest = (Uint32*)dest->pixels + (y + ty) * dest->w + x + tx;
 
-        unsigned char A = reinterpret_cast<Uint8*>(Pixel)[3];
+        unsigned char As = reinterpret_cast<Uint8*>(Pixel)[3];
 
-        unsigned char R = (A * (reinterpret_cast<Uint8*>(Pixel)[0] - reinterpret_cast<Uint8*>(Dest)[0]) ) / 256 + reinterpret_cast<Uint8*>(Dest)[0];
-        unsigned char G = (A * (reinterpret_cast<Uint8*>(Pixel)[1] - reinterpret_cast<Uint8*>(Dest)[1]) ) / 256 + reinterpret_cast<Uint8*>(Dest)[1];
-        unsigned char B = (A * (reinterpret_cast<Uint8*>(Pixel)[2] - reinterpret_cast<Uint8*>(Dest)[2]) ) / 256 + reinterpret_cast<Uint8*>(Dest)[2];
-
-        reinterpret_cast<Uint8*>(Dest)[0] = R;
-        reinterpret_cast<Uint8*>(Dest)[1] = B;
-        reinterpret_cast<Uint8*>(Dest)[2] = G;
-
-        unsigned short Alpha =  reinterpret_cast<Uint8*>(Pixel)[3] + reinterpret_cast<Uint8*>(Dest)[3];
-
-        if(Alpha > 255)
-            reinterpret_cast<Uint8*>(Dest)[3] = 255;
+        if(As == 255)
+            *Dest = *Pixel;
+        else if(As == 0)
+        {
+            Pixel++;
+            continue;
+        }
         else
-            reinterpret_cast<Uint8*>(Dest)[3] = Alpha;
+        {
+            unsigned char Ad = reinterpret_cast<Uint8*>(Dest)[3];
+
+            unsigned short Rs = reinterpret_cast<Uint8*>(Pixel)[0] * As;
+            unsigned short Gs = reinterpret_cast<Uint8*>(Pixel)[1] * As;
+            unsigned short Bs = reinterpret_cast<Uint8*>(Pixel)[2] * As;
+
+            unsigned short Rd = reinterpret_cast<Uint8*>(Dest)[0] * Ad;
+            unsigned short Gd = reinterpret_cast<Uint8*>(Dest)[1] * Ad;
+            unsigned short Bd = reinterpret_cast<Uint8*>(Dest)[2] * Ad;
+
+            int A = As + Ad - ((Ad * As) / 255);
+
+            Rs = Rs + Rd - ((Rd * As) / 255);
+            Rs /= A;
+
+            Gs = Gs + Gd - ((Gd * As) / 255);
+            Gs /= A;
+
+            Bs = Bs + Bd - ((Bd * As) / 255);
+            Bs /= A;
+
+            reinterpret_cast<Uint8*>(Dest)[0] = Rs;
+            reinterpret_cast<Uint8*>(Dest)[1] = Gs;
+            reinterpret_cast<Uint8*>(Dest)[2] = Bs;
+            reinterpret_cast<Uint8*>(Dest)[3] = A;
+        }
 
         Pixel++;
     }
@@ -77,7 +101,7 @@ void Graphics::ApplyAlphaSurface(int tx, int ty, SDL_Surface* source, SDL_Surfac
     SDL_UnlockSurface(dest);
     SDL_UnlockSurface(source);
 }
-*/
+
 void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
 {
     SDL_LockSurface(source);

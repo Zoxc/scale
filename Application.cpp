@@ -91,12 +91,14 @@ void Application::Focus(Element* NewFocus)
     if(Application::Focused == NewFocus)
         return;
 
-    if(Application::Focused != 0)
-        Application::Focused->Deactivate();
-
-    NewFocus->Activate();
+    Element* OldFocus = Application::Focused;
 
     Application::Focused = NewFocus;
+
+    if(OldFocus != 0)
+        OldFocus->Deactivate();
+
+    NewFocus->Activate();
 }
 
 void Application::MouseDown(int X, int Y)
@@ -108,13 +110,15 @@ void Application::MouseDown(int X, int Y)
 
     if(NewFocus != 0 && NewFocus != Application::Focused)
     {
-        if(Application::Focused != 0)
-            Application::Focused->Deactivate();
+        Element* OldFocus = Application::Focused;
+
+        Application::Focused = NewFocus;
+
+        if(OldFocus != 0)
+            OldFocus->Deactivate();
 
         if(NewFocus != 0)
             NewFocus->Activate();
-
-        Application::Focused = NewFocus;
     }
 }
 
@@ -129,12 +133,28 @@ void Application::Run()
 
     SDL_Event event;
 
-    _Draw(Screen, 0, 0);
-
-    int LastFrame = SDL_GetTicks();
+    Redraws.push_back(this);
 
     while(Terminated == false)
     {
+        for (std::list<Element*>::iterator Animation = Animations.begin(); Animation != Animations.end(); Animation++)
+        {
+            int Delta = SDL_GetTicks() - (*Animation)->Frame;
+
+            (*Animation)->Frame = SDL_GetTicks();
+
+            (*Animation)->Animate(Delta);
+        }
+
+        if(Redraws.size() > 0)
+        {
+            Redraws.clear();
+            _Draw(Screen, 0, 0);
+        }
+
+        if(Animations.size() == 0)
+            SDL_WaitEvent(0);
+
         while(SDL_PollEvent(&event))
         {
             switch(event.type)
@@ -156,7 +176,7 @@ void Application::Run()
 
                         if(!Ignore)
                         {
-                            switch(event.key.keysym.sym)
+                            switch((int)event.key.keysym.sym)
                             {
                                 case SDLK_RETURN:
                                     if(Application::Focused != 0)
@@ -201,24 +221,6 @@ void Application::Run()
             if(Terminated)
                 goto End;
         }
-
-        int Delta = SDL_GetTicks() - LastFrame;
-
-        LastFrame = SDL_GetTicks();
-
-        for (std::list<Element*>::iterator Animation = Animations.begin(); Animation != Animations.end(); Animation++)
-            (*Animation)->Animate(Delta);
-
-        if(Redraws.size() > 0)
-        {
-            Redraws.clear();
-            _Draw(Screen, 0, 0);
-        }
-
-        if(Animations.size() == 0)
-            SDL_WaitEvent(0);
-
-        SDL_Delay(1);
     }
 
     End:

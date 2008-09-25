@@ -56,7 +56,7 @@ void KeyDown(Element* Owner, SDLKey Key, bool* Ignore)
     if(Tabs->SelectedElement != 0)
         Index = (intptr_t)Tabs->SelectedElement->Tag;
 
-    switch(Key)
+    switch((int)Key)
     {
         case SDLK_a:
             if(Index == -1)

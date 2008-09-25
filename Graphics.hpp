@@ -27,7 +27,7 @@ namespace Graphics
 {
     SDL_Surface* ConvertSurface(SDL_Surface* source);
     void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
-    //void ApplyAlphaSurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
+    void ApplySurfaceEx(int x, int y, SDL_Surface* source, SDL_Surface* destination);
     SDL_Surface* BlurAlpha(SDL_Surface* source);
     void HalfAlpha(SDL_Surface* surface);
     void ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest);
