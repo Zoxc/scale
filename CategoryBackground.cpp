@@ -16,113 +16,112 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Category.hpp"
+#include "CategoryBackground.hpp"
 #include "Graphics.hpp"
 #include "Button.hpp"
-#include "Main.hpp"
 
 extern SDL_Surface* BorderBL;
 extern SDL_Surface* BorderBR;
 extern SDL_Surface* BorderTL;
 extern SDL_Surface* BorderTR;
 
-Category::Category(Element* AOwner) :
+CategoryBackground::CategoryBackground(Element* AOwner) :
     Element::Element(AOwner),
     Alpha(0),
-    TargetAlpha(0),
-    Hide(0),
-    Show(0)
-{
-    AutoSelect = false;
-}
-
-Category::~Category()
+    DrawHeight(0)
 {
 }
 
-void Category::Click()
+CategoryBackground::~CategoryBackground()
 {
-    if(Selected)
-        Owner->SelectElement(0);
-    else
-        Owner->SelectElement(this);
 }
 
-void Category::Select()
+void CategoryBackground::Up()
 {
-    Element::Select();
-
-    TargetAlpha = 150;
+    TargetAlpha = 80;
+    TargetHeight = Height;
 
     Start();
 
     Redraw();
-
-    if(Show != 0)
-        Show->Show();
-
-    if(Hide != 0)
-        Hide->Hide();
-
-    Background->Up();
 }
 
-void Category::Deselect()
+void CategoryBackground::Down()
 {
     Element::Deselect();
 
     TargetAlpha = 0;
+    TargetHeight = 0;
 
     Start();
-
-    if(Show != 0)
-        Show->Hide();
-
-    if(Hide != 0)
-        Hide->Show();
-
-    Background->Down();
 }
 
-void Category::Animate(int Delta)
+void CategoryBackground::Animate(int Delta)
 {
-   if(TargetAlpha != Alpha)
+   if(TargetHeight != DrawHeight)
    {
-        if(TargetAlpha > Alpha)
+        if(TargetHeight > DrawHeight)
         {
-            Alpha += Delta;
+            DrawHeight += Delta * 3;
 
-            if(Alpha > TargetAlpha)
+            if(DrawHeight > TargetHeight)
             {
-                Alpha = TargetAlpha;
-                Stop();
+                DrawHeight = TargetHeight;
             }
         }
         else
         {
-            Alpha -= Delta;
+            DrawHeight -= Delta * 3;
 
-            if(Alpha < TargetAlpha)
+            if(DrawHeight < TargetHeight)
             {
-                Alpha = TargetAlpha;
-                Stop();
+                DrawHeight = TargetHeight;
             }
         }
         Redraw();
    }
+
+   if(TargetAlpha != Alpha)
+   {
+        if(TargetAlpha > Alpha)
+        {
+            Alpha += Delta / 2;
+
+            if(Alpha > TargetAlpha)
+            {
+                Alpha = TargetAlpha;
+            }
+        }
+        else
+        {
+            Alpha -= Delta / 2;
+
+            if(Alpha < TargetAlpha)
+            {
+                Alpha = TargetAlpha;
+            }
+        }
+        Redraw();
+   }
+
+   if(TargetAlpha == Alpha && TargetHeight == DrawHeight)
+        Stop();
 }
 
-void Category::Draw(SDL_Surface* Surface, int X, int Y)
+void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y)
 {
     Element::Draw(Surface, X, Y);
 
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+    if(Alpha == 0)
+        return;
 
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
+    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, DrawHeight, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
 
     SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
 
-    Graphics::ApplySurface(X, Y, Fill, Surface);
+    Graphics::ApplySurface(X, Y + Height - DrawHeight, Fill, Surface);
 
     SDL_FreeSurface(Fill);
 }

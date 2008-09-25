@@ -80,7 +80,7 @@ void Application::_Start(Element* Owner)
 
 void Application::_Stop(Element* Owner)
 {
-    //Animations.remove(Owner);
+    Animations.remove(Owner);
 }
 
 void Application::Focus(Element* NewFocus)
@@ -221,6 +221,8 @@ void Application::Run()
             if(Terminated)
                 goto End;
         }
+
+        SDL_Delay(1);
     }
 
     End:

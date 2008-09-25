@@ -22,6 +22,7 @@ std::vector<AppInfo*> Running;
 std::vector<CatInfo*> Categories;
 
 Application Menu;
+CategoryBackground* Background;
 Solid* Tabs;
 Element* TaskList;
 
@@ -115,7 +116,7 @@ int main( int argc, char* args[] )
     Cat->IconPath = "other.png";
     Categories.push_back(Cat);
 
-    Image Background(&Menu, "back.png");
+    Image Wallpaper(&Menu, "back.png");
 
     TaskList = new Element(&Menu);
     TaskList->Width = Menu.Width;
@@ -170,6 +171,12 @@ int main( int argc, char* args[] )
     Tabs->Height = 66;
     Tabs->Top = 480 - Tabs->Height;
     Tabs->Width = 800;
+
+    Background = new CategoryBackground(&Menu);
+    Background->Left = 0;
+    Background->Height = 480 - Tabs->Height;
+    Background->Top = 0;
+    Background->Width = 800;
 
     const int CategorySpacing = 8;
     int CategoryWidth = 800 / Categories.size();

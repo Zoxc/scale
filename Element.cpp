@@ -160,9 +160,9 @@ void Element::_Stop(Element* Owner)
 
 void Element::Start()
 {
+    Frame = SDL_GetTicks();
     if(!Animated)
     {
-        Frame = SDL_GetTicks();
         Animated = true;
         Root->_Start(this);
     }
