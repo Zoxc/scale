@@ -173,9 +173,6 @@ int main( int argc, char* args[] )
     Tabs->Width = 800;
 
     Background = new CategoryBackground(&Menu);
-    Background->Left = 0;
-    Background->Height = 480 - Tabs->Height;
-    Background->Top = 0;
     Background->Width = 800;
 
     const int CategorySpacing = 8;
@@ -190,11 +187,14 @@ int main( int argc, char* args[] )
         Categories[i]->button->Width = CategoryWidth;
         Categories[i]->button->Tag = (void*)(intptr_t)i;
 
-        Categories[i]->button->Show = new Label(&Menu, Categories[i]->Name, FontBig, FontColorWhite);
-        Categories[i]->button->Show->Left = 15;
-        Categories[i]->button->Show->Top = 15;
-        Categories[i]->button->Show->Hide();
-        Categories[i]->button->Hide = TaskList;
+        Categories[i]->button->Show = new CategoryBackground(&Menu);
+        Categories[i]->button->Show->Width = 800;
+
+        Label* CategoryLabel= new Label(Categories[i]->button->Show, Categories[i]->Name, FontBig, FontColorWhite);
+        CategoryLabel->Left = 15;
+        CategoryLabel->Top = 15;
+
+        //Categories[i]->button->Hide = TaskList;
 
         Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, FontBig, FontColorWhite);
         CatLabel->Top = Tabs->Height / 2 - CatLabel->Height / 2;

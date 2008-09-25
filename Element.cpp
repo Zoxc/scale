@@ -257,8 +257,31 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y)
     X += Left;
     Y += Top;
 
+    SDL_Rect OldClip;
+
+    SDL_GetClipRect(Surface, &OldClip);
+
+    SDL_Rect Clip;
+
+    Clip.x = Left + OldClip.x;
+    Clip.y = Top + OldClip.y;
+
+    if(Owner->Width - Left < 0)
+        Clip.w = 0;
+    else
+        Clip.w = Owner->Width - Left;
+
+    if(Owner->Height - Top < 0)
+        Clip.h = 0;
+    else
+        Clip.h = Owner->Height - Top;
+
+    SDL_SetClipRect(Surface, &Clip);
+
     Draw(Surface, X, Y);
 
     for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
         (*Child)->_Draw(Surface, X, Y);
+
+    SDL_SetClipRect(Surface, &OldClip);
 }

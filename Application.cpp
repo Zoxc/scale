@@ -23,7 +23,7 @@
 Application::Application() : Element::Element(0)
 {
     SDL_Init(SDL_INIT_EVERYTHING);
-   // SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
 
     TTF_Init();
 
@@ -80,7 +80,7 @@ void Application::_Start(Element* Owner)
 
 void Application::_Stop(Element* Owner)
 {
-    Animations.remove(Owner);
+    //Animations.remove(Owner);
 }
 
 void Application::Focus(Element* NewFocus)

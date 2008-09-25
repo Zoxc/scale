@@ -58,13 +58,10 @@ void Category::Select()
 
     Redraw();
 
-    if(Show != 0)
-        Show->Show();
+    Show->Up();
 
     if(Hide != 0)
         Hide->Hide();
-
-    Background->Up();
 }
 
 void Category::Deselect()
@@ -75,13 +72,10 @@ void Category::Deselect()
 
     Start();
 
-    if(Show != 0)
-        Show->Hide();
+    Show->Down();
 
     if(Hide != 0)
         Hide->Show();
-
-    Background->Down();
 }
 
 void Category::Animate(int Delta)

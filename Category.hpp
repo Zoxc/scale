@@ -21,6 +21,7 @@
 #include "SDL_image.h"
 
 #include "Element.hpp"
+#include "CategoryBackground.hpp"
 
 class Category:
     public Element
@@ -39,7 +40,7 @@ class Category:
         int TargetAlpha;
 
         Element* Hide;
-        Element* Show;
+        CategoryBackground* Show;
 
         SDL_Surface* ImageSurface;
 };

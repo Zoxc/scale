@@ -27,8 +27,7 @@ extern SDL_Surface* BorderTR;
 
 CategoryBackground::CategoryBackground(Element* AOwner) :
     Element::Element(AOwner),
-    Alpha(0),
-    DrawHeight(0)
+    Alpha(0)
 {
 }
 
@@ -39,7 +38,7 @@ CategoryBackground::~CategoryBackground()
 void CategoryBackground::Up()
 {
     TargetAlpha = 80;
-    TargetHeight = Height;
+    TargetHeight = 480 - 66;
 
     Start();
 
@@ -58,24 +57,24 @@ void CategoryBackground::Down()
 
 void CategoryBackground::Animate(int Delta)
 {
-   if(TargetHeight != DrawHeight)
+   if(TargetHeight != Height)
    {
-        if(TargetHeight > DrawHeight)
+        if(TargetHeight > Height)
         {
-            DrawHeight += Delta * 3;
+            Height += Delta * 3;
 
-            if(DrawHeight > TargetHeight)
+            if(Height > TargetHeight)
             {
-                DrawHeight = TargetHeight;
+                Height = TargetHeight;
             }
         }
         else
         {
-            DrawHeight -= Delta * 3;
+            Height -= Delta * 3;
 
-            if(DrawHeight < TargetHeight)
+            if(Height < TargetHeight)
             {
-                DrawHeight = TargetHeight;
+                Height = TargetHeight;
             }
         }
         Redraw();
@@ -104,7 +103,9 @@ void CategoryBackground::Animate(int Delta)
         Redraw();
    }
 
-   if(TargetAlpha == Alpha && TargetHeight == DrawHeight)
+   Top = (480 - 66) - Height;
+
+   if(TargetAlpha == Alpha && TargetHeight == Height)
         Stop();
 }
 
@@ -115,13 +116,13 @@ void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y)
     if(Alpha == 0)
         return;
 
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, DrawHeight, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
 
     SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
 
-    Graphics::ApplySurface(X, Y + Height - DrawHeight, Fill, Surface);
+    Graphics::ApplySurface(X, Y, Fill, Surface);
 
     SDL_FreeSurface(Fill);
 }

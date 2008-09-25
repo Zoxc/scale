@@ -36,7 +36,6 @@ class CategoryBackground:
 
         int Alpha;
         int TargetAlpha;
-        int DrawHeight;
         int TargetHeight;
 
         SDL_Surface* ImageSurface;

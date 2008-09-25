@@ -38,6 +38,8 @@ Image::~Image()
 void Image::Allocate()
 {
     ImageSurface = IMG_Load(Filename.c_str());
+    //ImageSurface = SDL_DisplayFormat(Image);
+    //SDL_FreeSurface(Image);
 }
 
 void Image::Deallocate()
