@@ -206,6 +206,9 @@ int main( int argc, char* args[] )
         CatLabel->Left = CatIcon->Left + CategorySpacing + CatIcon->Width;
     }
 
+    Menu.Children.remove(Tabs);
+    Menu.Children.push_back(Tabs);
+
     // Add Links
     for(size_t i = 0; i < Running.size(); i++)
     {

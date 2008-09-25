@@ -19,6 +19,7 @@
 #pragma once
 #include "SDL.h"
 #include "SDL_image.h"
+#include <math.h>
 
 #include "Element.hpp"
 
@@ -36,6 +37,7 @@ class CategoryBackground:
 
         int Alpha;
         int TargetAlpha;
+        int CurrentHeight;
         int TargetHeight;
 
         SDL_Surface* ImageSurface;

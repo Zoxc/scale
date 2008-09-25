@@ -29,6 +29,7 @@ CategoryBackground::CategoryBackground(Element* AOwner) :
     Element::Element(AOwner),
     Alpha(0)
 {
+    CurrentHeight = 0;
 }
 
 CategoryBackground::~CategoryBackground()
@@ -37,8 +38,8 @@ CategoryBackground::~CategoryBackground()
 
 void CategoryBackground::Up()
 {
-    TargetAlpha = 80;
-    TargetHeight = 480 - 66;
+    TargetAlpha = 150;
+    TargetHeight = 480;
 
     Start();
 
@@ -57,24 +58,24 @@ void CategoryBackground::Down()
 
 void CategoryBackground::Animate(int Delta)
 {
-   if(TargetHeight != Height)
+   if(TargetHeight != CurrentHeight)
    {
-        if(TargetHeight > Height)
+        if(TargetHeight > CurrentHeight)
         {
-            Height += Delta * 3;
+            CurrentHeight += Delta;
 
-            if(Height > TargetHeight)
+            if(CurrentHeight > TargetHeight)
             {
-                Height = TargetHeight;
+                CurrentHeight = TargetHeight;
             }
         }
         else
         {
-            Height -= Delta * 3;
+            CurrentHeight -= Delta;
 
-            if(Height < TargetHeight)
+            if(CurrentHeight < TargetHeight)
             {
-                Height = TargetHeight;
+                CurrentHeight = TargetHeight;
             }
         }
         Redraw();
@@ -103,9 +104,11 @@ void CategoryBackground::Animate(int Delta)
         Redraw();
    }
 
-   Top = (480 - 66) - Height;
+   Height = (int)floor(sin(((float)CurrentHeight / 480) * M_PI_2) * 480);
 
-   if(TargetAlpha == Alpha && TargetHeight == Height)
+   Top = 480 - Height;
+
+   if(TargetAlpha == Alpha && TargetHeight == CurrentHeight)
         Stop();
 }
 
@@ -118,7 +121,7 @@ void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y)
 
     SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
 
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
 
     SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
 
