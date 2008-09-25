@@ -172,9 +172,6 @@ int main( int argc, char* args[] )
     Tabs->Top = 480 - Tabs->Height;
     Tabs->Width = 800;
 
-    Background = new CategoryBackground(&Menu);
-    Background->Width = 800;
-
     const int CategorySpacing = 8;
     int CategoryWidth = 800 / Categories.size();
 
@@ -189,10 +186,15 @@ int main( int argc, char* args[] )
 
         Categories[i]->button->Show = new CategoryBackground(&Menu);
         Categories[i]->button->Show->Width = 800;
+        Categories[i]->button->Show->Hide();
 
-        Label* CategoryLabel= new Label(Categories[i]->button->Show, Categories[i]->Name, FontBig, FontColorWhite);
-        CategoryLabel->Left = 15;
-        CategoryLabel->Top = 15;
+        Image* CategoryImage = new Image(Categories[i]->button->Show, Categories[i]->IconPath);
+        CategoryImage->Left = 15;
+        CategoryImage->Top = 6;
+
+        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, FontBig, FontColorWhite);
+        CategoryLabel->Left = CategoryImage->Left + CategorySpacing + CategoryImage->Width;
+        CategoryLabel->Top = 21;
 
         //Categories[i]->button->Hide = TaskList;
 

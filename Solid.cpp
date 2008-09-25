@@ -19,7 +19,11 @@
 #include "Solid.hpp"
 #include "Graphics.hpp"
 
-Solid::Solid(Element* AOwner) : Element::Element(AOwner)
+Solid::Solid(Element* AOwner) :
+    Element::Element(AOwner),
+    R(0),
+    G(0),
+    B(0)
 {
 }
 
@@ -27,17 +31,25 @@ Solid::~Solid()
 {
 }
 
-void Solid::Draw(SDL_Surface* Surface, int X, int Y)
+void Solid::Allocate()
 {
-    Element::Draw(Surface, X, Y);
+    Element::Allocate();
 
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+    Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0,0));
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, R, G, B));
 
     Graphics::HalfAlpha(Fill);
+}
 
-    Graphics::ApplySurface(X, Y, Fill, Surface);
+void Solid::Deallocate()
+{
+    Element::Deallocate();
 
     SDL_FreeSurface(Fill);
+}
+
+void Solid::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+{
+    Graphics::ApplySurface(X, Y, Fill, Surface);
 }

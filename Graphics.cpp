@@ -102,7 +102,54 @@ void Graphics::ApplySurfaceEx(int tx, int ty, SDL_Surface* source, SDL_Surface* 
     SDL_UnlockSurface(source);
 }
 
-void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
+void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest, unsigned char Alpha)
+{
+    if(Alpha == 255)
+    {
+        ApplySurface(tx, ty, source, dest);
+        return;
+    }
+    else if(Alpha == 0)
+        return;
+
+    if(source->format->BitsPerPixel != 32 || dest->format->BitsPerPixel != 32)
+    {
+        ApplySurface(tx, ty, source, dest);
+
+        return;
+    }
+
+    SDL_LockSurface(source);
+    SDL_LockSurface(dest);
+
+    Uint32* Pixel = (Uint32*)source->pixels;
+
+    for(int y = 0; y < source->h; y++)
+    for(int x = 0; x < source->w; x++)
+    {
+        if(y + ty >= dest->h)
+            continue;
+
+        if(x + tx >= dest->w)
+            continue;
+
+        Uint32* Dest = (Uint32*)dest->pixels + (y + ty) * dest->w + x + tx;
+
+        unsigned char AlphaBlend = reinterpret_cast<Uint8*>(Pixel)[3];
+        AlphaBlend = (unsigned short)AlphaBlend * Alpha / 256;
+
+        reinterpret_cast<Uint8*>(Dest)[0] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[2] - reinterpret_cast<Uint8*>(Dest)[0])) / 256 + reinterpret_cast<Uint8*>(Dest)[0];
+        reinterpret_cast<Uint8*>(Dest)[1] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[1] - reinterpret_cast<Uint8*>(Dest)[1])) / 256 + reinterpret_cast<Uint8*>(Dest)[1];
+        reinterpret_cast<Uint8*>(Dest)[2] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[0] - reinterpret_cast<Uint8*>(Dest)[2])) / 256 + reinterpret_cast<Uint8*>(Dest)[2];
+
+        Pixel++;
+    }
+
+    SDL_UnlockSurface(dest);
+    SDL_UnlockSurface(source);
+}
+
+void Graphics::CopyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
 {
     SDL_LockSurface(source);
     SDL_LockSurface(dest);

@@ -51,7 +51,7 @@ class Element
         virtual void Deselect();
         virtual void Show();
         virtual void Hide();
-        virtual void Draw(SDL_Surface* Surface, int X, int Y);
+        virtual void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
 
         ElementNotifyEvent EventClick;
         ElementKeyEvent EventKeyDown;
@@ -71,6 +71,9 @@ class Element
 
         std::list<Element*> Children;
 
+        unsigned char AlphaBlend;
+
+        bool Clip;
         bool Animated;
         bool AutoSelect;
         bool CanFocus;
@@ -87,7 +90,7 @@ class Element
         void Stop();
 
         // Local, used by Application
-        void _Draw(SDL_Surface* Surface, int X, int Y);
+        void _Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
         void _MouseMove(int X, int Y);
         void _MouseLeave();
 

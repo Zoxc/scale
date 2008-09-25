@@ -30,15 +30,15 @@ class CategoryBackground:
         CategoryBackground(Element* AOwner);
         virtual ~CategoryBackground();
 
+        void Allocate();
+        void Deallocate();
         void Up();
         void Down();
-        void Draw(SDL_Surface* Surface, int X, int Y);
+        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
         void Animate(int Delta);
 
-        int Alpha;
-        int TargetAlpha;
-        int CurrentHeight;
-        int TargetHeight;
+        bool Upping;
+        int Step;
 
-        SDL_Surface* ImageSurface;
+        SDL_Surface* Fill;
 };

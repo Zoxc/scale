@@ -42,7 +42,7 @@ class Label:
 
         void Allocate();
         void Deallocate();
-        void Draw(SDL_Surface* Surface, int X, int Y);
+        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
 
         TTF_Font* Font;
         FontColor Color;

@@ -34,7 +34,7 @@ class Image:
 
         void Allocate();
         void Deallocate();
-        void Draw(SDL_Surface* Surface, int X, int Y);
+        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
 
         SDL_Surface* ImageSurface;
 };

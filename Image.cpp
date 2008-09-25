@@ -49,9 +49,7 @@ void Image::Deallocate()
     SDL_FreeSurface(ImageSurface);
 }
 
-void Image::Draw(SDL_Surface* Surface, int X, int Y)
+void Image::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    Element::Draw(Surface, X, Y);
-
-    Graphics::ApplySurface(X, Y, ImageSurface, Surface);
+    Graphics::ApplyAlpha(X, Y, ImageSurface, Surface, Alpha);
 }

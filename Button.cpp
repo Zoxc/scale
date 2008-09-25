@@ -108,10 +108,8 @@ void Button::Deactivate()
     Redraw();
 }
 
-void Button::Draw(SDL_Surface* Surface, int X, int Y)
+void Button::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    Element::Draw(Surface, X, Y);
-
     if(!Focused)
         return;
 
@@ -119,10 +117,10 @@ void Button::Draw(SDL_Surface* Surface, int X, int Y)
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
 
-    Graphics::ApplyAlpha(0, 0, BorderTL, Fill);
-    Graphics::ApplyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
-    Graphics::ApplyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
-    Graphics::ApplyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
+    Graphics::CopyAlpha(0, 0, BorderTL, Fill);
+    Graphics::CopyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
+    Graphics::CopyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
+    Graphics::CopyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
 
     Graphics::HalfAlpha(Fill);
     Graphics::HalfAlpha(Fill);

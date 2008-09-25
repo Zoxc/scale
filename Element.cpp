@@ -26,6 +26,8 @@ Element::Element(Element* Owner):
     Owner(Owner),
     Root(0),
     SelectedElement(0),
+    AlphaBlend(255),
+    Clip(false),
     Animated(false),
     AutoSelect(false),
     CanFocus(false),
@@ -142,7 +144,7 @@ void Element::MouseDown(int X, int Y, Element** NewFocus)
     }
 }
 
-void Element::Draw(SDL_Surface* Surface, int X, int Y)
+void Element::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
 }
 
@@ -249,7 +251,7 @@ bool Element::Inside(int X, int Y)
     return true;
 }
 
-void Element::_Draw(SDL_Surface* Surface, int X, int Y)
+void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
     if(!Visible)
         return;
@@ -257,31 +259,41 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y)
     X += Left;
     Y += Top;
 
-    SDL_Rect OldClip;
+    if(Clip)
+    {
+        SDL_Rect OldClip;
 
-    SDL_GetClipRect(Surface, &OldClip);
+        SDL_GetClipRect(Surface, &OldClip);
 
-    SDL_Rect Clip;
+        SDL_Rect ClipRect;
 
-    Clip.x = Left + OldClip.x;
-    Clip.y = Top + OldClip.y;
+        ClipRect.x = X;
+        ClipRect.y = Y;
 
-    if(Owner->Width - Left < 0)
-        Clip.w = 0;
+        if(Owner->Width - Left < 0)
+            ClipRect.w = 0;
+        else
+            ClipRect.w = Owner->Width - Left;
+
+        if(Owner->Height - Top < 0)
+            ClipRect.h = 0;
+        else
+            ClipRect.h = Owner->Height - Top;
+
+        SDL_SetClipRect(Surface, &ClipRect);
+
+        Draw(Surface, X, Y, Alpha);
+
+        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+            (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
+
+        SDL_SetClipRect(Surface, &OldClip);
+    }
     else
-        Clip.w = Owner->Width - Left;
+    {
+        Draw(Surface, X, Y, Alpha);
 
-    if(Owner->Height - Top < 0)
-        Clip.h = 0;
-    else
-        Clip.h = Owner->Height - Top;
-
-    SDL_SetClipRect(Surface, &Clip);
-
-    Draw(Surface, X, Y);
-
-    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-        (*Child)->_Draw(Surface, X, Y);
-
-    SDL_SetClipRect(Surface, &OldClip);
+        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+            (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
+    }
 }

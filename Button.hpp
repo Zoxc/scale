@@ -29,7 +29,7 @@ class Button:
         Button(Element* Owner);
         virtual ~Button();
 
-        void Draw(SDL_Surface* Surface, int X, int Y);
+        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
         void Activate();
         void Deactivate();
         void MouseEnter();

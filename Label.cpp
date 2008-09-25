@@ -72,7 +72,7 @@ void Label::Allocate()
 
         Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), White);
 
-        Bitmap = SDL_CreateRGBSurface(SDL_SRCALPHA, Text->w + 40, Text->h + 20, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+        Bitmap = SDL_CreateRGBSurface(0, Text->w + 4, Text->h + 3, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 
         Graphics::ApplySurfaceEx(0, 0, Shadow, Bitmap);
         Graphics::ApplySurfaceEx(2, 1, Text, Bitmap);
@@ -91,13 +91,11 @@ void Label::Deallocate()
     SDL_FreeSurface(Bitmap);
 }
 
-void Label::Draw(SDL_Surface* Surface, int X, int Y)
+void Label::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    Element::Draw(Surface, X, Y);
-
     if(Color == FontColorBlack)
-        Graphics::ApplySurface(X, Y + 1, Bitmap, Surface);
+        Graphics::ApplyAlpha(X, Y + 1, Bitmap, Surface, Alpha);
     else
-        Graphics::ApplySurface(X - 2, Y - 1, Bitmap, Surface);
+        Graphics::ApplyAlpha(X - 2, Y - 1, Bitmap, Surface, Alpha);
 
 }

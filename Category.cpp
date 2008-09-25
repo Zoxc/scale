@@ -40,6 +40,22 @@ Category::~Category()
 {
 }
 
+void Category::Allocate()
+{
+    Element::Allocate();
+
+    Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
+}
+
+void Category::Deallocate()
+{
+    Element::Deallocate();
+
+    SDL_FreeSurface(Fill);
+}
+
 void Category::Click()
 {
     if(Selected)
@@ -106,17 +122,9 @@ void Category::Animate(int Delta)
    }
 }
 
-void Category::Draw(SDL_Surface* Surface, int X, int Y)
+void Category::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    Element::Draw(Surface, X, Y);
-
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
-
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
-
-    SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
+    SDL_SetAlpha(Fill, SDL_SRCALPHA, Category::Alpha);
 
     Graphics::ApplySurface(X, Y, Fill, Surface);
-
-    SDL_FreeSurface(Fill);
 }

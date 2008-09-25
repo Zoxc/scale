@@ -60,10 +60,10 @@ void Application::Deallocate()
     SDL_Quit();
 }
 
-void Application::_Draw(SDL_Surface* Surface, int X, int Y)
+void Application::Draw(SDL_Surface* Surface)
 {
     for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-        (*Child)->_Draw(Surface, 0, 0);
+        (*Child)->_Draw(Surface, 0, 0, (*Child)->AlphaBlend);
 
     SDL_Flip(Screen);
 }
@@ -149,7 +149,7 @@ void Application::Run()
         if(Redraws.size() > 0)
         {
             Redraws.clear();
-            _Draw(Screen, 0, 0);
+            Draw(Screen);
         }
 
         if(Animations.size() == 0)

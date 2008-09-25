@@ -26,22 +26,39 @@ extern SDL_Surface* BorderTL;
 extern SDL_Surface* BorderTR;
 
 CategoryBackground::CategoryBackground(Element* AOwner) :
-    Element::Element(AOwner),
-    Alpha(0)
+    Element::Element(AOwner)
 {
-    CurrentHeight = 0;
+    AlphaBlend = 0;
+    Step = 0;
+    //Clip = true;
 }
 
 CategoryBackground::~CategoryBackground()
 {
 }
 
+void CategoryBackground::Allocate()
+{
+    Element::Allocate();
+
+    Fill = SDL_CreateRGBSurface(0, Width, 480, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 18, 16, 14));
+}
+
+void CategoryBackground::Deallocate()
+{
+    Element::Deallocate();
+
+    SDL_FreeSurface(Fill);
+}
+
 void CategoryBackground::Up()
 {
-    TargetAlpha = 150;
-    TargetHeight = 480;
-
     Start();
+    Show();
+
+    Upping = true;
 
     Redraw();
 }
@@ -50,82 +67,42 @@ void CategoryBackground::Down()
 {
     Element::Deselect();
 
-    TargetAlpha = 0;
-    TargetHeight = 0;
+    Upping = false;
 
     Start();
 }
 
 void CategoryBackground::Animate(int Delta)
 {
-   if(TargetHeight != CurrentHeight)
-   {
-        if(TargetHeight > CurrentHeight)
-        {
-            CurrentHeight += Delta;
+    if(Upping)
+        Step += Delta * 2;
+    else
+        Step -= Delta * 2;
 
-            if(CurrentHeight > TargetHeight)
-            {
-                CurrentHeight = TargetHeight;
-            }
-        }
-        else
-        {
-            CurrentHeight -= Delta;
+    if(Step <= 0)
+    {
+        Step = 0;
+      //  Stop();
+    }
+    else if(Step >= 666)
+    {
+        Step = 666;
+        //Stop();
+    }
 
-            if(CurrentHeight < TargetHeight)
-            {
-                CurrentHeight = TargetHeight;
-            }
-        }
-        Redraw();
-   }
-
-   if(TargetAlpha != Alpha)
-   {
-        if(TargetAlpha > Alpha)
-        {
-            Alpha += Delta / 2;
-
-            if(Alpha > TargetAlpha)
-            {
-                Alpha = TargetAlpha;
-            }
-        }
-        else
-        {
-            Alpha -= Delta / 2;
-
-            if(Alpha < TargetAlpha)
-            {
-                Alpha = TargetAlpha;
-            }
-        }
-        Redraw();
-   }
-
-   Height = (int)floor(sin(((float)CurrentHeight / 480) * M_PI_2) * 480);
-
+   Height =  Step * 480 / 666;//(int)floor(sin(((float)CurrentHeight / 480) * M_PI_2) * 480);
+   AlphaBlend = Step * 196 / 666;
    Top = 480 - Height;
 
-   if(TargetAlpha == Alpha && TargetHeight == CurrentHeight)
-        Stop();
+   Redraw();
 }
 
-void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y)
+void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    Element::Draw(Surface, X, Y);
-
-    if(Alpha == 0)
+    if(AlphaBlend == 0)
         return;
-
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
-
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
 
     SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
 
     Graphics::ApplySurface(X, Y, Fill, Surface);
-
-    SDL_FreeSurface(Fill);
 }

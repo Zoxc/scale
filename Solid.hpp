@@ -28,7 +28,14 @@ class Solid:
         Solid(Element* AOwner);
         virtual ~Solid();
 
-        void Draw(SDL_Surface* Surface, int X, int Y);
+        void Allocate();
+        void Deallocate();
 
-        SDL_Surface* ImageSurface;
+        unsigned char R;
+        unsigned char G;
+        unsigned char B;
+
+        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+
+        SDL_Surface* Fill;
 };

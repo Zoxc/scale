@@ -35,7 +35,7 @@ class Application:
         void Focus(Element* NewFocus);
         void Run();
 
-        void _Draw(SDL_Surface* Surface, int X, int Y);
+        void Draw(SDL_Surface* Surface);
 
         Element* Focused;
         std::string Title;
