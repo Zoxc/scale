@@ -27,6 +27,8 @@ extern SDL_Surface* BorderTR;
 
 Category::Category(Element* AOwner) :
     Element::Element(AOwner),
+    Alpha(0),
+    TargetAlpha(0),
     Hide(0),
     Show(0)
 {
@@ -49,6 +51,10 @@ void Category::Select()
 {
     Element::Select();
 
+    TargetAlpha = 150;
+
+    Start();
+
     Redraw();
 
     if(Show != 0)
@@ -62,7 +68,9 @@ void Category::Deselect()
 {
     Element::Deselect();
 
-    Redraw();
+    TargetAlpha = 0;
+
+    Start();
 
     if(Show != 0)
         Show->Hide();
@@ -71,21 +79,47 @@ void Category::Deselect()
         Hide->Show();
 }
 
+void Category::Animate(int Delta)
+{
+   if(TargetAlpha != Alpha)
+   {
+        if(TargetAlpha > Alpha)
+        {
+            Alpha += Delta;
+
+            if(Alpha > TargetAlpha)
+            {
+                Alpha = TargetAlpha;
+                Stop();
+            }
+        }
+        else
+        {
+            Alpha -= Delta;
+
+            if(Alpha < TargetAlpha)
+            {
+                Alpha = TargetAlpha;
+                Stop();
+            }
+        }
+        Redraw();
+   }
+}
+
 void Category::Draw(SDL_Surface* Surface, int X, int Y)
 {
     Element::Draw(Surface, X, Y);
 
-    if(!Selected)
-        return;
-
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0/*0xff000000*/);
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
-
+/*
     Graphics::ApplyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
     Graphics::ApplyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
 
-    Graphics::HalfAlpha(Fill);
+    Graphics::HalfAlpha(Fill);*/
+    SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
 
     Graphics::ApplySurface(X, Y, Fill, Surface);
 

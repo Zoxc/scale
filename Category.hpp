@@ -30,11 +30,13 @@ class Category:
         virtual ~Category();
 
         void Draw(SDL_Surface* Surface, int X, int Y);
-
         void Click();
-
         void Select();
         void Deselect();
+        void Animate(int Delta);
+
+        int Alpha;
+        int TargetAlpha;
 
         Element* Hide;
         Element* Show;

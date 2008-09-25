@@ -21,13 +21,29 @@
 
 Image::Image(Element* Owner, char* Path) : Element::Element(Owner)
 {
+    Filename = Path;
+
     ImageSurface = IMG_Load(Path);
+
     Width = ImageSurface->w;
     Height = ImageSurface->h;
+
+    SDL_FreeSurface(ImageSurface);
 }
 
 Image::~Image()
 {
+}
+
+void Image::Allocate()
+{
+    ImageSurface = IMG_Load(Filename.c_str());
+}
+
+void Image::Deallocate()
+{
+    Element::Deallocate();
+
     SDL_FreeSurface(ImageSurface);
 }
 

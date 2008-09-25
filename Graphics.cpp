@@ -23,14 +23,11 @@ SDL_Color White  = {255, 255, 255};
 
 void Graphics::ApplySurface( int x, int y, SDL_Surface* Source, SDL_Surface* Destination )
 {
-    //Make a temporary rectangle to hold the offsets
     SDL_Rect offset;
 
-    //Give the offsets to the rectangle
     offset.x = x;
     offset.y = y;
 
-     //Blit the surface
     SDL_BlitSurface(Source, 0, Destination, &offset);
 }
 
@@ -44,7 +41,43 @@ SDL_Surface* Graphics::ConvertSurface(SDL_Surface* source)
 
     return result;
 }
+/*
+void Graphics::ApplyAlphaSurface(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
+{
+    SDL_LockSurface(source);
+    SDL_LockSurface(dest);
 
+    Uint32* Pixel = (Uint32*)source->pixels;
+
+    for(int y = 0; y < source->h; y++)
+    for(int x = 0; x < source->w; x++)
+    {
+        Uint32* Dest = (Uint32*)dest->pixels + (y + ty) * dest->w + x + tx;
+
+        unsigned char A = reinterpret_cast<Uint8*>(Pixel)[3];
+
+        unsigned char R = (A * (reinterpret_cast<Uint8*>(Pixel)[0] - reinterpret_cast<Uint8*>(Dest)[0]) ) / 256 + reinterpret_cast<Uint8*>(Dest)[0];
+        unsigned char G = (A * (reinterpret_cast<Uint8*>(Pixel)[1] - reinterpret_cast<Uint8*>(Dest)[1]) ) / 256 + reinterpret_cast<Uint8*>(Dest)[1];
+        unsigned char B = (A * (reinterpret_cast<Uint8*>(Pixel)[2] - reinterpret_cast<Uint8*>(Dest)[2]) ) / 256 + reinterpret_cast<Uint8*>(Dest)[2];
+
+        reinterpret_cast<Uint8*>(Dest)[0] = R;
+        reinterpret_cast<Uint8*>(Dest)[1] = B;
+        reinterpret_cast<Uint8*>(Dest)[2] = G;
+
+        unsigned short Alpha =  reinterpret_cast<Uint8*>(Pixel)[3] + reinterpret_cast<Uint8*>(Dest)[3];
+
+        if(Alpha > 255)
+            reinterpret_cast<Uint8*>(Dest)[3] = 255;
+        else
+            reinterpret_cast<Uint8*>(Dest)[3] = Alpha;
+
+        Pixel++;
+    }
+
+    SDL_UnlockSurface(dest);
+    SDL_UnlockSurface(source);
+}
+*/
 void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
 {
     SDL_LockSurface(source);
@@ -80,40 +113,6 @@ void Graphics::HalfAlpha(SDL_Surface* surface)
     }
 
     SDL_UnlockSurface(surface);
-}
-
-int Graphics::RenderTextBlack(TTF_Font* font, char* text, int x, int y, SDL_Surface* screen)
-{
-    SDL_Surface* Text = TTF_RenderText_Blended(font, text, White);
-
-    //If there was an error in rendering the text
-    if( Text == NULL )
-    {
-        return 0;
-    }
-
-    HalfAlpha(Text);
-
-    ApplySurface( x, y + 1, Text, screen );
-
-    SDL_FreeSurface( Text );
-
-    Text = TTF_RenderText_Blended(font, text, Black);
-
-    //If there was an error in rendering the text
-    if( Text == NULL )
-    {
-        return 0;
-    }
-
-    ApplySurface( x, y, Text, screen );
-
-    int Result = Text->w;
-
-    SDL_FreeSurface( Text );
-
-
-    return Result;
 }
 
 SDL_Surface* Graphics::BlurAlpha(SDL_Surface* source)

@@ -26,6 +26,7 @@ Element::Element(Element* Owner):
     Owner(Owner),
     Root(0),
     SelectedElement(0),
+    Animated(false),
     AutoSelect(false),
     CanFocus(false),
     Focused(false),
@@ -57,12 +58,14 @@ Element::~Element()
 
 void Element::Allocate()
 {
-    for(size_t i = 0; i < Children.size(); i++ )
-        Children[i]->Allocate();
+    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        (*Child)->Allocate();
 }
 
 void Element::Deallocate()
 {
+    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        (*Child)->Deallocate();
 }
 
 void Element::KeyDown(SDLKey Key)
@@ -111,20 +114,24 @@ void Element::MouseLeave()
 {
 }
 
+void Element::Animate(int Delta)
+{
+}
+
 void Element::MouseEnter()
 {
 }
 
 void Element::MouseUp(int X, int Y)
 {
-    for(size_t i = 0; i < Children.size(); i++)
-        Children[i]->MouseUp(X - Left, Y - Top);
+    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        (*Child)->MouseUp(X - Left, Y - Top);
 }
 
 void Element::MouseDown(int X, int Y, Element** NewFocus)
 {
-    for(size_t i = 0; i < Children.size(); i++)
-        Children[i]->MouseDown(X - Left, Y - Top, NewFocus);
+    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        (*Child)->MouseDown(X - Left, Y - Top, NewFocus);
 
     if(Hovered)
     {
@@ -139,13 +146,39 @@ void Element::Draw(SDL_Surface* Surface, int X, int Y)
 {
 }
 
-void Element::RedrawElement(Element* Owner)
+void Element::_Redraw(Element* Owner)
 {
+}
+
+void Element::_Start(Element* Owner)
+{
+}
+
+void Element::_Stop(Element* Owner)
+{
+}
+
+void Element::Start()
+{
+    if(!Animated)
+    {
+        Animated = true;
+        Root->_Start(this);
+    }
+}
+
+void Element::Stop()
+{
+    if(Animated)
+    {
+        Animated = true;
+        Root->_Stop(this);
+    }
 }
 
 void Element::Redraw()
 {
-    Root->RedrawElement(this);
+    Root->_Redraw(this);
 }
 
 void Element::SelectElement(Element* NewSelection)
@@ -167,8 +200,8 @@ void Element::_MouseLeave()
 
         MouseLeave();
 
-        for(size_t i = 0; i < Children.size(); i++)
-            Children[i]->_MouseLeave();
+        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+            (*Child)->_MouseLeave();
     }
 }
 
@@ -178,13 +211,13 @@ void Element::_MouseMove(int X, int Y)
 
     if(Status)
     {
-        for(size_t i = 0; i < Children.size(); i++)
-            Children[i]->_MouseMove(X - Left, Y - Top);
+        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+            (*Child)->_MouseMove(X - Left, Y - Top);
     }
     else if(Hovered)
     {
-        for(size_t i = 0; i < Children.size(); i++)
-            Children[i]->_MouseLeave();
+        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+            (*Child)->_MouseLeave();
     }
 
     if(Status != Hovered)
@@ -225,6 +258,6 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y)
 
     Draw(Surface, X, Y);
 
-    for(size_t i = 0; i < Children.size(); i++ )
-        Children[i]->_Draw(Surface, X, Y);
+    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        (*Child)->_Draw(Surface, X, Y);
 }

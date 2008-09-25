@@ -23,6 +23,8 @@
 Application::Application() : Element::Element(0)
 {
     SDL_Init(SDL_INIT_EVERYTHING);
+   // SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+
     TTF_Init();
 
     Width = 800;
@@ -60,15 +62,25 @@ void Application::Deallocate()
 
 void Application::_Draw(SDL_Surface* Surface, int X, int Y)
 {
-    for(size_t i = 0; i < Children.size(); i++ )
-        Children[i]->_Draw(Surface, 0, 0);
+    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        (*Child)->_Draw(Surface, 0, 0);
 
     SDL_Flip(Screen);
 }
 
-void Application::RedrawElement(Element* Owner)
+void Application::_Redraw(Element* Owner)
 {
     Redraws.push_back(Owner);
+}
+
+void Application::_Start(Element* Owner)
+{
+    Animations.push_back(Owner);
+}
+
+void Application::_Stop(Element* Owner)
+{
+    //Animations.remove(Owner);
 }
 
 void Application::Focus(Element* NewFocus)
@@ -91,8 +103,8 @@ void Application::MouseDown(int X, int Y)
 {
     Element* NewFocus = 0;
 
-    for(size_t i = 0; i < Children.size(); i++ )
-        Children[i]->MouseDown(X, Y, &NewFocus);
+    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        (*Child)->MouseDown(X, Y, &NewFocus);
 
     if(NewFocus != 0 && NewFocus != Application::Focused)
     {
@@ -118,6 +130,8 @@ void Application::Run()
     SDL_Event event;
 
     _Draw(Screen, 0, 0);
+
+    int LastFrame = SDL_GetTicks();
 
     while(Terminated == false)
     {
@@ -170,8 +184,8 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEMOTION:
-                    for(size_t i = 0; i < Children.size(); i++ )
-                        Children[i]->_MouseMove(event.motion.x, event.motion.y);
+                    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+                        (*Child)->_MouseMove(event.motion.x, event.motion.y);
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
@@ -179,18 +193,21 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONUP:
-                    for(size_t i = 0; i < Children.size(); i++ )
-                        Children[i]->MouseUp(event.button.x, event.button.y);
-
+                    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+                        (*Child)->MouseUp(event.button.x, event.button.y);
                     break;
             }
 
             if(Terminated)
-                break;
+                goto End;
         }
 
-        if(Terminated)
-            break;
+        int Delta = SDL_GetTicks() - LastFrame;
+
+        LastFrame = SDL_GetTicks();
+
+        for (std::list<Element*>::iterator Animation = Animations.begin(); Animation != Animations.end(); Animation++)
+            (*Animation)->Animate(Delta);
 
         if(Redraws.size() > 0)
         {
@@ -198,8 +215,13 @@ void Application::Run()
             _Draw(Screen, 0, 0);
         }
 
-        SDL_WaitEvent(0);
+        if(Animations.size() == 0)
+            SDL_WaitEvent(0);
+
+        SDL_Delay(1);
     }
 
+    End:
+        Deallocate();
 }
 

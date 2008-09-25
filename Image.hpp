@@ -29,6 +29,11 @@ class Image:
     public:
         Image(Element* Owner, char* Path);
         virtual ~Image();
+
+        std::string Filename;
+
+        void Allocate();
+        void Deallocate();
         void Draw(SDL_Surface* Surface, int X, int Y);
 
         SDL_Surface* ImageSurface;

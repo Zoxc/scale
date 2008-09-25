@@ -18,7 +18,7 @@
 
 #pragma once
 #include "SDL.h"
-#include <vector>
+#include <list>
 
 class Element;
 
@@ -40,6 +40,7 @@ class Element
         virtual void Deallocate();
         virtual void KeyDown(SDLKey Key);
         virtual void Click();
+        virtual void Animate(int Delta);
         virtual void MouseEnter();
         virtual void MouseLeave();
         virtual void MouseUp(int X, int Y);
@@ -67,8 +68,9 @@ class Element
         Element* Root;
         Element* SelectedElement;
 
-        std::vector<Element*> Children;
+        std::list<Element*> Children;
 
+        bool Animated;
         bool AutoSelect;
         bool CanFocus;
         bool Focused;
@@ -80,11 +82,16 @@ class Element
         void Redraw();
         bool Inside(int X, int Y);
 
+        void Start();
+        void Stop();
+
         // Local, used by Application
         void _Draw(SDL_Surface* Surface, int X, int Y);
         void _MouseMove(int X, int Y);
         void _MouseLeave();
 
     private:
-        virtual void RedrawElement(Element* Owner);
+        virtual void _Redraw(Element* Owner);
+        virtual void _Start(Element* Owner);
+        virtual void _Stop(Element* Owner);
 };

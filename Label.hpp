@@ -40,10 +40,16 @@ class Label:
         Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor);
         virtual ~Label();
 
+        void Allocate();
+        void Deallocate();
         void Draw(SDL_Surface* Surface, int X, int Y);
 
         TTF_Font* Font;
         FontColor Color;
+
+        SDL_Surface* Text;
+        SDL_Surface* Shadow;
+        //SDL_Surface* Bitmap;
 
         std::string Caption;
 };
