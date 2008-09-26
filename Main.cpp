@@ -109,8 +109,8 @@ int main( int argc, char* args[] )
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
-    Cat->Name = "System";
-    Cat->IconPath = "system.png";
+    Cat->Name = "Web";
+    Cat->IconPath = "Web.png";
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
