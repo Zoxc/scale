@@ -38,13 +38,13 @@ class Application:
         void KillFocus();
         void Run();
 
-        void Draw(SDL_Surface* Surface);
+        void Draw();
 
         KeyEvent EventKeyDown;
         Element* Focused;
         std::string Title;
         bool Terminated;
-        std::list<Element*> Redraws;
+        bool Redraw;
         std::list<Element*> Animations;
 
     private:
@@ -53,7 +53,7 @@ class Application:
         std::list<Element*>::reverse_iterator ChildBack;
         SDL_Surface* Screen;
         void MouseDown(int X, int Y);
-        void _Redraw(Element* Owner);
+        void _Redraw();
         void _Start(Element* Owner);
         void _Stop(Element* Owner);
 };

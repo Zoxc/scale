@@ -91,9 +91,7 @@ void CategoryBackground::Animate(int Delta)
         Stop();
     }
 
-    float Smooth = sin(((float)Step / 1000) * M_PI_2);
-
-    Height =  (int)floor(Smooth * 480);
+    Height =  (int)floor(sin(((float)Step / 1000) * M_PI_2) * 480);
     AlphaBlend = Step * 255 / 1000;
     Top = 480 - Height;
 

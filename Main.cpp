@@ -198,8 +198,6 @@ int main( int argc, char* args[] )
         CategoryLabel->Left = CategoryImage->Left + CategorySpacing + CategoryImage->Width;
         CategoryLabel->Top = 21;
 
-        //Categories[i]->button->Hide = TaskList;
-
         Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, FontBig, FontColorWhite);
         CatLabel->Top = Tabs->Height / 2 - CatLabel->Height / 2;
 
@@ -210,8 +208,8 @@ int main( int argc, char* args[] )
         CatLabel->Left = CatIcon->Left + CategorySpacing + CatIcon->Width;
     }
 
-    Menu.Children.remove(Tabs);
-    Menu.Children.push_back(Tabs);
+    Menu.Children->remove(Tabs);
+    Menu.Children->push_back(Tabs);
 
     // Add Links
     for(size_t i = 0; i < Running.size(); i++)

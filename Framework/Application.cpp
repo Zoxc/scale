@@ -32,12 +32,13 @@ Application::Application() : Element::Element(0)
 
     Root = this;
 
+    Children = new std::list<Element*>();
+
     Application::Focused = 0;
 }
 
 Application::~Application()
 {
-    Element::Element(0);
 }
 
 void Application::Allocate()
@@ -62,17 +63,17 @@ void Application::Deallocate()
     SDL_Quit();
 }
 
-void Application::Draw(SDL_Surface* Surface)
+void Application::Draw()
 {
-    for (Child = Children.begin(); Child != Children.end(); Child++)
-        (*Child)->_Draw(Surface, 0, 0, (*Child)->AlphaBlend);
+    for (Child = Children->begin(); Child != Children->end(); Child++)
+        (*Child)->_Draw(Screen, 0, 0, (*Child)->AlphaBlend);
 
     SDL_Flip(Screen);
 }
 
-void Application::_Redraw(Element* Owner)
+void Application::_Redraw()
 {
-    Redraws.push_back(Owner);
+    Redraw = true;
 }
 
 void Application::_Start(Element* Owner)
@@ -120,7 +121,7 @@ void Application::MouseDown(int X, int Y)
 {
     Element* NewFocus = 0;
 
-    for (ChildBack = Children.rbegin(); ChildBack != Children.rend(); ChildBack++)
+    for (ChildBack = Children->rbegin(); ChildBack != Children->rend(); ChildBack++)
     {
         if((*ChildBack)->Hovered)
         {
@@ -154,7 +155,7 @@ void Application::Run()
 
     SDL_Event event;
 
-    Redraws.push_back(this);
+    Redraw = true;
 
     while(Terminated == false)
     {
@@ -166,10 +167,10 @@ void Application::Run()
             (*Animation)->Animate(Delta);
         }
 
-        if(Redraws.size() > 0)
+        if(Redraw)
         {
-            Redraws.clear();
-            Draw(Screen);
+            Redraw = false;
+            Draw();
         }
 
         if(Animations.size() == 0)
@@ -214,7 +215,7 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEMOTION:
-                    for (ChildBack = Children.rbegin(); ChildBack != Children.rend(); ChildBack++)
+                    for (ChildBack = Children->rbegin(); ChildBack != Children->rend(); ChildBack++)
                         (*ChildBack)->_MouseMove(event.motion.x, event.motion.y);
                     break;
 
@@ -223,7 +224,7 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONUP:
-                    for (ChildBack = Children.rbegin(); ChildBack != Children.rend(); ChildBack++)
+                    for (ChildBack = Children->rbegin(); ChildBack != Children->rend(); ChildBack++)
                     {
                         if((*ChildBack)->Hovered)
                         {

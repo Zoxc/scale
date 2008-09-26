@@ -66,9 +66,7 @@ class Element
         Element* Root;
         Element* SelectedElement;
 
-        std::list<Element*> Children;
-
-        unsigned char AlphaBlend;
+        std::list<Element*>* Children;
 
         bool Clip;
         bool Animated;
@@ -79,8 +77,11 @@ class Element
         bool Visible;
         bool Hovered;
 
+        unsigned char AlphaBlend;
+
         void SelectElement(Element* NewSelection);
         void Redraw();
+        void SetOwner(Element* NewOwner);
         bool Inside(int X, int Y);
 
         void Start();
@@ -92,7 +93,7 @@ class Element
         void _MouseLeave();
 
     private:
-        virtual void _Redraw(Element* Owner);
+        virtual void _Redraw();
         virtual void _Start(Element* Owner);
         virtual void _Stop(Element* Owner);
 };

@@ -26,7 +26,7 @@ Element::Element(Element* Owner):
     Owner(Owner),
     Root(0),
     SelectedElement(0),
-    AlphaBlend(255),
+    Children(0),
     Clip(false),
     Animated(false),
     AutoSelect(false),
@@ -34,39 +34,69 @@ Element::Element(Element* Owner):
     Focused(false),
     Selected(false),
     Visible(true),
-    Hovered(false)
+    Hovered(false),
+    AlphaBlend(255)
 {
     memset(Links, 0, sizeof(Links));
 
     if(Owner != 0)
     {
         Root = Owner->Root;
-        Owner->Children.push_back(this);
+
+        if(Owner->Children == 0)
+            Owner->Children = new std::list<Element*>();
+
+        Owner->Children->push_back(this);
     }
 }
 
 Element::~Element()
 {
-    /*for(size_t i = 0; i < Children.size(); i++)
+    if(Children != 0)
     {
-        delete Children[i];
+        while(Children->size() > 0)
+            delete *Children->begin();
     }
-*/
+
+    delete Children;
+
+    if(Owner != 0)
+        Owner->Children->remove(this);
+}
+
+void Element::SetOwner(Element* NewOwner)
+{
+    if(Owner != 0)
+        Owner->Children->remove(this);
+
+    Owner = NewOwner;
+
     if(Owner != 0)
     {
-        // Remove from list
+        Root = Owner->Root;
+
+        if(Owner->Children == 0)
+            Owner->Children = new std::list<Element*>();
+
+        Owner->Children->push_back(this);
     }
 }
 
 void Element::Allocate()
 {
-    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+    if(Children == 0)
+        return;
+
+    for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
         (*Child)->Allocate();
 }
 
 void Element::Deallocate()
 {
-    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+    if(Children == 0)
+        return;
+
+    for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
         (*Child)->Deallocate();
 }
 
@@ -126,7 +156,10 @@ void Element::MouseEnter()
 
 void Element::MouseUp(int X, int Y)
 {
-    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+    if(Children == 0)
+        return;
+
+    for(std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
     {
         if((*Child)->Hovered)
         {
@@ -138,12 +171,15 @@ void Element::MouseUp(int X, int Y)
 
 void Element::MouseDown(int X, int Y, Element** NewFocus)
 {
-    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+    if(Children != 0)
     {
-        if((*Child)->Hovered)
+        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
         {
-            (*Child)->MouseDown(X - Left, Y - Top, NewFocus);
-            break;
+            if((*Child)->Hovered)
+            {
+                (*Child)->MouseDown(X - Left, Y - Top, NewFocus);
+                break;
+            }
         }
     }
 
@@ -160,7 +196,7 @@ void Element::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
 }
 
-void Element::_Redraw(Element* Owner)
+void Element::_Redraw()
 {
 }
 
@@ -193,7 +229,7 @@ void Element::Stop()
 
 void Element::Redraw()
 {
-    Root->_Redraw(this);
+    Root->_Redraw();
 }
 
 void Element::SelectElement(Element* NewSelection)
@@ -215,7 +251,10 @@ void Element::_MouseLeave()
 
         MouseLeave();
 
-        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+        if(Children == 0)
+            return;
+
+        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
             (*Child)->_MouseLeave();
     }
 }
@@ -226,13 +265,15 @@ void Element::_MouseMove(int X, int Y)
 
     if(Status)
     {
-        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-            (*Child)->_MouseMove(X - Left, Y - Top);
+        if(Children != 0)
+            for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                (*Child)->_MouseMove(X - Left, Y - Top);
     }
     else if(Hovered)
     {
-        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-            (*Child)->_MouseLeave();
+        if(Children != 0)
+            for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                (*Child)->_MouseLeave();
     }
 
     if(Status != Hovered)
@@ -296,8 +337,9 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 
         Draw(Surface, X, Y, Alpha);
 
-        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-            (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
+        if(Children != 0)
+            for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
+                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
 
         SDL_SetClipRect(Surface, &OldClip);
     }
@@ -305,7 +347,8 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
     {
         Draw(Surface, X, Y, Alpha);
 
-        for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-            (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
+        if(Children != 0)
+            for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
+                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
     }
 }
