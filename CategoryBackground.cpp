@@ -91,11 +91,13 @@ void CategoryBackground::Animate(int Delta)
         Stop();
     }
 
-   Height =  Step * 480 / 1000;//(int)floor(sin(((float)CurrentHeight / 480) * M_PI_2) * 480);
-   AlphaBlend = Step * 255 / 1000;
-   Top = 480 - Height;
+    float Smooth = sin(((float)Step / 1000) * M_PI_2);
 
-   Redraw();
+    Height =  (int)floor(Smooth * 480);
+    AlphaBlend = Step * 255 / 1000;
+    Top = 480 - Height;
+
+    Redraw();
 }
 
 void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
