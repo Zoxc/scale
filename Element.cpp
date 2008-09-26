@@ -126,14 +126,26 @@ void Element::MouseEnter()
 
 void Element::MouseUp(int X, int Y)
 {
-    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-        (*Child)->MouseUp(X - Left, Y - Top);
+    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+    {
+        if((*Child)->Hovered)
+        {
+            (*Child)->MouseUp(X - Left, Y - Top);
+            return;
+        }
+    }
 }
 
 void Element::MouseDown(int X, int Y, Element** NewFocus)
 {
-    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-        (*Child)->MouseDown(X - Left, Y - Top, NewFocus);
+    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+    {
+        if((*Child)->Hovered)
+        {
+            (*Child)->MouseDown(X - Left, Y - Top, NewFocus);
+            break;
+        }
+    }
 
     if(Hovered)
     {

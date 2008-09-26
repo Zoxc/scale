@@ -83,6 +83,16 @@ void Application::_Stop(Element* Owner)
     //Animations.remove(Owner);
 }
 
+void Application::KillFocus()
+{
+    Element* OldFocus = Application::Focused;
+
+    Application::Focused = 0;
+
+    if(OldFocus != 0)
+        OldFocus->Deactivate();
+}
+
 void Application::Focus(Element* NewFocus)
 {
     if(NewFocus == 0)
@@ -105,8 +115,14 @@ void Application::MouseDown(int X, int Y)
 {
     Element* NewFocus = 0;
 
-    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-        (*Child)->MouseDown(X, Y, &NewFocus);
+    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+    {
+        if((*Child)->Hovered)
+        {
+            (*Child)->MouseDown(X, Y, &NewFocus);
+            break;
+        }
+    }
 
     if(NewFocus != 0 && NewFocus != Application::Focused)
     {
@@ -164,43 +180,33 @@ void Application::Run()
                     break;
 
                 case SDL_KEYDOWN:
+                    if(EventKeyDown != 0)
+                        EventKeyDown(this, event.key.keysym.sym);
+
                     if(Application::Focused != 0)
-                    {
-                        bool Ignore = false;
-
-                        if(EventKeyDown != 0)
-                            EventKeyDown(this, event.key.keysym.sym, &Ignore);
-
-                        if(Application::Focused != 0)
-                            Application::Focused->KeyDown(event.key.keysym.sym);
-
-                        if(!Ignore)
+                        switch((int)event.key.keysym.sym)
                         {
-                            switch((int)event.key.keysym.sym)
-                            {
-                                case SDLK_RETURN:
-                                    if(Application::Focused != 0)
-                                        Application::Focused->Click();
-                                    break;
+                            case SDLK_RETURN:
+                                if(Application::Focused != 0)
+                                    Application::Focused->Click();
+                                break;
 
-                                case SDLK_LEFT:
-                                    Focus(Application::Focused->Links[ElementLeft]);
-                                    break;
+                            case SDLK_LEFT:
+                                Focus(Application::Focused->Links[ElementLeft]);
+                                break;
 
-                                case SDLK_UP:
-                                    Focus(Application::Focused->Links[ElementUp]);
-                                    break;
+                            case SDLK_UP:
+                                Focus(Application::Focused->Links[ElementUp]);
+                                break;
 
-                                case SDLK_RIGHT:
-                                    Focus(Application::Focused->Links[ElementRight]);
-                                    break;
+                            case SDLK_RIGHT:
+                                Focus(Application::Focused->Links[ElementRight]);
+                                break;
 
-                                case SDLK_DOWN:
-                                    Focus(Application::Focused->Links[ElementDown]);
-                                    break;
-                            }
+                            case SDLK_DOWN:
+                                Focus(Application::Focused->Links[ElementDown]);
+                                break;
                         }
-                    }
                     break;
 
                 case SDL_MOUSEMOTION:
@@ -213,8 +219,15 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONUP:
-                    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-                        (*Child)->MouseUp(event.button.x, event.button.y);
+                    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+                    {
+                        if((*Child)->Hovered)
+                        {
+                            (*Child)->MouseUp(event.button.x, event.button.y);
+                            break;
+                        }
+                    }
+
                     break;
             }
 

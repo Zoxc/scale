@@ -75,23 +75,24 @@ void CategoryBackground::Down()
 void CategoryBackground::Animate(int Delta)
 {
     if(Upping)
-        Step += Delta * 2;
+        Step += Delta * 3;
     else
-        Step -= Delta * 2;
+        Step -= Delta * 3;
 
     if(Step <= 0)
     {
         Step = 0;
-      //  Stop();
+        Stop();
+        Hide();
     }
-    else if(Step >= 666)
+    else if(Step >= 1000)
     {
-        Step = 666;
-        //Stop();
+        Step = 1000;
+        Stop();
     }
 
-   Height =  Step * 480 / 666;//(int)floor(sin(((float)CurrentHeight / 480) * M_PI_2) * 480);
-   AlphaBlend = Step * 196 / 666;
+   Height =  Step * 480 / 1000;//(int)floor(sin(((float)CurrentHeight / 480) * M_PI_2) * 480);
+   AlphaBlend = Step * 255 / 1000;
    Top = 480 - Height;
 
    Redraw();
@@ -102,7 +103,7 @@ void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y, unsigned char 
     if(AlphaBlend == 0)
         return;
 
-    SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
+    SDL_SetAlpha(Fill, SDL_SRCALPHA, AlphaBlend / 4 * 3);
 
     Graphics::ApplySurface(X, Y, Fill, Surface);
 }

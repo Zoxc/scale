@@ -50,7 +50,7 @@ void PowerButton::Click()
     Menu.Terminated = true;
 }
 
-void KeyDown(Element* Owner, SDLKey Key, bool* Ignore)
+void KeyDown(Element* Owner, SDLKey Key)
 {
     intptr_t Index = -1;
 
@@ -81,6 +81,8 @@ void KeyDown(Element* Owner, SDLKey Key, bool* Ignore)
 
 int main( int argc, char* args[] )
 {
+    // 472 kB overhead
+
     AppInfo* App = new AppInfo();
     App->Name = "Package Manager";
     App->IconPath = "installer.png";
@@ -235,6 +237,7 @@ int main( int argc, char* args[] )
 
     Menu.Title = "Scale Demo";
     Menu.EventKeyDown = &KeyDown;
+
     Menu.Run();
 
     return 0;

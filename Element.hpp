@@ -23,7 +23,7 @@
 class Element;
 
 typedef void (*ElementNotifyEvent)(Element* Owner);
-typedef void (*ElementKeyEvent)(Element* Owner, SDLKey Key, bool* Ignore);
+typedef void (*ElementKeyEvent)(Element* Owner, SDLKey Key);
 
 enum ElementLink
 {
@@ -52,9 +52,6 @@ class Element
         virtual void Show();
         virtual void Hide();
         virtual void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
-
-        ElementNotifyEvent EventClick;
-        ElementKeyEvent EventKeyDown;
 
         int Left;
         int Top;

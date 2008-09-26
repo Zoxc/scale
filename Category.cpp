@@ -74,6 +74,8 @@ void Category::Select()
 
     Redraw();
 
+    Menu.KillFocus();
+
     Show->Up();
 
     if(Hide != 0)
@@ -85,6 +87,8 @@ void Category::Deselect()
     Element::Deselect();
 
     TargetAlpha = 0;
+
+    Menu.Focus(Running[0]->button);
 
     Start();
 

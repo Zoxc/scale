@@ -23,6 +23,8 @@
 
 #include "Element.hpp"
 
+typedef void (*KeyEvent)(Element* Owner, SDLKey Key);
+
 class Application:
     public Element
 {
@@ -33,10 +35,12 @@ class Application:
         void Allocate();
         void Deallocate();
         void Focus(Element* NewFocus);
+        void KillFocus();
         void Run();
 
         void Draw(SDL_Surface* Surface);
 
+        KeyEvent EventKeyDown;
         Element* Focused;
         std::string Title;
         bool Terminated;
