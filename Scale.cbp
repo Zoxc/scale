@@ -23,16 +23,12 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="Application.cpp" />
-		<Unit filename="Application.hpp" />
 		<Unit filename="Button.cpp" />
 		<Unit filename="Button.hpp" />
 		<Unit filename="Category.cpp" />
 		<Unit filename="Category.hpp" />
 		<Unit filename="CategoryBackground.cpp" />
 		<Unit filename="CategoryBackground.hpp" />
-		<Unit filename="Element.cpp" />
-		<Unit filename="Element.hpp" />
 		<Unit filename="Graphics.cpp" />
 		<Unit filename="Graphics.hpp" />
 		<Unit filename="Image.cpp" />
@@ -43,6 +39,12 @@
 		<Unit filename="Main.hpp" />
 		<Unit filename="Solid.cpp" />
 		<Unit filename="Solid.hpp" />
+		<Unit filename="framework\Application.cpp" />
+		<Unit filename="framework\Application.hpp" />
+		<Unit filename="framework\Element.cpp" />
+		<Unit filename="framework\Element.hpp" />
+		<Unit filename="framework\List.cpp" />
+		<Unit filename="framework\List.hpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

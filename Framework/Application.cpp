@@ -37,7 +37,7 @@ Application::Application() : Element::Element(0)
 
 Application::~Application()
 {
-
+    Element::Element(0);
 }
 
 void Application::Allocate()
@@ -57,12 +57,14 @@ void Application::Allocate()
 
 void Application::Deallocate()
 {
+    Element::Deallocate();
+
     SDL_Quit();
 }
 
 void Application::Draw(SDL_Surface* Surface)
 {
-    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
+    for (Child = Children.begin(); Child != Children.end(); Child++)
         (*Child)->_Draw(Surface, 0, 0, (*Child)->AlphaBlend);
 
     SDL_Flip(Screen);
@@ -80,7 +82,10 @@ void Application::_Start(Element* Owner)
 
 void Application::_Stop(Element* Owner)
 {
-    //Animations.remove(Owner);
+    if(*Child == Owner)
+            Child = Animations.erase(Child);
+    else
+        Animations.remove(Owner);
 }
 
 void Application::KillFocus()
@@ -115,11 +120,11 @@ void Application::MouseDown(int X, int Y)
 {
     Element* NewFocus = 0;
 
-    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+    for (ChildBack = Children.rbegin(); ChildBack != Children.rend(); ChildBack++)
     {
-        if((*Child)->Hovered)
+        if((*ChildBack)->Hovered)
         {
-            (*Child)->MouseDown(X, Y, &NewFocus);
+            (*ChildBack)->MouseDown(X, Y, &NewFocus);
             break;
         }
     }
@@ -153,13 +158,12 @@ void Application::Run()
 
     while(Terminated == false)
     {
-        for (std::list<Element*>::iterator Animation = Animations.begin(); Animation != Animations.end(); Animation++)
+        for (Child = Animations.begin(); Child != Animations.end(); Child++)
         {
-            int Delta = SDL_GetTicks() - (*Animation)->Frame;
+            int Delta = SDL_GetTicks() - (*Child)->Frame;
 
-            (*Animation)->Frame = SDL_GetTicks();
-
-            (*Animation)->Animate(Delta);
+            (*Child)->Frame = SDL_GetTicks();
+            (*Child)->Animate(Delta);
         }
 
         if(Redraws.size() > 0)
@@ -210,8 +214,8 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEMOTION:
-                    for (std::list<Element*>::iterator Child = Children.begin(); Child != Children.end(); Child++)
-                        (*Child)->_MouseMove(event.motion.x, event.motion.y);
+                    for (ChildBack = Children.rbegin(); ChildBack != Children.rend(); ChildBack++)
+                        (*ChildBack)->_MouseMove(event.motion.x, event.motion.y);
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
@@ -219,11 +223,11 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONUP:
-                    for (std::list<Element*>::reverse_iterator Child = Children.rbegin(); Child != Children.rend(); Child++)
+                    for (ChildBack = Children.rbegin(); ChildBack != Children.rend(); ChildBack++)
                     {
-                        if((*Child)->Hovered)
+                        if((*ChildBack)->Hovered)
                         {
-                            (*Child)->MouseUp(event.button.x, event.button.y);
+                            (*ChildBack)->MouseUp(event.button.x, event.button.y);
                             break;
                         }
                     }

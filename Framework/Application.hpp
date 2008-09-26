@@ -48,6 +48,8 @@ class Application:
         std::list<Element*> Animations;
 
     private:
+        std::list<Element*>::iterator Child;
+        std::list<Element*>::reverse_iterator ChildBack;
         SDL_Surface* Screen;
         void MouseDown(int X, int Y);
         void _Redraw(Element* Owner);

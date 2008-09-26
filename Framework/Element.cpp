@@ -186,7 +186,7 @@ void Element::Stop()
 {
     if(Animated)
     {
-        Animated = true;
+        Animated = false;
         Root->_Stop(this);
     }
 }
