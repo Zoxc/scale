@@ -48,6 +48,7 @@ class Application:
         std::list<Element*> Animations;
 
     private:
+        std::list<Element*>::iterator Animation;
         std::list<Element*>::iterator Child;
         std::list<Element*>::reverse_iterator ChildBack;
         SDL_Surface* Screen;

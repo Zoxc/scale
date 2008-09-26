@@ -82,8 +82,8 @@ void Application::_Start(Element* Owner)
 
 void Application::_Stop(Element* Owner)
 {
-    if(*Child == Owner)
-            Child = Animations.erase(Child);
+    if(*Animation == Owner)
+            Animation = Animations.erase(Animation);
     else
         Animations.remove(Owner);
 }
@@ -158,12 +158,12 @@ void Application::Run()
 
     while(Terminated == false)
     {
-        for (Child = Animations.begin(); Child != Animations.end(); Child++)
+        for (Animation = Animations.begin(); Animation != Animations.end(); Animation++)
         {
-            int Delta = SDL_GetTicks() - (*Child)->Frame;
+            int Delta = SDL_GetTicks() - (*Animation)->Frame;
 
-            (*Child)->Frame = SDL_GetTicks();
-            (*Child)->Animate(Delta);
+            (*Animation)->Frame = SDL_GetTicks();
+            (*Animation)->Animate(Delta);
         }
 
         if(Redraws.size() > 0)
