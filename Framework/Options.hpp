@@ -17,48 +17,9 @@
 */
 
 #pragma once
-#include <vector>
 
-#include "Options.hpp"
-#include "Application.hpp"
-#include "Image.hpp"
-#include "Label.hpp"
-#include "Button.hpp"
-#include "Solid.hpp"
-#include "Category.hpp"
-#include "CategoryBackground.hpp"
+/* Frame Event will make Application call EventFrame whenever a frame is drawn */
+#define FRAME_EVENT
 
-struct AppInfo
-{
-    char* Name;
-    char* IconPath;
-    Button* button;
-};
-
-struct CatInfo
-{
-    char* Name;
-    char* IconPath;
-    Category* button;
-};
-
-extern std::vector<AppInfo*> Running;
-extern std::vector<CatInfo*> Categories;
-
-extern Application Menu;
-extern CategoryBackground* Background;
-extern Element* Tabs;
-extern Element* TaskList;
-
-class PowerButton:
-    public Button
-{
-    public:
-        PowerButton(Element* Owner);
-        ~PowerButton();
-
-        Label* PowerLabel;
-        Image* PowerIcon;
-
-        void Click();
-};
+/* No frame limit will make the Application not wait for event, but try to print as many frames as possible */
+//#define NO_FRAME_LIMIT

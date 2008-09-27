@@ -44,7 +44,7 @@ void Category::Allocate()
 {
     Element::Allocate();
 
-    Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0);
+    Fill = Graphics::CreateSurface(Width, Height, false);
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 0, 0, 0));
 }

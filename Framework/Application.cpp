@@ -20,12 +20,18 @@
 
 #include "Application.hpp"
 
-Application::Application() : Element::Element(0)
+Application::Application():
+    Element::Element(0),
+
+    //EventFrame(0),
+    EventKeyDown(0)
 {
     SDL_Init(SDL_INIT_EVERYTHING);
-    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-
     TTF_Init();
+
+    #ifdef FRAME_EVENT
+    EventFrame = 0;
+    #endif
 
     Width = 800;
     Height = 480;
@@ -43,7 +49,7 @@ Application::~Application()
 
 void Application::Allocate()
 {
-    Screen = SDL_SetVideoMode(Width, Height, 32, 0);
+    Screen = SDL_SetVideoMode(Width, Height, 32, SDL_DOUBLEBUF | SDL_HWSURFACE);
 
     if(Screen == NULL)
     {
@@ -176,11 +182,15 @@ void Application::Run()
             }
         }
 
+        #ifdef NO_FRAME_LIMIT
+        Redraw = true;
+        #endif
+
         if(Redraw)
         {
             Redraw = false;
 
-            #ifdef FRAMERATE
+            #ifdef FRAME_EVENT
             if(EventFrame != 0)
                 EventFrame();
             #endif
@@ -188,8 +198,10 @@ void Application::Run()
             Draw();
         }
 
+        #ifndef NO_FRAME_LIMIT
         if(Animations.size() == 0)
             SDL_WaitEvent(0);
+        #endif
 
         bool ChildStatus;
 
@@ -273,7 +285,9 @@ void Application::Run()
                 goto End;
         }
 
+        #ifndef NO_FRAME_LIMIT
         SDL_Delay(1);
+        #endif
     }
 
     End:

@@ -27,7 +27,7 @@ Application Menu;
 CategoryBackground* Background;
 Element* Tabs;
 Element* TaskList;
-#ifdef FRAMERATE
+#ifdef FRAME_EVENT
 Label* FPS;
 int LastUpdate = 0;
 int Frames = 0;
@@ -86,7 +86,7 @@ void KeyDown(SDLKey Key)
     }
 }
 
-#ifdef FRAMERATE
+#ifdef FRAME_EVENT
 void OnFrame()
 {
     Frames++;
@@ -268,7 +268,7 @@ int main( int argc, char* args[] )
         Menu.Focus(Running[0]->button);
     }
 
-    #ifdef FRAMERATE
+    #ifdef FRAME_EVENT
     FPS = new Label(&Menu, "FPS:       ", FontSmall, FontColorWhite);
     FPS->Left = 800 - 50 - FPS->Width;
     FPS->Top = 60;
