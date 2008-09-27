@@ -43,8 +43,8 @@ class Element
         virtual void Animate(int Delta);
         virtual void MouseEnter();
         virtual void MouseLeave();
-        virtual void MouseUp(int X, int Y);
-        virtual void MouseDown(int X, int Y, Element** NewFocus);
+        virtual void MouseUp(int X, int Y, bool Hovered);
+        virtual void MouseDown(int X, int Y, Element** NewFocus, bool Hovered);
         virtual void Activate();
         virtual void Deactivate();
         virtual void Select();
@@ -89,7 +89,7 @@ class Element
 
         // Local, used by Application
         void _Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
-        void _MouseMove(int X, int Y);
+        void _MouseMove(int X, int Y, bool Status);
         void _MouseLeave();
 
     private:

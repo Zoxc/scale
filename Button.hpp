@@ -34,8 +34,8 @@ class Button:
         void Deactivate();
         void MouseEnter();
         void MouseLeave();
-        void MouseUp(int X, int Y);
-        void MouseDown(int X, int Y, Element** NewFocus);
+        void MouseUp(int X, int Y, bool Status);
+        void MouseDown(int X, int Y, Element** NewFocus, bool Status);
 
         bool Down;
         SDL_Surface* Fill;

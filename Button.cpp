@@ -41,7 +41,7 @@ void Button::MouseEnter()
 {
     Element::MouseEnter();
 
-    if(Down)
+   // if(Down)
         Redraw();
 }
 
@@ -49,13 +49,13 @@ void Button::MouseLeave()
 {
     Element::MouseLeave();
 
-    if(Down)
+  //  if(Down)
         Redraw();
 }
 
-void Button::MouseUp(int X, int Y)
+void Button::MouseUp(int X, int Y, bool Hovered)
 {
-    Element::MouseUp(X, Y);
+    Element::MouseUp(X, Y, Hovered);
 
     if(Down)
     {
@@ -67,9 +67,9 @@ void Button::MouseUp(int X, int Y)
 
 }
 
-void Button::MouseDown(int X, int Y, Element** NewFocus)
+void Button::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
 {
-    Element::MouseDown(X, Y, NewFocus);
+    Element::MouseDown(X, Y, NewFocus, Hovered);
 
     if(!Down)
     {
@@ -92,7 +92,17 @@ void Button::Activate()
         BorderBR = Graphics::OptimizeSurface(IMG_Load("resources/border_br.png"), true);
     }
 
-    Redraw();
+    Fill = Graphics::CreateSurface(Width, Height, true);
+
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
+
+    Graphics::CopyAlpha(0, 0, BorderTL, Fill);
+    Graphics::CopyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
+    Graphics::CopyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
+    Graphics::CopyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
+
+    Graphics::HalfAlpha(Fill);
+    Graphics::HalfAlpha(Fill);
 }
 
 void Button::Deactivate()
@@ -107,27 +117,13 @@ void Button::Deactivate()
         SDL_FreeSurface(BorderBR);
     }
 
-    Redraw();
+    SDL_FreeSurface(Fill);
 }
 
 void Button::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    if(!Focused)
+    if(!Hovered)
         return;
 
-    SDL_Surface* Fill = Graphics::CreateSurface(Width, Height, true);
-
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
-
-    Graphics::CopyAlpha(0, 0, BorderTL, Fill);
-    Graphics::CopyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
-    Graphics::CopyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
-    Graphics::CopyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
-
-    Graphics::HalfAlpha(Fill);
-    Graphics::HalfAlpha(Fill);
-
     Graphics::ApplySurface(X, Y, Fill, Surface);
-
-    SDL_FreeSurface(Fill);
 }

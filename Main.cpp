@@ -231,15 +231,15 @@ int main( int argc, char* args[] )
 
         Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, FontNormal, FontColorWhite);
         CategoryLabel->Left = CategoryImage->Left + CategorySpacing + CategoryImage->Width;
-        CategoryLabel->Top = CategoryImage->Top + CategoryImage->Height / 2 - CategoryLabel->Height / 2;
+        CategoryLabel->Top = CategoryImage->Top + (CategoryImage->Height - CategoryLabel->Height) >> 1;
 
         Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, FontBig, FontColorWhite);
-        CatLabel->Top = Tabs->Height / 2 - CatLabel->Height / 2;
+        CatLabel->Top = (Tabs->Height - CatLabel->Height) >> 1;
 
         Image* CatIcon = new Image(Categories[i]->button, std::string("resources/icons_large/") + Categories[i]->IconPath);
-        CatIcon->Top = Tabs->Height / 2 - CatIcon->Height / 2;
+        CatIcon->Top = (Tabs->Height - CatIcon->Height) >> 1;
 
-        CatIcon->Left = CategoryWidth / 2 - (CatIcon->Width + CategorySpacing + CatLabel->Width) / 2;
+        CatIcon->Left = (CategoryWidth - CatIcon->Width - CategorySpacing - CatLabel->Width) >> 1;
         CatLabel->Left = CatIcon->Left + CategorySpacing + CatIcon->Width;
     }
 

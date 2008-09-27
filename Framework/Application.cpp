@@ -121,13 +121,18 @@ void Application::MouseDown(int X, int Y)
 {
     Element* NewFocus = 0;
 
-    for (ChildBack = Children->rbegin(); ChildBack != Children->rend(); ChildBack++)
+    bool ChildStatus = false;
+
+    for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
     {
-        if((*ChildBack)->Hovered)
+        if(!ChildStatus)
         {
-            (*ChildBack)->MouseDown(X, Y, &NewFocus);
-            break;
+            ChildStatus = (*Child)->Inside(X, Y);
+
+            (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, &NewFocus, ChildStatus);
         }
+        else
+            (*Child)->_MouseLeave();
     }
 
     if(NewFocus != 0 && NewFocus != Application::Focused)
@@ -186,6 +191,8 @@ void Application::Run()
         if(Animations.size() == 0)
             SDL_WaitEvent(0);
 
+        bool ChildStatus;
+
         while(SDL_PollEvent(&event))
         {
             switch(event.type)
@@ -225,8 +232,19 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEMOTION:
-                    for (ChildBack = Children->rbegin(); ChildBack != Children->rend(); ChildBack++)
-                        (*ChildBack)->_MouseMove(event.motion.x, event.motion.y);
+                   /* Status = false;
+
+                    for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                    {
+                        if(!Status)
+                        {
+                            Status = (*Child)->Inside(event.motion.x, event.motion.y);
+
+                            (*Child)->_MouseMove(event.motion.x - (*Child)->Left, event.motion.y - (*Child)->Top, Status);
+                        }
+                        else
+                            (*Child)->_MouseLeave();
+                    }*/
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
@@ -234,15 +252,20 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONUP:
-                    for (ChildBack = Children->rbegin(); ChildBack != Children->rend(); ChildBack++)
-                    {
-                        if((*ChildBack)->Hovered)
-                        {
-                            (*ChildBack)->MouseUp(event.button.x, event.button.y);
-                            break;
-                        }
-                    }
+                    /*ChildStatus = false;
 
+                    for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                    {
+                        if(!ChildStatus)
+                        {
+                            ChildStatus = (*Child)->Inside(event.button.x, event.button.y);
+
+                            (*Child)->_MouseMove(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
+                        }
+                        else
+                            (*Child)->_MouseLeave();
+                    }
+*/
                     break;
             }
 
