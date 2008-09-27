@@ -26,7 +26,8 @@ TTF_Font* FontBig = NULL;
 Label::Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor) :
     Element::Element(Owner),
     Font(AFont),
-    Color(AColor)
+    Color(AColor),
+    Bitmap(0)
 {
     Caption = ACaption;
 
@@ -43,10 +44,8 @@ Label::~Label()
 
 }
 
-void Label::Allocate()
+void Label::_CreateCaption()
 {
-    Element::Allocate();
-
     if(Color == FontColorBlack)
     {
         SDL_Surface* Shadow = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), White);
@@ -82,13 +81,32 @@ void Label::Allocate()
     }
 }
 
+void Label::SetCaption(std::string NewCaption)
+{
+    if(Caption != NewCaption && Bitmap != 0)
+    {
+       Caption = NewCaption;
+       SDL_FreeSurface(Bitmap);
+        _CreateCaption();
+    }
+    else
+        Caption = NewCaption;
+}
+
+void Label::Allocate()
+{
+    Element::Allocate();
+
+    _CreateCaption();
+}
+
 void Label::Deallocate()
 {
     Element::Deallocate();
 
-    //SDL_FreeSurface(Text);
-    //SDL_FreeSurface(Shadow);
     SDL_FreeSurface(Bitmap);
+
+    Bitmap = 0;
 }
 
 void Label::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)

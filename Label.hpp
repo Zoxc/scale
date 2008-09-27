@@ -43,6 +43,7 @@ class Label:
         void Allocate();
         void Deallocate();
         void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void SetCaption(std::string NewCaption);
 
         TTF_Font* Font;
         FontColor Color;
@@ -52,4 +53,6 @@ class Label:
         SDL_Surface* Bitmap;
 
         std::string Caption;
+    private:
+        void _CreateCaption();
 };

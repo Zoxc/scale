@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <sstream>
+
 #include "Main.hpp"
 
 std::vector<AppInfo*> Running;
@@ -25,6 +27,9 @@ Application Menu;
 CategoryBackground* Background;
 Element* Tabs;
 Element* TaskList;
+Label* FPS;
+int LastUpdate = 0;
+int Frames = 0;
 
 PowerButton::PowerButton(Element* Owner) : Button(Owner)
 {
@@ -50,7 +55,7 @@ void PowerButton::Click()
     Menu.Terminated = true;
 }
 
-void KeyDown(Element* Owner, SDLKey Key)
+void KeyDown(SDLKey Key)
 {
     intptr_t Index = -1;
 
@@ -77,6 +82,27 @@ void KeyDown(Element* Owner, SDLKey Key)
                 Tabs->SelectElement(Categories[Index+1]->button);
             break;
     }
+}
+
+void OnFrame()
+{
+    Frames++;
+
+    if( SDL_GetTicks() - LastUpdate > 50)
+    {
+            std::stringstream Caption;
+
+            Caption << "FPS: ";
+
+            Caption << Frames / ((SDL_GetTicks() - LastUpdate) / 1000.f);
+
+            FPS->SetCaption(Caption.str());
+
+            LastUpdate = SDL_GetTicks();
+
+            Frames = 0;
+    }
+
 }
 
 int main( int argc, char* args[] )
@@ -238,7 +264,12 @@ int main( int argc, char* args[] )
         Menu.Focus(Running[0]->button);
     }
 
+    FPS = new Label(&Menu, "FPS:       ", FontSmall, FontColorWhite);
+    FPS->Left = 800 - 50 - FPS->Width;
+    FPS->Top = 60;
+
     Menu.Title = "Scale Demo";
+    Menu.EventFrame = &OnFrame;
     Menu.EventKeyDown = &KeyDown;
 
     Menu.Run();

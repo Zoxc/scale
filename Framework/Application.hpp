@@ -23,7 +23,8 @@
 
 #include "Element.hpp"
 
-typedef void (*KeyEvent)(Element* Owner, SDLKey Key);
+typedef void (*KeyEvent)(SDLKey Key);
+typedef void (*FrameEvent)();
 
 class Application:
     public Element
@@ -41,6 +42,7 @@ class Application:
         void Draw();
 
         KeyEvent EventKeyDown;
+        FrameEvent EventFrame;
         Element* Focused;
         std::string Title;
         bool Terminated;

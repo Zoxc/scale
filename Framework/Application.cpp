@@ -161,20 +161,30 @@ void Application::Run()
     {
         for (Animation = Animations.begin(); Animation != Animations.end(); Animation++)
         {
-            int Delta = SDL_GetTicks() - (*Animation)->Frame;
+            int Ticks = SDL_GetTicks();
+            int Delta = Ticks - (*Animation)->Frame;
 
-            (*Animation)->Frame = SDL_GetTicks();
-            (*Animation)->Animate(Delta);
+            if(Delta > 0)
+            {
+                (*Animation)->Frame = Ticks;
+                (*Animation)->Animate(Delta);
+            }
         }
+
+        Redraw = true;
 
         if(Redraw)
         {
-            Redraw = false;
+
+
+            if(EventFrame != 0)
+                EventFrame();
+
             Draw();
         }
 
-        if(Animations.size() == 0)
-            SDL_WaitEvent(0);
+        //if(Animations.size() == 0)
+        //    SDL_WaitEvent(0);
 
         while(SDL_PollEvent(&event))
         {
@@ -186,7 +196,7 @@ void Application::Run()
 
                 case SDL_KEYDOWN:
                     if(EventKeyDown != 0)
-                        EventKeyDown(this, event.key.keysym.sym);
+                        EventKeyDown(event.key.keysym.sym);
 
                     if(Application::Focused != 0)
                         switch((int)event.key.keysym.sym)
@@ -240,7 +250,7 @@ void Application::Run()
                 goto End;
         }
 
-        SDL_Delay(1);
+        //SDL_Delay(1);
     }
 
     End:
