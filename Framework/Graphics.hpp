@@ -25,7 +25,8 @@ extern SDL_Color White;
 
 namespace Graphics
 {
-    SDL_Surface* ConvertSurface(SDL_Surface* source);
+    SDL_Surface* OptimizeSurface(SDL_Surface* source, bool Alpha);
+    SDL_Surface* CreateSurface(int Width, int Height, bool Alpha);
     void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
     void ApplySurfaceEx(int x, int y, SDL_Surface* source, SDL_Surface* destination);
     SDL_Surface* BlurAlpha(SDL_Surface* source);

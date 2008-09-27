@@ -339,7 +339,7 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 
         if(Children != 0)
             for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
-                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
+                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 255);
 
         SDL_SetClipRect(Surface, &OldClip);
     }
@@ -349,6 +349,6 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 
         if(Children != 0)
             for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
-                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 256);
+                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 255);
     }
 }

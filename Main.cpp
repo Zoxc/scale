@@ -23,12 +23,12 @@ std::vector<CatInfo*> Categories;
 
 Application Menu;
 CategoryBackground* Background;
-Solid* Tabs;
+Element* Tabs;
 Element* TaskList;
 
 PowerButton::PowerButton(Element* Owner) : Button(Owner)
 {
-    PowerIcon = new Image(this, "power.png");
+    PowerIcon = new Image(this, "resources/icons_small/power.png");
     PowerIcon->Left = 5;
     PowerIcon->Top = 5;
 
@@ -85,48 +85,49 @@ int main( int argc, char* args[] )
 
     AppInfo* App = new AppInfo();
     App->Name = "Package Manager";
-    App->IconPath = "installer.png";
+    App->IconPath = "resources/icons/installer.png";
     Running.push_back(App);
 
     App = new AppInfo();
     App->Name = "Filesystem";
-    App->IconPath = "folder.png";
+    App->IconPath = "resources/icons/folder.png";
     Running.push_back(App);
 
     App = new AppInfo();
     App->Name = "Internet Relay Chat";
-    App->IconPath = "irc.png";
+    App->IconPath = "resources/icons/irc.png";
     Running.push_back(App);
 
     CatInfo* Cat = new CatInfo();
     Cat->Name = "Games";
-    Cat->IconPath = "games.png";
+    Cat->IconPath = "resources/icons_large/games.png";
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
     Cat->Name = "Media";
-    Cat->IconPath = "media.png";
+    Cat->IconPath = "resources/icons_large/media.png";
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
     Cat->Name = "Web";
-    Cat->IconPath = "web.png";
+    Cat->IconPath = "resources/icons_large/web.png";
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
     Cat->Name = "Other";
-    Cat->IconPath = "other.png";
+    Cat->IconPath = "resources/icons_large/other.png";
     Categories.push_back(Cat);
 
-    Image Wallpaper(&Menu, "back.png");
+    Image Wallpaper(&Menu, "resources/back.png");
+    Wallpaper.NeedAlpha = false;
 
     TaskList = new Element(&Menu);
     TaskList->Width = Menu.Width;
     TaskList->Height = Menu.Height;
 
-    FontSmall = TTF_OpenFont("FreeSans.ttf", 18);
-    FontNormal = TTF_OpenFont("FreeSans.ttf", 22);
-    FontBig = TTF_OpenFont("FreeSans.ttf", 24);
+    FontSmall = TTF_OpenFont("resources/FreeSans.ttf", 18);
+    FontNormal = TTF_OpenFont("resources/FreeSans.ttf", 22);
+    FontBig = TTF_OpenFont("resources/FreeSans.ttf", 24);
 
     Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", FontSmall, FontColorBlack);
     Welcome.Left = 15;
@@ -168,11 +169,15 @@ int main( int argc, char* args[] )
         Running[i]->button->Width = AppLabel->Width + 5 + 8 + AppIcon->Width + 7;
     }
 
-    Tabs = new Solid(&Menu);
-    Tabs->Left = 0;
+    Tabs = new Element(&Menu);
     Tabs->Height = 66;
     Tabs->Top = 480 - Tabs->Height;
     Tabs->Width = 800;
+
+    Solid* TabsBack = new Solid(Tabs);
+    TabsBack->Height = 66;
+    TabsBack->Width = 800;
+    TabsBack->AlphaBlend = 128;
 
     const int CategorySpacing = 8;
     int CategoryWidth = 800 / Categories.size();

@@ -55,7 +55,7 @@ void Label::Allocate()
 
         Graphics::HalfAlpha(Shadow);
 
-        Bitmap = SDL_CreateRGBSurface(SDL_SRCALPHA, Text->w + 10, Text->h + 10, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+        Bitmap = Graphics::CreateSurface(Text->w, Text->h + 1, true);
 
         Graphics::ApplySurfaceEx(0, 1, Shadow, Bitmap);
         Graphics::ApplySurfaceEx(0, 0, Text, Bitmap);
@@ -72,7 +72,7 @@ void Label::Allocate()
 
         Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), White);
 
-        Bitmap = SDL_CreateRGBSurface(0, Text->w + 4, Text->h + 3, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+        Bitmap = Graphics::CreateSurface(Text->w + 4, Text->h + 3, true);
 
         Graphics::ApplySurfaceEx(0, 0, Shadow, Bitmap);
         Graphics::ApplySurfaceEx(2, 1, Text, Bitmap);

@@ -19,11 +19,16 @@
 #include "Image.hpp"
 #include "Graphics.hpp"
 
-Image::Image(Element* Owner, char* Path) : Element::Element(Owner)
+Image::Image(Element* Owner, char* Path):
+    Element::Element(Owner),
+    NeedAlpha(true)
 {
     Filename = Path;
 
     ImageSurface = IMG_Load(Path);
+
+    if(ImageSurface == 0)
+        return;
 
     Width = ImageSurface->w;
     Height = ImageSurface->h;
@@ -37,9 +42,7 @@ Image::~Image()
 
 void Image::Allocate()
 {
-    ImageSurface = IMG_Load(Filename.c_str());
-    //ImageSurface = SDL_DisplayFormat(Image);
-    //SDL_FreeSurface(Image);
+    ImageSurface = Graphics::OptimizeSurface(IMG_Load(Filename.c_str()), NeedAlpha);
 }
 
 void Image::Deallocate()

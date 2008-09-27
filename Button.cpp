@@ -30,25 +30,25 @@ Button::Button(Element* Owner) :
     Down(false)
 {
     CanFocus = true;
-
+/*
     if(ButtonCount++ == 0)
     {
-        BorderTL = Graphics::ConvertSurface(IMG_Load("resources/border_tl.png"));
-        BorderTR = Graphics::ConvertSurface(IMG_Load("resources/border_tr.png"));
-        BorderBL = Graphics::ConvertSurface(IMG_Load("resources/border_bl.png"));
-        BorderBR = Graphics::ConvertSurface(IMG_Load("resources/border_br.png"));
-    }
+        BorderTL = Graphics::OptimizeSurface(IMG_Load("resources/border_tl.png"), true);
+        BorderTR = Graphics::OptimizeSurface(IMG_Load("resources/border_tr.png"), true);
+        BorderBL = Graphics::OptimizeSurface(IMG_Load("resources/border_bl.png"), true);
+        BorderBR = Graphics::OptimizeSurface(IMG_Load("resources/border_br.png"), true);
+    }*/
 }
 
 Button::~Button()
-{
+{/*
     if(--ButtonCount == 0)
     {
         SDL_FreeSurface(BorderTL);
         SDL_FreeSurface(BorderTR);
         SDL_FreeSurface(BorderBL);
         SDL_FreeSurface(BorderBR);
-    }
+    }*/
 }
 
 void Button::MouseEnter()
@@ -113,14 +113,14 @@ void Button::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
     if(!Focused)
         return;
 
-    SDL_Surface* Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+    SDL_Surface* Fill = Graphics::CreateSurface(Width, Height, true);
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
 
-    Graphics::CopyAlpha(0, 0, BorderTL, Fill);
-    Graphics::CopyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
-    Graphics::CopyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
-    Graphics::CopyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
+    //Graphics::CopyAlpha(0, 0, BorderTL, Fill);
+    //Graphics::CopyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
+    //Graphics::CopyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
+    //Graphics::CopyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
 
     Graphics::HalfAlpha(Fill);
     Graphics::HalfAlpha(Fill);

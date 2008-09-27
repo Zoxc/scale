@@ -35,11 +35,9 @@ void Solid::Allocate()
 {
     Element::Allocate();
 
-    Fill = SDL_CreateRGBSurface(0, Width, Height, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+    Fill = Graphics::CreateSurface(Width, Height, false);
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, R, G, B));
-
-    Graphics::HalfAlpha(Fill);
 }
 
 void Solid::Deallocate()
@@ -51,5 +49,7 @@ void Solid::Deallocate()
 
 void Solid::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
+    SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
+
     Graphics::ApplySurface(X, Y, Fill, Surface);
 }

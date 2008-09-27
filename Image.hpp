@@ -31,6 +31,7 @@ class Image:
         virtual ~Image();
 
         std::string Filename;
+        bool NeedAlpha;
 
         void Allocate();
         void Deallocate();

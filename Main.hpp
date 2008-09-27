@@ -46,7 +46,7 @@ extern std::vector<CatInfo*> Categories;
 
 extern Application Menu;
 extern CategoryBackground* Background;
-extern Solid* Tabs;
+extern Element* Tabs;
 extern Element* TaskList;
 
 class PowerButton:

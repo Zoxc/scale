@@ -38,5 +38,5 @@ class Button:
         void MouseDown(int X, int Y, Element** NewFocus);
 
         bool Down;
-        SDL_Surface* ImageSurface;
+        SDL_Surface* Fill;
 };
