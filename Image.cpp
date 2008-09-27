@@ -19,13 +19,13 @@
 #include "Image.hpp"
 #include "Graphics.hpp"
 
-Image::Image(Element* Owner, char* Path):
+Image::Image(Element* Owner, std::string Path):
     Element::Element(Owner),
     NeedAlpha(true)
 {
     Filename = Path;
 
-    ImageSurface = IMG_Load(Path);
+    ImageSurface = IMG_Load(Path.c_str());
 
     if(ImageSurface == 0)
         return;
@@ -54,5 +54,6 @@ void Image::Deallocate()
 
 void Image::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    Graphics::ApplyAlpha(X, Y, ImageSurface, Surface, Alpha);
+    if(ImageSurface != 0)
+        Graphics::ApplyAlpha(X, Y, ImageSurface, Surface, Alpha);
 }

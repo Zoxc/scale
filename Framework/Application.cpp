@@ -171,20 +171,20 @@ void Application::Run()
             }
         }
 
-        Redraw = true;
-
         if(Redraw)
         {
+            Redraw = false;
 
-
+            #ifdef FRAMERATE
             if(EventFrame != 0)
                 EventFrame();
+            #endif
 
             Draw();
         }
 
-        //if(Animations.size() == 0)
-        //    SDL_WaitEvent(0);
+        if(Animations.size() == 0)
+            SDL_WaitEvent(0);
 
         while(SDL_PollEvent(&event))
         {
@@ -250,7 +250,7 @@ void Application::Run()
                 goto End;
         }
 
-        //SDL_Delay(1);
+        SDL_Delay(1);
     }
 
     End:

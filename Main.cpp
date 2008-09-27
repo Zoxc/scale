@@ -27,9 +27,11 @@ Application Menu;
 CategoryBackground* Background;
 Element* Tabs;
 Element* TaskList;
+#ifdef FRAMERATE
 Label* FPS;
 int LastUpdate = 0;
 int Frames = 0;
+#endif
 
 PowerButton::PowerButton(Element* Owner) : Button(Owner)
 {
@@ -84,11 +86,12 @@ void KeyDown(SDLKey Key)
     }
 }
 
+#ifdef FRAMERATE
 void OnFrame()
 {
     Frames++;
 
-    if( SDL_GetTicks() - LastUpdate > 50)
+    if( SDL_GetTicks() - LastUpdate > 100)
     {
             std::stringstream Caption;
 
@@ -104,6 +107,7 @@ void OnFrame()
     }
 
 }
+#endif
 
 int main( int argc, char* args[] )
 {
@@ -126,22 +130,22 @@ int main( int argc, char* args[] )
 
     CatInfo* Cat = new CatInfo();
     Cat->Name = "Games";
-    Cat->IconPath = "resources/icons_large/games.png";
+    Cat->IconPath = "games.png";
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
     Cat->Name = "Media";
-    Cat->IconPath = "resources/icons_large/media.png";
+    Cat->IconPath = "media.png";
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
     Cat->Name = "Web";
-    Cat->IconPath = "resources/icons_large/web.png";
+    Cat->IconPath = "web.png";
     Categories.push_back(Cat);
 
     Cat = new CatInfo();
     Cat->Name = "Other";
-    Cat->IconPath = "resources/icons_large/other.png";
+    Cat->IconPath = "other.png";
     Categories.push_back(Cat);
 
     Image Wallpaper(&Menu, "resources/back.png");
@@ -221,18 +225,18 @@ int main( int argc, char* args[] )
         Categories[i]->button->Show->Width = 800;
         Categories[i]->button->Show->Hide();
 
-        Image* CategoryImage = new Image(Categories[i]->button->Show, Categories[i]->IconPath);
-        CategoryImage->Left = 15;
-        CategoryImage->Top = 6;
+        Image* CategoryImage = new Image(Categories[i]->button->Show, std::string("resources/icons/") + Categories[i]->IconPath);
+        CategoryImage->Left = 8;
+        CategoryImage->Top = 8;
 
-        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, FontBig, FontColorWhite);
+        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, FontNormal, FontColorWhite);
         CategoryLabel->Left = CategoryImage->Left + CategorySpacing + CategoryImage->Width;
-        CategoryLabel->Top = 21;
+        CategoryLabel->Top = CategoryImage->Top + CategoryImage->Height / 2 - CategoryLabel->Height / 2;
 
         Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, FontBig, FontColorWhite);
         CatLabel->Top = Tabs->Height / 2 - CatLabel->Height / 2;
 
-        Image* CatIcon = new Image(Categories[i]->button, Categories[i]->IconPath);
+        Image* CatIcon = new Image(Categories[i]->button, std::string("resources/icons_large/") + Categories[i]->IconPath);
         CatIcon->Top = Tabs->Height / 2 - CatIcon->Height / 2;
 
         CatIcon->Left = CategoryWidth / 2 - (CatIcon->Width + CategorySpacing + CatLabel->Width) / 2;
@@ -264,12 +268,15 @@ int main( int argc, char* args[] )
         Menu.Focus(Running[0]->button);
     }
 
+    #ifdef FRAMERATE
     FPS = new Label(&Menu, "FPS:       ", FontSmall, FontColorWhite);
     FPS->Left = 800 - 50 - FPS->Width;
     FPS->Top = 60;
 
-    Menu.Title = "Scale Demo";
     Menu.EventFrame = &OnFrame;
+    #endif
+
+    Menu.Title = "Scale Demo";
     Menu.EventKeyDown = &KeyDown;
 
     Menu.Run();

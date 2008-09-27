@@ -24,7 +24,9 @@
 #include "Element.hpp"
 
 typedef void (*KeyEvent)(SDLKey Key);
+#ifdef FRAMERATE
 typedef void (*FrameEvent)();
+#endif
 
 class Application:
     public Element
@@ -42,7 +44,9 @@ class Application:
         void Draw();
 
         KeyEvent EventKeyDown;
+        #ifdef FRAMERATE
         FrameEvent EventFrame;
+        #endif
         Element* Focused;
         std::string Title;
         bool Terminated;

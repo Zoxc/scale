@@ -27,7 +27,7 @@ class Image:
     public Element
 {
     public:
-        Image(Element* Owner, char* Path);
+        Image(Element* Owner, std::string Path);
         virtual ~Image();
 
         std::string Filename;
