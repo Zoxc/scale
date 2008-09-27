@@ -28,13 +28,10 @@ SDL_Surface* Graphics::CreateSurface(int Width, int Height, bool Alpha)
 {
     SDL_Surface* Video = SDL_GetVideoSurface();
 
-    if(Video == 0)
-        return SDL_CreateRGBSurface(0, Width, Height, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-
     if(Alpha)
-        return SDL_CreateRGBSurface(0, Width, Height, Video->format->BitsPerPixel, Video->format->Rmask, Video->format->Gmask, Video->format->Bmask, 0xff000000);
+        return SDL_CreateRGBSurface(SDL_HWSURFACE, Width, Height, Video->format->BitsPerPixel, Video->format->Rmask, Video->format->Gmask, Video->format->Bmask, 0xff000000);
     else
-        return SDL_CreateRGBSurface(0, Width, Height, Video->format->BitsPerPixel, Video->format->Rmask, Video->format->Gmask, Video->format->Bmask, 0);
+        return SDL_CreateRGBSurface(SDL_HWSURFACE, Width, Height, Video->format->BitsPerPixel, Video->format->Rmask, Video->format->Gmask, Video->format->Bmask, 0);
 }
 
 void Graphics::ApplySurface( int x, int y, SDL_Surface* Source, SDL_Surface* Destination )

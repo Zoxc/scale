@@ -21,10 +21,11 @@
 #include <list>
 #include "SDL.h"
 
+#include "Options.hpp"
 #include "Element.hpp"
 
 typedef void (*KeyEvent)(SDLKey Key);
-#ifdef FRAMERATE
+#ifdef FRAME_EVENT
 typedef void (*FrameEvent)();
 #endif
 
@@ -43,10 +44,10 @@ class Application:
 
         void Draw();
 
-        KeyEvent EventKeyDown;
-        #ifdef FRAMERATE
+        #ifdef FRAME_EVENT
         FrameEvent EventFrame;
         #endif
+        KeyEvent EventKeyDown;
         Element* Focused;
         std::string Title;
         bool Terminated;
