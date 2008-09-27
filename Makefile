@@ -7,6 +7,7 @@ LFLAGS += `sdl-config --libs` -lSDL_ttf -lSDL_image
 CFLAGS += -Wall `sdl-config --cflags` -I./Framework -O2
 
 TARGET = ./bin/scale
+BUILDDIR = ./obj
 
 #activate debug by compiling with `DEBUG=1 make`
 ifeq ($(DEBUG), 1)
@@ -14,17 +15,20 @@ CFLAGS += -ggdb
 endif
 
 SRCS = $(wildcard *.cpp Framework/*.cpp)
-OBJS = $(patsubst %.cpp, %.o, $(SRCS) )
+OBJS = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SRCS) )
 
-all: $(TARGET)
- 
+all: depend objdir $(TARGET)
+
+objdir:
+	mkdir -p obj/Framework
+
 $(TARGET): $(OBJS)
 	$(CPP) $(CFLAGS) $(LFLAGS) -o $@ $(OBJS)
 ifneq ($(DEBUG), 1)
 	$(STRIP) $@
 endif
 
-%.o: %.cpp %.hpp
+$(BUILDDIR)/%.o: %.cpp %.hpp
 	$(CPP) $(CFLAGS) -c $<  -o $@
 
 .PHONY: clean 
@@ -32,7 +36,7 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 depend:
-	makedepend -- $(CFLAGS) -- $(SRCS)
+	makedepend -- $(CFLAGS) -- $(SRCS) 2>/dev/null
 
 # End of Makefile. Lines below are auto-generated with the depend rule
 #
