@@ -30,13 +30,11 @@ class Button:
         virtual ~Button();
 
         void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Allocate();
+        void Deallocate();
         void Activate();
         void Deactivate();
-        void MouseEnter();
-        void MouseLeave();
-        void MouseUp(int X, int Y, bool Status);
-        void MouseDown(int X, int Y, Element** NewFocus, bool Status);
 
-        bool Down;
+        bool Focused;
         SDL_Surface* Fill;
 };

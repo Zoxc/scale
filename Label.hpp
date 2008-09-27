@@ -48,8 +48,6 @@ class Label:
         TTF_Font* Font;
         FontColor Color;
 
-        /*SDL_Surface* Text;
-        SDL_Surface* Shadow;*/
         SDL_Surface* Bitmap;
 
         std::string Caption;

@@ -232,19 +232,19 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEMOTION:
-                   /* Status = false;
+                    ChildStatus = false;
 
                     for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
                     {
-                        if(!Status)
+                        if(!ChildStatus)
                         {
-                            Status = (*Child)->Inside(event.motion.x, event.motion.y);
+                            ChildStatus = (*Child)->Inside(event.motion.x, event.motion.y);
 
-                            (*Child)->_MouseMove(event.motion.x - (*Child)->Left, event.motion.y - (*Child)->Top, Status);
+                            (*Child)->_MouseMove(event.motion.x - (*Child)->Left, event.motion.y - (*Child)->Top, ChildStatus);
                         }
                         else
                             (*Child)->_MouseLeave();
-                    }*/
+                    }
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
@@ -252,7 +252,7 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONUP:
-                    /*ChildStatus = false;
+                    ChildStatus = false;
 
                     for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
                     {
@@ -265,7 +265,7 @@ void Application::Run()
                         else
                             (*Child)->_MouseLeave();
                     }
-*/
+
                     break;
             }
 

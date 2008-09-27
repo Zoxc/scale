@@ -31,7 +31,6 @@ Element::Element(Element* Owner):
     Animated(false),
     AutoSelect(false),
     CanFocus(false),
-    Focused(false),
     Selected(false),
     Visible(true),
     Hovered(false),
@@ -134,12 +133,10 @@ void Element::Click()
 
 void Element::Activate()
 {
-    Focused = true;
 }
 
 void Element::Deactivate()
 {
-    Focused = false;
 }
 
 void Element::MouseLeave()
@@ -199,6 +196,11 @@ void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
     {
         bool ChildStatus = false;
 
+        if(CanFocus)
+            *NewFocus = this;
+
+        Click();
+
         if(Children != 0)
             for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
             {
@@ -211,14 +213,6 @@ void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
                 else
                     (*Child)->_MouseLeave();
             }
-
-        if(!ChildStatus)
-        {
-            if(CanFocus)
-                *NewFocus = this;
-
-            Click();
-        }
     }
     else if(Element::Hovered)
     {
@@ -337,10 +331,10 @@ void Element::_MouseMove(int X, int Y, bool Hovered)
     {
         Element::Hovered = Hovered;
 
-        /*if(Hovered)
+        if(Hovered)
             MouseEnter();
         else
-            MouseLeave();*/
+            MouseLeave();
     }
 }
 

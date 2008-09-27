@@ -72,7 +72,6 @@ class Element
         bool Animated;
         bool AutoSelect;
         bool CanFocus;
-        bool Focused;
         bool Selected;
         bool Visible;
         bool Hovered;

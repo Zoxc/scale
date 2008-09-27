@@ -28,7 +28,7 @@ int ButtonCount = 0;
 
 Button::Button(Element* Owner) :
     Element::Element(Owner),
-    Down(false)
+    Focused(false)
 {
     CanFocus = true;
 }
@@ -37,52 +37,9 @@ Button::~Button()
 {
 }
 
-void Button::MouseEnter()
+void Button::Allocate()
 {
-    Element::MouseEnter();
-
-   // if(Down)
-        Redraw();
-}
-
-void Button::MouseLeave()
-{
-    Element::MouseLeave();
-
-  //  if(Down)
-        Redraw();
-}
-
-void Button::MouseUp(int X, int Y, bool Hovered)
-{
-    Element::MouseUp(X, Y, Hovered);
-
-    if(Down)
-    {
-        Down = false;
-
-        if(Hovered)
-            Redraw();
-    }
-
-}
-
-void Button::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
-{
-    Element::MouseDown(X, Y, NewFocus, Hovered);
-
-    if(!Down)
-    {
-        Down = true;
-
-        if(Hovered)
-            Redraw();
-    }
-}
-
-void Button::Activate()
-{
-    Element::Activate();
+    Element::Allocate();
 
     if(ButtonCount++ == 0)
     {
@@ -105,9 +62,9 @@ void Button::Activate()
     Graphics::HalfAlpha(Fill);
 }
 
-void Button::Deactivate()
+void Button::Deallocate()
 {
-    Element::Deactivate();
+    Element::Deallocate();
 
     if(--ButtonCount == 0)
     {
@@ -120,9 +77,23 @@ void Button::Deactivate()
     SDL_FreeSurface(Fill);
 }
 
+void Button::Activate()
+{
+    Focused = true;
+
+    Redraw();
+}
+
+void Button::Deactivate()
+{
+    Focused = false;
+
+    Redraw();
+}
+
 void Button::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
-    if(!Hovered)
+    if(!Focused)
         return;
 
     Graphics::ApplySurface(X, Y, Fill, Surface);
