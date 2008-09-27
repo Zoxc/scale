@@ -3,8 +3,8 @@ CROSS_COMPILE =
 CPP = $(CROSS_COMPILE)g++
 LD = $(CROSS_COMPILE)ld
 STRIP = $(CROSS_COMPILE)strip
-LFLAGS += `sdl-config --libs` -lSDL_ttf -lSDL_image
 CFLAGS += -Wall `sdl-config --cflags` -I./Framework -O2
+LDFLAGS += -lSDL_ttf -lSDL_image
 
 TARGET = ./bin/scale
 BUILDDIR = ./obj
@@ -13,6 +13,14 @@ BUILDDIR = ./obj
 ifeq ($(DEBUG), 1)
 CFLAGS += -ggdb
 endif
+
+#activate static binaries with `STATIC=1 make`
+ifeq ($(STATIC), 1)
+LDFLAGS += -static `sdl-config --static-libs`
+else
+LDFLAGS += `sdl-config --libs`
+endif
+
 
 SRCS = $(wildcard *.cpp Framework/*.cpp)
 OBJS = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SRCS) )
@@ -23,7 +31,7 @@ objdir:
 	mkdir -p obj/Framework
 
 $(TARGET): $(OBJS)
-	$(CPP) $(CFLAGS) $(LFLAGS) -o $@ $(OBJS)
+	$(CPP) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 ifneq ($(DEBUG), 1)
 	$(STRIP) $@
 endif
