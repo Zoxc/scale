@@ -33,7 +33,6 @@ Category::Category(Element* AOwner) :
     Hide(0),
     Show(0)
 {
-    AutoSelect = false;
 }
 
 Category::~Category()
@@ -56,12 +55,17 @@ void Category::Deallocate()
     SDL_FreeSurface(Fill);
 }
 
-void Category::Click()
+void Category::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
 {
-    if(Selected)
-        Owner->SelectElement(0);
-    else
-        Owner->SelectElement(this);
+    if(Hovered)
+    {
+        if(Selected)
+            Owner->SelectElement(0);
+        else
+            Owner->SelectElement(this);
+    }
+
+    Element::MouseDown(X, Y, NewFocus, Hovered);
 }
 
 void Category::Select()

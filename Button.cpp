@@ -58,8 +58,7 @@ void Button::Allocate()
     Graphics::CopyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
     Graphics::CopyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
 
-    Graphics::HalfAlpha(Fill);
-    Graphics::HalfAlpha(Fill);
+    Graphics::HalfAlpha(Fill, 2);
 }
 
 void Button::Deallocate()
@@ -96,5 +95,5 @@ void Button::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
     if(!Focused)
         return;
 
-    Graphics::ApplySurface(X, Y, Fill, Surface);
+    Graphics::ApplyAlpha(X, Y, Fill, Surface, Alpha);
 }

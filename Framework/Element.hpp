@@ -19,16 +19,21 @@
 #pragma once
 #include "SDL.h"
 #include <list>
+#include <map>
 
 class Element;
 
 typedef void (*ElementNotifyEvent)(Element* Owner);
 typedef void (*ElementKeyEvent)(Element* Owner, SDLKey Key);
+typedef SDLKey ElementKey;
 
-enum ElementLink
-{
-    ElementLeft, ElementUp, ElementRight, ElementDown
-};
+typedef std::pair<ElementKey, Element*> ElementLink;
+typedef std::map<ElementKey, Element*> ElementLinks;
+
+#define ElementUp SDLK_UP
+#define ElementDown SDLK_DOWN
+#define ElementLeft SDLK_LEFT
+#define ElementRight SDLK_RIGHT
 
 class Element
 {
@@ -61,23 +66,25 @@ class Element
 
         void* Tag;
 
-        Element* Links[sizeof(ElementLink)];
         Element* Owner;
         Element* Root;
         Element* SelectedElement;
 
         std::list<Element*>* Children;
+        ElementLinks* Links;
 
         bool Clip;
         bool Animated;
-        bool AutoSelect;
+        bool CanSelect;
         bool CanFocus;
         bool Selected;
         bool Visible;
         bool Hovered;
+        bool Down;
 
         unsigned char AlphaBlend;
 
+        void Link(ElementKey Key, Element* Link);
         void SelectElement(Element* NewSelection);
         void Redraw();
         void SetOwner(Element* NewOwner);

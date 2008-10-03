@@ -218,29 +218,18 @@ void Application::Run()
                         EventKeyDown(event.key.keysym.sym);
 
                     if(Application::Focused != 0)
-                        switch((int)event.key.keysym.sym)
-                        {
-                            case SDLK_RETURN:
-                                if(Application::Focused != 0)
-                                    Application::Focused->Click();
-                                break;
+                    {
+                        if(event.key.keysym.sym == SDLK_RETURN)
+                            Application::Focused->Click();
 
-                            case SDLK_LEFT:
-                                Focus(Application::Focused->Links[ElementLeft]);
-                                break;
-
-                            case SDLK_UP:
-                                Focus(Application::Focused->Links[ElementUp]);
-                                break;
-
-                            case SDLK_RIGHT:
-                                Focus(Application::Focused->Links[ElementRight]);
-                                break;
-
-                            case SDLK_DOWN:
-                                Focus(Application::Focused->Links[ElementDown]);
-                                break;
-                        }
+                        if(Application::Focused->Links != 0)
+                            for (ElementLinks::iterator Link = Application::Focused->Links->begin(); Link != Application::Focused->Links->end(); Link++)
+                                if(event.key.keysym.sym == Link->first)
+                                {
+                                    Focus(Link->second);
+                                    break;
+                                }
+                    }
                     break;
 
                 case SDL_MOUSEMOTION:
@@ -272,7 +261,7 @@ void Application::Run()
                         {
                             ChildStatus = (*Child)->Inside(event.button.x, event.button.y);
 
-                            (*Child)->_MouseMove(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
+                            (*Child)->MouseUp(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
                         }
                         else
                             (*Child)->_MouseLeave();

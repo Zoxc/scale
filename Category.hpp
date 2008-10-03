@@ -32,8 +32,8 @@ class Category:
 
         void Allocate();
         void Deallocate();
+        void MouseDown(int X, int Y, Element** NewFocus, bool Hovered);
         void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
-        void Click();
         void Select();
         void Deselect();
         void Animate(int Delta);

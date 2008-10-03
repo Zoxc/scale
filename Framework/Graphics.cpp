@@ -267,24 +267,23 @@ void Graphics::CopyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest)
     SDL_UnlockSurface(source);
 }
 
-void Graphics::HalfAlpha(SDL_Surface* surface)
+void Graphics::HalfAlpha(SDL_Surface* Surface, unsigned char Times)
 {
-    SDL_LockSurface(surface);
+    SDL_LockSurface(Surface);
 
-    Uint32* Pixel = (Uint32*)surface->pixels;
-    Uint32* PixelStop = &Pixel[surface->w * surface->h];
+    Uint32* Pixel = (Uint32*)Surface->pixels;
+    Uint32* PixelStop = &Pixel[Surface->w * Surface->h];
 
     while(Pixel != PixelStop)
     {
         Uint8 Alpha = reinterpret_cast<Uint8*>(Pixel)[3];
 
-        if (Alpha != 0)
-            reinterpret_cast<Uint8*>(Pixel)[3] = Alpha >> 1;
+        reinterpret_cast<Uint8*>(Pixel)[3] = Alpha >> Times;
 
         Pixel++;
     }
 
-    SDL_UnlockSurface(surface);
+    SDL_UnlockSurface(Surface);
 }
 
 SDL_Surface* Graphics::BlurAlpha(SDL_Surface* source)

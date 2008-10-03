@@ -249,22 +249,22 @@ int main( int argc, char* args[] )
     // Add Links
     for(size_t i = 0; i < Running.size(); i++)
     {
-        Running[i]->button->Links[ElementRight] = &Power;
+        Running[i]->button->Link(ElementRight, &Power);
 
         if(i > 0)
-            Running[i]->button->Links[ElementUp] = Running[i-1]->button;
+            Running[i]->button->Link(ElementUp, Running[i-1]->button);
         else
-            Running[i]->button->Links[ElementUp] = Running[Running.size()-1]->button;
+            Running[i]->button->Link(ElementUp, Running[Running.size()-1]->button);
 
         if(i < Running.size() - 1)
-            Running[i]->button->Links[ElementDown] = Running[i+1]->button;
+            Running[i]->button->Link(ElementDown, Running[i+1]->button);
         else
-            Running[i]->button->Links[ElementDown] = Running[0]->button;
+            Running[i]->button->Link(ElementDown, Running[0]->button);
     }
 
     if(Running.size() > 0)
     {
-        Power.Links[ElementLeft] = Running[0]->button;
+        Power.Link(ElementLeft, Running[0]->button);
         Menu.Focus(Running[0]->button);
     }
 

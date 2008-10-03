@@ -27,17 +27,17 @@ Element::Element(Element* Owner):
     Root(0),
     SelectedElement(0),
     Children(0),
+    Links(0),
     Clip(false),
     Animated(false),
-    AutoSelect(false),
+    CanSelect(false),
     CanFocus(false),
     Selected(false),
     Visible(true),
     Hovered(false),
+    Down(false),
     AlphaBlend(255)
 {
-    memset(Links, 0, sizeof(Links));
-
     if(Owner != 0)
     {
         Root = Owner->Root;
@@ -56,6 +56,9 @@ Element::~Element()
         while(Children->size() > 0)
             delete *Children->begin();
     }
+
+    if(Links != 0)
+        delete Links;
 
     delete Children;
 
@@ -127,7 +130,7 @@ void Element::Deselect()
 
 void Element::Click()
 {
-    if(AutoSelect)
+    if(CanSelect)
         Owner->SelectElement(this);
 }
 
@@ -141,6 +144,7 @@ void Element::Deactivate()
 
 void Element::MouseLeave()
 {
+    Down = false;
 }
 
 void Element::Animate(int Delta)
@@ -155,6 +159,12 @@ void Element::MouseUp(int X, int Y, bool Hovered)
 {
     if(Hovered)
     {
+        if(Down)
+        {
+            Click();
+            Down = false;
+        }
+
         if(Children != 0)
         {
             bool ChildStatus = false;
@@ -194,12 +204,12 @@ void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
 {
     if(Hovered)
     {
+        Down = true;
+
         bool ChildStatus = false;
 
         if(CanFocus)
             *NewFocus = this;
-
-        Click();
 
         if(Children != 0)
             for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
@@ -251,6 +261,7 @@ void Element::_Stop(Element* Owner)
 void Element::Start()
 {
     Frame = SDL_GetTicks();
+
     if(!Animated)
     {
         Animated = true;
@@ -272,6 +283,31 @@ void Element::Redraw()
     Root->_Redraw();
 }
 
+bool Element::Inside(int X, int Y)
+{
+    if(X < Left)
+        return false;
+
+    if(X >= Left + Width)
+        return false;
+
+    if(Y < Top)
+        return false;
+
+    if(Y >= Top + Height)
+        return false;
+
+    return true;
+}
+
+void Element::Link(ElementKey Key, Element* Link)
+{
+    if(Links == 0)
+        Links = new ElementLinks();
+
+    Links->insert(ElementLink(Key, Link));
+}
+
 void Element::SelectElement(Element* NewSelection)
 {
     if(SelectedElement != 0)
@@ -289,7 +325,7 @@ void Element::_MouseLeave()
     {
         Hovered = false;
 
-        //MouseLeave();
+        MouseLeave();
 
         if(Children == 0)
             return;
@@ -338,23 +374,6 @@ void Element::_MouseMove(int X, int Y, bool Hovered)
     }
 }
 
-bool Element::Inside(int X, int Y)
-{
-    if(X < Left)
-        return false;
-
-    if(X >= Left + Width)
-        return false;
-
-    if(Y < Top)
-        return false;
-
-    if(Y >= Top + Height)
-        return false;
-
-    return true;
-}
-
 void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
     if(!Visible)
@@ -363,8 +382,8 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
     X += Left;
     Y += Top;
 
-   // if(Clip)
-  //  {
+    if(Clip)
+    {
         SDL_Rect OldClip;
 
         SDL_GetClipRect(Surface, &OldClip);
@@ -393,7 +412,7 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
                 (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 255);
 
         SDL_SetClipRect(Surface, &OldClip);
-  /* }
+    }
     else
     {
         Draw(Surface, X, Y, Alpha);
@@ -401,5 +420,5 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
         if(Children != 0)
             for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
                 (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 255);
-    }*/
+    }
 }

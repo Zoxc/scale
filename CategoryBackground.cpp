@@ -65,8 +65,6 @@ void CategoryBackground::Up()
 
 void CategoryBackground::Down()
 {
-    Element::Deselect();
-
     Upping = false;
 
     Start();

@@ -36,6 +36,7 @@
 		<Unit filename="Framework\Element.hpp" />
 		<Unit filename="Framework\Graphics.cpp" />
 		<Unit filename="Framework\Graphics.hpp" />
+		<Unit filename="Framework\Options.hpp" />
 		<Unit filename="Image.cpp" />
 		<Unit filename="Image.hpp" />
 		<Unit filename="Label.cpp" />

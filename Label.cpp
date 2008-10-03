@@ -52,7 +52,7 @@ void Label::_CreateCaption()
 
         SDL_Surface* Text = TTF_RenderText_Blended(Font, (char*)Caption.c_str(), Black);
 
-        Graphics::HalfAlpha(Shadow);
+        Graphics::HalfAlpha(Shadow, 1);
 
         Bitmap = Graphics::CreateSurface(Text->w, Text->h + 1, true);
 
