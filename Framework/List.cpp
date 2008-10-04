@@ -16,25 +16,57 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include "SDL.h"
-#include "SDL_image.h"
+#include "List.hpp"
 
-#include "Element.hpp"
-
-class Button:
-    public Element
+List::List() :
+    Count(0),
+    Capacity(0),
+    Items(0)
 {
-    public:
-        Button(Element* Owner);
-        virtual ~Button();
+}
 
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
-        void Allocate();
-        void Deallocate();
-        void Activate();
-        void Deactivate();
+List::~List()
+{
+    SetCapacity(0);
+}
 
-        bool Focused;
-        SDL_Surface* Fill;
-};
+int List::Add(void* Item)
+{
+    int Result = Count;
+
+    if(Result == Capacity)
+        Grow();
+
+    Items[Result] = Item;
+
+    Count++;
+
+    return Result;
+}
+
+void List::Grow()
+{
+    int Delta;
+
+    if(Capacity > 64)
+        Delta = Capacity / 4;
+    else
+    {
+        if(Capacity > 8)
+          Delta = 16;
+        else
+          Delta = 4;
+    }
+
+    SetCapacity(Capacity + Delta);
+}
+
+void List::SetCount(int NewCount)
+{
+
+}
+
+void List::SetCapacity(int NewCapacity)
+{
+
+}

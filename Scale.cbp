@@ -24,19 +24,21 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="Button.cpp" />
-		<Unit filename="Button.hpp" />
 		<Unit filename="Category.cpp" />
 		<Unit filename="Category.hpp" />
 		<Unit filename="CategoryBackground.cpp" />
 		<Unit filename="CategoryBackground.hpp" />
 		<Unit filename="Framework\Application.cpp" />
 		<Unit filename="Framework\Application.hpp" />
+		<Unit filename="Framework\Button.cpp" />
+		<Unit filename="Framework\Button.hpp" />
 		<Unit filename="Framework\Element.cpp" />
 		<Unit filename="Framework\Element.hpp" />
 		<Unit filename="Framework\Graphics.cpp" />
 		<Unit filename="Framework\Graphics.hpp" />
 		<Unit filename="Framework\Options.hpp" />
+		<Unit filename="Icon.cpp" />
+		<Unit filename="Icon.hpp" />
 		<Unit filename="Image.cpp" />
 		<Unit filename="Image.hpp" />
 		<Unit filename="Label.cpp" />

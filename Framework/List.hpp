@@ -17,48 +17,22 @@
 */
 
 #pragma once
-#include <vector>
 
-#include "Options.hpp"
-#include "Application.hpp"
-#include "Image.hpp"
-#include "Label.hpp"
-#include "Icon.hpp"
-#include "Solid.hpp"
-#include "Category.hpp"
-#include "CategoryBackground.hpp"
-
-struct AppInfo
-{
-    char* Name;
-    char* IconPath;
-    Icon* button;
-};
-
-struct CatInfo
-{
-    char* Name;
-    char* IconPath;
-    Category* button;
-};
-
-extern std::vector<AppInfo*> Running;
-extern std::vector<CatInfo*> Categories;
-
-extern Application Menu;
-extern CategoryBackground* Background;
-extern Element* Tabs;
-extern Element* TaskList;
-
-class PowerButton:
-    public Icon
+class List
 {
     public:
-        PowerButton(Element* Owner);
-        ~PowerButton();
+        List();
+        ~List();
 
-        Label* PowerLabel;
-        Image* PowerIcon;
+        int Count;
+        int Capacity;
 
-        void Click();
+        void** Items;
+
+        int Add(void* Item);
+
+        void Grow();
+
+        void SetCount(int NewCount);
+        void SetCapacity(int NewCapacity);
 };

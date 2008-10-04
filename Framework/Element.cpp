@@ -18,6 +18,17 @@
 
 #include "Element.hpp"
 
+ElementRoot::ElementRoot(Element* Owner):
+    Element(Owner),
+    Focused(0),
+    Trapped(0)
+{
+}
+
+ElementRoot::~ElementRoot()
+{
+}
+
 Element::Element(Element* Owner):
     Left(0),
     Top(0),
@@ -102,10 +113,12 @@ void Element::Deallocate()
         (*Child)->Deallocate();
 }
 
-void Element::KeyDown(SDLKey Key)
+void Element::KeyDown(ElementKey Key)
 {
-    if(Key == SDLK_RETURN)
-        Click();
+}
+
+void Element::KeyUp(ElementKey Key)
+{
 }
 
 void Element::Show()
@@ -126,12 +139,6 @@ void Element::Select()
 void Element::Deselect()
 {
     Selected = false;
-}
-
-void Element::Click()
-{
-    if(CanSelect)
-        Owner->SelectElement(this);
 }
 
 void Element::Activate()
@@ -159,12 +166,6 @@ void Element::MouseUp(int X, int Y, bool Hovered)
 {
     if(Hovered)
     {
-        if(Down)
-        {
-            Click();
-            Down = false;
-        }
-
         if(Children != 0)
         {
             bool ChildStatus = false;
@@ -204,8 +205,6 @@ void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
 {
     if(Hovered)
     {
-        Down = true;
-
         bool ChildStatus = false;
 
         if(CanFocus)
@@ -242,20 +241,57 @@ void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
     }
 }
 
+void Element::MouseMove(int X, int Y, bool Hovered)
+{
+    if(Hovered)
+    {
+        if(Children != 0)
+        {
+            bool ChildStatus = false;
+
+            for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+            {
+                if(!ChildStatus)
+                {
+                    ChildStatus = (*Child)->Inside(X, Y);
+
+                    (*Child)->MouseMove(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                }
+                else
+                    (*Child)->_MouseLeave();
+            }
+        }
+    }
+    else if(Element::Hovered)
+    {
+        if(Children != 0)
+            for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                (*Child)->_MouseLeave();
+    }
+
+    if(Element::Hovered != Hovered)
+    {
+        Element::Hovered = Hovered;
+
+        if(Hovered)
+            MouseEnter();
+        else
+            MouseLeave();
+    }
+}
+
 void Element::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
 }
 
-void Element::_Redraw()
+void Element::Trap()
 {
+    Root->Trap(this);
 }
 
-void Element::_Start(Element* Owner)
+void Element::Release()
 {
-}
-
-void Element::_Stop(Element* Owner)
-{
+    Root->Release();
 }
 
 void Element::Start()
@@ -265,7 +301,7 @@ void Element::Start()
     if(!Animated)
     {
         Animated = true;
-        Root->_Start(this);
+        Root->Start(this);
     }
 }
 
@@ -274,13 +310,13 @@ void Element::Stop()
     if(Animated)
     {
         Animated = false;
-        Root->_Stop(this);
+        Root->Stop(this);
     }
 }
 
 void Element::Redraw()
 {
-    Root->_Redraw();
+    Root->Redraw();
 }
 
 bool Element::Inside(int X, int Y)
@@ -332,45 +368,6 @@ void Element::_MouseLeave()
 
         for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
                 (*Child)->_MouseLeave();
-    }
-}
-
-void Element::_MouseMove(int X, int Y, bool Hovered)
-{
-    if(Hovered)
-    {
-        if(Children != 0)
-        {
-            bool ChildStatus = false;
-
-            for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
-            {
-                if(!ChildStatus)
-                {
-                    ChildStatus = (*Child)->Inside(X, Y);
-
-                    (*Child)->_MouseMove(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
-                }
-                else
-                    (*Child)->_MouseLeave();
-            }
-        }
-    }
-    else if(Element::Hovered)
-    {
-        if(Children != 0)
-            for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
-                (*Child)->_MouseLeave();
-    }
-
-    if(Element::Hovered != Hovered)
-    {
-        Element::Hovered = Hovered;
-
-        if(Hovered)
-            MouseEnter();
-        else
-            MouseLeave();
     }
 }
 

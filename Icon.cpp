@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Button.hpp"
+#include "Icon.hpp"
 #include "Graphics.hpp"
 
 SDL_Surface* BorderTL = NULL;
@@ -24,24 +24,27 @@ SDL_Surface* BorderTR = NULL;
 SDL_Surface* BorderBL = NULL;
 SDL_Surface* BorderBR = NULL;
 
-int ButtonCount = 0;
+int IconCount = 0;
 
-Button::Button(Element* Owner) :
-    Element::Element(Owner),
+Icon::Icon(Element* Owner) :
+    Button(Owner),
     Focused(false)
 {
-    CanFocus = true;
 }
 
-Button::~Button()
+Icon::~Icon()
 {
 }
 
-void Button::Allocate()
+void Icon::Click()
+{
+}
+
+void Icon::Allocate()
 {
     Element::Allocate();
 
-    if(ButtonCount++ == 0)
+    if(IconCount++ == 0)
     {
         BorderTL = Graphics::OptimizeSurface(IMG_Load("resources/border_tl.png"), true);
         BorderTR = Graphics::OptimizeSurface(IMG_Load("resources/border_tr.png"), true);
@@ -61,11 +64,11 @@ void Button::Allocate()
     Graphics::HalfAlpha(Fill, 2);
 }
 
-void Button::Deallocate()
+void Icon::Deallocate()
 {
     Element::Deallocate();
 
-    if(--ButtonCount == 0)
+    if(--IconCount == 0)
     {
         SDL_FreeSurface(BorderTL);
         SDL_FreeSurface(BorderTR);
@@ -76,21 +79,21 @@ void Button::Deallocate()
     SDL_FreeSurface(Fill);
 }
 
-void Button::Activate()
+void Icon::Activate()
 {
     Focused = true;
 
     Redraw();
 }
 
-void Button::Deactivate()
+void Icon::Deactivate()
 {
     Focused = false;
 
     Redraw();
 }
 
-void Button::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void Icon::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
     if(!Focused)
         return;

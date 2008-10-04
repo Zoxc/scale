@@ -16,35 +16,42 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include "SDL.h"
-#include "SDL_image.h"
+#include <math.h>
 
-#include "Element.hpp"
 #include "CategoryScroller.hpp"
 
-class CategoryBackground:
-    public Element
+CategoryScroller::CategoryScroller(Element* AOwner):
+    Element::Element(AOwner)
 {
-    public:
-        CategoryBackground(Element* AOwner);
-        virtual ~CategoryBackground();
+    Velocity = 0;
+}
 
-        void MouseUp(int X, int Y, bool Hovered);
-        void MouseMove(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, Element** NewFocus, bool Hovered);
-        void Allocate();
-        void Deallocate();
-        void Up();
-        void Down();
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
-        void Animate(int Delta);
+CategoryScroller::~CategoryScroller()
+{
+}
 
-        bool Upping;
-        bool Moving;
-        int MoveOffset;
-        int Step;
-        CategoryScroller* Scroller;
+void CategoryScroller::Target(int X)
+{
+    Start();
 
-        SDL_Surface* Fill;
-};
+    StartX = Left;
+    Step = 0;
+    TargetX = X;
+    Released = false;
+    Velocity += ((float)TargetX - (float)StartX) / 1600;
+}
+
+void CategoryScroller::ReleaseTarget()
+{
+}
+
+void CategoryScroller::Animate(int Delta)
+{
+    Step += Delta * Velocity;
+
+    Velocity = Velocity / 1.02;
+
+    Left = StartX + (int)floor(Step);
+
+    Redraw();
+}

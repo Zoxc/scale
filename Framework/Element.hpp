@@ -22,6 +22,7 @@
 #include <map>
 
 class Element;
+class ElementRoot;
 
 typedef void (*ElementNotifyEvent)(Element* Owner);
 typedef void (*ElementKeyEvent)(Element* Owner, SDLKey Key);
@@ -34,6 +35,7 @@ typedef std::map<ElementKey, Element*> ElementLinks;
 #define ElementDown SDLK_DOWN
 #define ElementLeft SDLK_LEFT
 #define ElementRight SDLK_RIGHT
+#define ElementGo SDLK_RETURN
 
 class Element
 {
@@ -43,12 +45,13 @@ class Element
 
         virtual void Allocate();
         virtual void Deallocate();
-        virtual void KeyDown(SDLKey Key);
-        virtual void Click();
+        virtual void KeyDown(ElementKey Key);
+        virtual void KeyUp(ElementKey Key);
         virtual void Animate(int Delta);
         virtual void MouseEnter();
         virtual void MouseLeave();
         virtual void MouseUp(int X, int Y, bool Hovered);
+        virtual void MouseMove(int X, int Y, bool Hovered);
         virtual void MouseDown(int X, int Y, Element** NewFocus, bool Hovered);
         virtual void Activate();
         virtual void Deactivate();
@@ -67,7 +70,7 @@ class Element
         void* Tag;
 
         Element* Owner;
-        Element* Root;
+        ElementRoot* Root;
         Element* SelectedElement;
 
         std::list<Element*>* Children;
@@ -86,20 +89,34 @@ class Element
 
         void Link(ElementKey Key, Element* Link);
         void SelectElement(Element* NewSelection);
-        void Redraw();
         void SetOwner(Element* NewOwner);
         bool Inside(int X, int Y);
 
+        // Calls to Root
+        void Redraw();
         void Start();
         void Stop();
+        void Trap();
+        void Release();
 
-        // Local, used by Application
+        // Called by Root
         void _Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
-        void _MouseMove(int X, int Y, bool Status);
         void _MouseLeave();
+};
 
-    private:
-        virtual void _Redraw();
-        virtual void _Start(Element* Owner);
-        virtual void _Stop(Element* Owner);
+class ElementRoot:
+    public Element
+{
+    public:
+        ElementRoot(Element* Owner);
+        virtual ~ElementRoot();
+
+        Element* Focused;
+        Element* Trapped;
+
+        virtual void Redraw() = 0;
+        virtual void Start(Element* Owner) = 0;
+        virtual void Stop(Element* Owner) = 0;
+        virtual void Trap(Element* Owner) = 0;
+        virtual void Release() = 0;
 };

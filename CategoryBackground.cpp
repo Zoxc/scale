@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <math.h>
+
 #include "CategoryBackground.hpp"
 #include "Graphics.hpp"
 #include "Button.hpp"
@@ -25,8 +27,10 @@ extern SDL_Surface* BorderBR;
 extern SDL_Surface* BorderTL;
 extern SDL_Surface* BorderTR;
 
-CategoryBackground::CategoryBackground(Element* AOwner) :
-    Element::Element(AOwner)
+CategoryBackground::CategoryBackground(Element* AOwner):
+    Element::Element(AOwner),
+    Moving(false),
+    Scroller(0)
 {
     AlphaBlend = 0;
     Step = 0;
@@ -51,6 +55,36 @@ void CategoryBackground::Deallocate()
     Element::Deallocate();
 
     SDL_FreeSurface(Fill);
+}
+
+void CategoryBackground::MouseUp(int X, int Y, bool Hovered)
+{
+    if(Scroller != 0)
+        Scroller->ReleaseTarget();
+
+    Release();
+    Moving = false;
+
+    Element::MouseUp(X, Y, Hovered);
+}
+
+void CategoryBackground::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
+{
+    if(Hovered && Scroller != 0)
+    {
+        Trap();
+        Moving = true;
+        MoveOffset = X - Scroller->Left;
+    }
+    Element::MouseDown(X, Y, NewFocus, Hovered);
+}
+
+void CategoryBackground::MouseMove(int X, int Y, bool Hovered)
+{
+    if(Moving && Scroller != 0)
+        Scroller->Target(X - MoveOffset);
+
+    Element::MouseMove(X, Y, Hovered);
 }
 
 void CategoryBackground::Up()

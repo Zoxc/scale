@@ -33,7 +33,7 @@ int LastUpdate = 0;
 int Frames = 0;
 #endif
 
-PowerButton::PowerButton(Element* Owner) : Button(Owner)
+PowerButton::PowerButton(Element* Owner) : Icon(Owner)
 {
     PowerIcon = new Image(this, "resources/icons_small/power.png");
     PowerIcon->Left = 5;
@@ -52,8 +52,6 @@ PowerButton::~PowerButton()
 
 void PowerButton::Click()
 {
-    Element::Click();
-
     Menu.Terminated = true;
 }
 
@@ -182,7 +180,7 @@ int main( int argc, char* args[] )
 
     for(size_t i = 0; i < Running.size(); i++)
     {
-        Running[i]->button = new Button(&Applications);
+        Running[i]->button = new Icon(&Applications);
         Running[i]->button->Left = 0;
         Running[i]->button->Top = 52 * i;
         Running[i]->button->Height = 52;
@@ -224,6 +222,19 @@ int main( int argc, char* args[] )
         Categories[i]->button->Show = new CategoryBackground(&Menu);
         Categories[i]->button->Show->Width = 800;
         Categories[i]->button->Show->Hide();
+
+        Categories[i]->button->Show = new CategoryBackground(&Menu);
+        Categories[i]->button->Show->Width = 800;
+
+        Categories[i]->button->Show->Scroller = new CategoryScroller(Categories[i]->button->Show);
+        Categories[i]->button->Show->Scroller->Width = 800;
+        Categories[i]->button->Show->Scroller->Height = 480;
+
+        Solid* Dot = new Solid(Categories[i]->button->Show->Scroller);
+        Dot->Width = 100;
+        Dot->Height = 100;
+        Dot->Top = 100;
+        Dot->R = 200;
 
         Image* CategoryImage = new Image(Categories[i]->button->Show, std::string("resources/icons/") + Categories[i]->IconPath);
         CategoryImage->Left = 8;

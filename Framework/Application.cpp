@@ -21,10 +21,9 @@
 #include "Application.hpp"
 
 Application::Application():
-    Element::Element(0),
-
-    //EventFrame(0),
-    EventKeyDown(0)
+    ElementRoot(0),
+    EventKeyDown(0),
+    Terminated(false)
 {
     SDL_Init(SDL_INIT_EVERYTHING);
     TTF_Init();
@@ -39,8 +38,6 @@ Application::Application():
     Root = this;
 
     Children = new std::list<Element*>();
-
-    Application::Focused = 0;
 }
 
 Application::~Application()
@@ -77,17 +74,40 @@ void Application::Draw()
     SDL_Flip(Screen);
 }
 
-void Application::_Redraw()
+void Application::Trap(Element* Owner)
 {
-    Redraw = true;
+    Trapped = Owner;
+
+    TrappedX = 0;
+    TrappedY = 0;
+
+    Owner = Owner->Owner;
+
+    while(Owner->Owner != 0)
+    {
+        TrappedX += Owner->Left;
+        TrappedY += Owner->Top;
+
+        Owner = Owner->Owner;
+    }
 }
 
-void Application::_Start(Element* Owner)
+void Application::Release()
+{
+    Trapped = 0;
+}
+
+void Application::Redraw()
+{
+    FlagRedraw = true;
+}
+
+void Application::Start(Element* Owner)
 {
     Animations.push_back(Owner);
 }
 
-void Application::_Stop(Element* Owner)
+void Application::Stop(Element* Owner)
 {
     if(*Animation == Owner)
             Animation = Animations.erase(Animation);
@@ -127,18 +147,23 @@ void Application::MouseDown(int X, int Y)
 {
     Element* NewFocus = 0;
 
-    bool ChildStatus = false;
-
-    for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+    if(Trapped != 0)
+        Trapped->MouseDown(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, &NewFocus, Trapped->Inside(X - TrappedX, Y - TrappedY));
+    else
     {
-        if(!ChildStatus)
-        {
-            ChildStatus = (*Child)->Inside(X, Y);
+        bool ChildStatus = false;
 
-            (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, &NewFocus, ChildStatus);
+        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+        {
+            if(!ChildStatus)
+            {
+                ChildStatus = (*Child)->Inside(X, Y);
+
+                (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, &NewFocus, ChildStatus);
+            }
+            else
+                (*Child)->_MouseLeave();
         }
-        else
-            (*Child)->_MouseLeave();
     }
 
     if(NewFocus != 0 && NewFocus != Application::Focused)
@@ -166,7 +191,7 @@ void Application::Run()
 
     SDL_Event event;
 
-    Redraw = true;
+    FlagRedraw = true;
 
     while(Terminated == false)
     {
@@ -183,12 +208,12 @@ void Application::Run()
         }
 
         #ifdef NO_FRAME_LIMIT
-        Redraw = true;
+        FlagRedraw = true;
         #endif
 
-        if(Redraw)
+        if(FlagRedraw)
         {
-            Redraw = false;
+            FlagRedraw = false;
 
             #ifdef FRAME_EVENT
             if(EventFrame != 0)
@@ -219,8 +244,7 @@ void Application::Run()
 
                     if(Application::Focused != 0)
                     {
-                        if(event.key.keysym.sym == SDLK_RETURN)
-                            Application::Focused->Click();
+                        Application::Focused->KeyDown(event.key.keysym.sym);
 
                         if(Application::Focused->Links != 0)
                             for (ElementLinks::iterator Link = Application::Focused->Links->begin(); Link != Application::Focused->Links->end(); Link++)
@@ -232,19 +256,29 @@ void Application::Run()
                     }
                     break;
 
+                case SDL_KEYUP:
+                    if(Application::Focused != 0)
+                        Application::Focused->KeyUp(event.key.keysym.sym);
+                    break;
+
                 case SDL_MOUSEMOTION:
-                    ChildStatus = false;
-
-                    for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                    if(Trapped != 0)
+                        Trapped->MouseMove(event.motion.x - TrappedX - Trapped->Left, event.motion.y - TrappedY - Trapped->Top, Trapped->Inside(event.motion.x - TrappedX, event.motion.y - TrappedY));
+                    else
                     {
-                        if(!ChildStatus)
-                        {
-                            ChildStatus = (*Child)->Inside(event.motion.x, event.motion.y);
+                        ChildStatus = false;
 
-                            (*Child)->_MouseMove(event.motion.x - (*Child)->Left, event.motion.y - (*Child)->Top, ChildStatus);
+                        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                        {
+                            if(!ChildStatus)
+                            {
+                                ChildStatus = (*Child)->Inside(event.motion.x, event.motion.y);
+
+                                (*Child)->MouseMove(event.motion.x - (*Child)->Left, event.motion.y - (*Child)->Top, ChildStatus);
+                            }
+                            else
+                                (*Child)->_MouseLeave();
                         }
-                        else
-                            (*Child)->_MouseLeave();
                     }
                     break;
 
@@ -253,20 +287,24 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONUP:
-                    ChildStatus = false;
-
-                    for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                    if(Trapped != 0)
+                        Trapped->MouseUp(event.button.x - TrappedX - Trapped->Left, event.button.y - TrappedY - Trapped->Top, Trapped->Inside(event.button.x - TrappedX, event.button.y - TrappedY));
+                    else
                     {
-                        if(!ChildStatus)
+                        ChildStatus = false;
+
+                        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
                         {
-                            ChildStatus = (*Child)->Inside(event.button.x, event.button.y);
+                            if(!ChildStatus)
+                            {
+                                ChildStatus = (*Child)->Inside(event.button.x, event.button.y);
 
-                            (*Child)->MouseUp(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
+                                (*Child)->MouseUp(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
+                            }
+                            else
+                                (*Child)->_MouseLeave();
                         }
-                        else
-                            (*Child)->_MouseLeave();
                     }
-
                     break;
             }
 

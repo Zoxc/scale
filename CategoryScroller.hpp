@@ -17,48 +17,23 @@
 */
 
 #pragma once
-#include <vector>
 
-#include "Options.hpp"
-#include "Application.hpp"
-#include "Image.hpp"
-#include "Label.hpp"
-#include "Icon.hpp"
-#include "Solid.hpp"
-#include "Category.hpp"
-#include "CategoryBackground.hpp"
+#include "Element.hpp"
 
-struct AppInfo
-{
-    char* Name;
-    char* IconPath;
-    Icon* button;
-};
-
-struct CatInfo
-{
-    char* Name;
-    char* IconPath;
-    Category* button;
-};
-
-extern std::vector<AppInfo*> Running;
-extern std::vector<CatInfo*> Categories;
-
-extern Application Menu;
-extern CategoryBackground* Background;
-extern Element* Tabs;
-extern Element* TaskList;
-
-class PowerButton:
-    public Icon
+class CategoryScroller:
+    public Element
 {
     public:
-        PowerButton(Element* Owner);
-        ~PowerButton();
+        CategoryScroller(Element* AOwner);
+        virtual ~CategoryScroller();
 
-        Label* PowerLabel;
-        Image* PowerIcon;
+        void Target(int X);
+        void ReleaseTarget();
+        void Animate(int Delta);
 
-        void Click();
+        bool Released;
+        float Step;
+        float Velocity;
+        int StartX;
+        int TargetX;
 };

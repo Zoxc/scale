@@ -30,7 +30,7 @@ typedef void (*FrameEvent)();
 #endif
 
 class Application:
-    public Element
+    public ElementRoot
 {
     public:
         Application();
@@ -48,19 +48,25 @@ class Application:
         FrameEvent EventFrame;
         #endif
         KeyEvent EventKeyDown;
-        Element* Focused;
         std::string Title;
         bool Terminated;
-        bool Redraw;
+        bool FlagRedraw;
         std::list<Element*> Animations;
 
     private:
         std::list<Element*>::iterator Animation;
         std::list<Element*>::iterator Child;
         std::list<Element*>::reverse_iterator ChildBack;
+
         SDL_Surface* Screen;
         void MouseDown(int X, int Y);
-        void _Redraw();
-        void _Start(Element* Owner);
-        void _Stop(Element* Owner);
+
+        int TrappedX;
+        int TrappedY;
+
+        void Trap(Element* Owner);
+        void Release();
+        void Redraw();
+        void Start(Element* Owner);
+        void Stop(Element* Owner);
 };

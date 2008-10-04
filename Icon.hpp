@@ -17,48 +17,26 @@
 */
 
 #pragma once
-#include <vector>
+#include "SDL.h"
+#include "SDL_image.h"
 
-#include "Options.hpp"
-#include "Application.hpp"
-#include "Image.hpp"
-#include "Label.hpp"
-#include "Icon.hpp"
-#include "Solid.hpp"
-#include "Category.hpp"
-#include "CategoryBackground.hpp"
+#include "Button.hpp"
 
-struct AppInfo
-{
-    char* Name;
-    char* IconPath;
-    Icon* button;
-};
-
-struct CatInfo
-{
-    char* Name;
-    char* IconPath;
-    Category* button;
-};
-
-extern std::vector<AppInfo*> Running;
-extern std::vector<CatInfo*> Categories;
-
-extern Application Menu;
-extern CategoryBackground* Background;
-extern Element* Tabs;
-extern Element* TaskList;
-
-class PowerButton:
-    public Icon
+class Icon:
+    public Button
 {
     public:
-        PowerButton(Element* Owner);
-        ~PowerButton();
-
-        Label* PowerLabel;
-        Image* PowerIcon;
+        Icon(Element* Owner);
+        virtual ~Icon();
 
         void Click();
+
+        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Allocate();
+        void Deallocate();
+        void Activate();
+        void Deactivate();
+
+        bool Focused;
+        SDL_Surface* Fill;
 };

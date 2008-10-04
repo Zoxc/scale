@@ -20,7 +20,6 @@
 
 #include "Graphics.hpp"
 
-
 SDL_Color Black = {0, 0, 0};
 SDL_Color White  = {255, 255, 255};
 
