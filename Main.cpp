@@ -107,6 +107,18 @@ void OnFrame()
 }
 #endif
 
+void AddIcon(Element* Root, int X, int Y, std::string Icon, std::string Title)
+{
+    Image* IconIcon = new Image(Root, std::string("resources/icons_large/") + Icon);
+    IconIcon->Top = Y;
+
+    Label* IconLabel = new Label(Root, Title, FontBig, FontColorWhite);
+    IconLabel->Top = Y + ((IconIcon->Height - IconLabel->Height) >> 1);
+
+    IconIcon->Left = X;
+    IconLabel->Left = IconIcon->Left + 8 + IconIcon->Width;
+}
+
 int main( int argc, char* args[] )
 {
     // 472 kB overhead
@@ -230,11 +242,13 @@ int main( int argc, char* args[] )
         Categories[i]->button->Show->Scroller->Width = 800;
         Categories[i]->button->Show->Scroller->Height = 480;
 
-        Solid* Dot = new Solid(Categories[i]->button->Show->Scroller);
-        Dot->Width = 100;
-        Dot->Height = 100;
-        Dot->Top = 100;
-        Dot->R = 200;
+        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 1), "games.png", "Some card game");
+        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 2), "media.png", "Whoo");
+        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 3), "other.png", "Yellow app");
+
+        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 1), "web.png", "Browser thing");
+        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 2), "other.png", "Other");
+        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 3), "media.png", "Movies");
 
         Image* CategoryImage = new Image(Categories[i]->button->Show, std::string("resources/icons/") + Categories[i]->IconPath);
         CategoryImage->Left = 8;

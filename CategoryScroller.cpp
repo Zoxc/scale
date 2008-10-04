@@ -89,13 +89,16 @@ void CategoryScroller::Animate(int Delta)
         }
     }
 
-    if(Released)
-    {
-        float AVelocity = Velocity *  1000.f / 200.f * sin(Step / 1000.f * M_PI_2);
-        Left = LeftStart + (int)floor((AVelocity));
-    }
-    else
-        Left = LeftStart + (int)floor(Velocity * sin(Step / 200.f * M_PI_2));
+    int NewLeft;
 
-    Redraw();
+    if(Released)
+        NewLeft = LeftStart + (int)floor(Velocity * 1000.f / 200.f * sin(Step / 1000.f * M_PI_2));
+    else
+        NewLeft = LeftStart + (int)floor(Velocity * sin(Step / 200.f * M_PI_2));
+
+    if(Left != NewLeft)
+    {
+        Left = NewLeft;
+        Redraw();
+    }
 }
