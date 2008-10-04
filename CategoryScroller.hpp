@@ -32,8 +32,8 @@ class CategoryScroller:
         void Animate(int Delta);
 
         bool Released;
-        float Step;
+        int Step;
+        int LeftTarget;
+        int LeftStart;
         float Velocity;
-        int StartX;
-        int TargetX;
 };

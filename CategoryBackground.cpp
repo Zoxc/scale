@@ -75,6 +75,7 @@ void CategoryBackground::MouseDown(int X, int Y, Element** NewFocus, bool Hovere
         Trap();
         Moving = true;
         MoveOffset = X - Scroller->Left;
+        Scroller->Target(X - MoveOffset);
     }
     Element::MouseDown(X, Y, NewFocus, Hovered);
 }

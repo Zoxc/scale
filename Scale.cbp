@@ -28,6 +28,8 @@
 		<Unit filename="Category.hpp" />
 		<Unit filename="CategoryBackground.cpp" />
 		<Unit filename="CategoryBackground.hpp" />
+		<Unit filename="CategoryScroller.cpp" />
+		<Unit filename="CategoryScroller.hpp" />
 		<Unit filename="Framework\Application.cpp" />
 		<Unit filename="Framework\Application.hpp" />
 		<Unit filename="Framework\Button.cpp" />

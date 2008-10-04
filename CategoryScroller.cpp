@@ -30,28 +30,72 @@ CategoryScroller::~CategoryScroller()
 {
 }
 
+const float Limit = 400;
+
 void CategoryScroller::Target(int X)
 {
     Start();
 
-    StartX = Left;
+    LeftStart = Left;
+
     Step = 0;
-    TargetX = X;
+
+    LeftTarget = X;
+
+    Velocity = LeftTarget - LeftStart;
+
+    if(Velocity > Limit)
+        Velocity = Limit;
+    else if(Velocity < -Limit)
+        Velocity = -Limit;
+
     Released = false;
-    Velocity += ((float)TargetX - (float)StartX) / 1600;
 }
 
 void CategoryScroller::ReleaseTarget()
 {
+    Released = true;
+
+    LeftStart = Left;
+
+    Velocity = float(LeftTarget - LeftStart) * (1 - sin(Step / 200.f * M_PI_2));
+
+    if(Velocity > Limit)
+        Velocity = Limit;
+    else if(Velocity < -Limit)
+        Velocity = -Limit;
+
+    Step = 0;
 }
 
 void CategoryScroller::Animate(int Delta)
 {
-    Step += Delta * Velocity;
+    Step += Delta;
 
-    Velocity = Velocity / 1.02;
+    if(Released)
+    {
+        if(Step >= 1000)
+        {
+            Step = 1000;
+            Stop();
+        }
+    }
+    else
+    {
+        if(Step >= 200)
+        {
+            Step = 200;
+            Stop();
+        }
+    }
 
-    Left = StartX + (int)floor(Step);
+    if(Released)
+    {
+        float AVelocity = Velocity *  1000.f / 200.f * sin(Step / 1000.f * M_PI_2);
+        Left = LeftStart + (int)floor((AVelocity));
+    }
+    else
+        Left = LeftStart + (int)floor(Velocity * sin(Step / 200.f * M_PI_2));
 
     Redraw();
 }
