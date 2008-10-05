@@ -217,13 +217,17 @@ void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest
     for(int y = 0; y < source->h; y++)
     for(int x = 0; x < source->w; x++)
     {
-        if(y + ty >= dest->h)
+        int yty = y + ty;
+
+        if(yty >= dest->h || yty < 0)
             continue;
 
-        if(x + tx >= dest->w)
+        int xtx = x + tx;
+
+        if(xtx >= dest->w || xtx < 0)
             continue;
 
-        Uint32* Dest = (Uint32*)dest->pixels + (y + ty) * dest->w + x + tx;
+        Uint32* Dest = (Uint32*)dest->pixels + yty * dest->w + xtx;
 
         unsigned char AlphaBlend = reinterpret_cast<Uint8*>(Pixel)[3];
         AlphaBlend = (unsigned short)AlphaBlend * Alpha / 255;
