@@ -215,16 +215,16 @@ void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest
     Uint32* Pixel = (Uint32*)source->pixels;
 
     for(int y = 0; y < source->h; y++)
-    for(int x = 0; x < source->w; x++)
+    for(int x = 0; x < source->w; x++, Pixel++)
     {
         int yty = y + ty;
 
-        if(yty >= dest->h || yty < 0)
+        if((yty >= dest->h) || (yty < 0))
             continue;
 
         int xtx = x + tx;
 
-        if(xtx >= dest->w || xtx < 0)
+        if((xtx >= dest->w) || (xtx < 0))
             continue;
 
         Uint32* Dest = (Uint32*)dest->pixels + yty * dest->w + xtx;
@@ -233,20 +233,13 @@ void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest
         AlphaBlend = (unsigned short)AlphaBlend * Alpha / 255;
 
         if(AlphaBlend > 250)
-        {
             *Dest = *Pixel;
-        }
         else if(AlphaBlend < 5)
-        {
-            Pixel++;
             continue;
-        }
 
         reinterpret_cast<Uint8*>(Dest)[0] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[0] - reinterpret_cast<Uint8*>(Dest)[0])) / 255 + reinterpret_cast<Uint8*>(Dest)[0];
         reinterpret_cast<Uint8*>(Dest)[1] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[1] - reinterpret_cast<Uint8*>(Dest)[1])) / 255 + reinterpret_cast<Uint8*>(Dest)[1];
         reinterpret_cast<Uint8*>(Dest)[2] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[2] - reinterpret_cast<Uint8*>(Dest)[2])) / 255 + reinterpret_cast<Uint8*>(Dest)[2];
-
-        Pixel++;
     }
 
     SDL_UnlockSurface(dest);
@@ -281,9 +274,7 @@ void Graphics::HalfAlpha(SDL_Surface* Surface, unsigned char Times)
     {
         Uint8 Alpha = reinterpret_cast<Uint8*>(Pixel)[3];
 
-        reinterpret_cast<Uint8*>(Pixel)[3] = Alpha >> Times;
-
-        Pixel++;
+        reinterpret_cast<Uint8*>(Pixel++)[3] = Alpha >> Times;
     }
 
     SDL_UnlockSurface(Surface);
