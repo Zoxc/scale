@@ -41,7 +41,8 @@ class CategoryBackground:
         void Animate(int Delta);
 
         bool Upping;
-        bool Moving;
+        int DownY;
+        unsigned char Mode;
         int MoveOffset;
         int Step;
         CategoryScroller* Scroller;

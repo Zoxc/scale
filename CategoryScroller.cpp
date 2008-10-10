@@ -32,17 +32,17 @@ CategoryScroller::~CategoryScroller()
 
 const float Limit = 400;
 
-void CategoryScroller::Target(int X)
+void CategoryScroller::Target(int Y)
 {
     Start();
 
-    LeftStart = Left;
+    TopStart = Top;
 
     Step = 0;
 
-    LeftTarget = X;
+    TopTarget = Y;
 
-    Velocity = LeftTarget - LeftStart;
+    Velocity = TopTarget - TopStart;
 
     if(Velocity > Limit)
         Velocity = Limit;
@@ -56,9 +56,9 @@ void CategoryScroller::ReleaseTarget()
 {
     Released = true;
 
-    LeftStart = Left;
+    TopStart = Top;
 
-    Velocity = float(LeftTarget - LeftStart) * (1 - sin(Step / 200.f * M_PI_2));
+    Velocity = float(TopTarget - TopStart) * (1 - sin(Step / 200.f * M_PI_2));
 
     if(Velocity > Limit)
         Velocity = Limit;
@@ -89,16 +89,16 @@ void CategoryScroller::Animate(int Delta)
         }
     }
 
-    int NewLeft;
+    int NewTop;
 
     if(Released)
-        NewLeft = LeftStart + (int)floor(Velocity * 1000.f / 200.f * sin(Step / 1000.f * M_PI_2));
+        NewTop = TopStart + (int)floor(Velocity * 1000.f / 200.f * sin(Step / 1000.f * M_PI_2));
     else
-        NewLeft = LeftStart + (int)floor(Velocity * sin(Step / 200.f * M_PI_2));
+        NewTop = TopStart + (int)floor(Velocity * sin(Step / 200.f * M_PI_2));
 
-    if(Left != NewLeft)
+    if(Top != NewTop)
     {
-        Left = NewLeft;
+        Top = NewTop;
         Redraw();
     }
 }

@@ -107,16 +107,23 @@ void OnFrame()
 }
 #endif
 
-void AddIcon(Element* Root, int X, int Y, std::string Icon, std::string Title)
+void AddIcon(Element* Root, int X, int Y, std::string IconPath, std::string Title)
 {
-    Image* IconIcon = new Image(Root, std::string("resources/icons_large/") + Icon);
-    IconIcon->Top = Y;
+    Icon* IconButton = new Icon(Root);
 
-    Label* IconLabel = new Label(Root, Title, FontBig, FontColorWhite);
-    IconLabel->Top = Y + ((IconIcon->Height - IconLabel->Height) >> 1);
+    Image* IconIcon = new Image(IconButton, std::string("resources/icons_large/") + IconPath);
+    IconIcon->Top = 4;
 
-    IconIcon->Left = X;
+    Label* IconLabel = new Label(IconButton, Title, FontNormal, FontColorBlack);
+    IconLabel->Top = 4 + ((IconIcon->Height - IconLabel->Height) >> 1);
+
+    IconIcon->Left = 4;
     IconLabel->Left = IconIcon->Left + 8 + IconIcon->Width;
+
+    IconButton->Left = X;
+    IconButton->Top = Y;
+    IconButton->Width = 8 + IconLabel->Left + IconLabel->Width;
+    IconButton->Height = IconIcon->Height + 8;
 }
 
 int main( int argc, char* args[] )
@@ -239,24 +246,28 @@ int main( int argc, char* args[] )
         Categories[i]->button->Show->Width = 800;
 
         Categories[i]->button->Show->Scroller = new CategoryScroller(Categories[i]->button->Show);
+        Categories[i]->button->Show->Scroller->Top = 66;
         Categories[i]->button->Show->Scroller->Width = 800;
-        Categories[i]->button->Show->Scroller->Height = 480;
+        Categories[i]->button->Show->Scroller->Height = 480 - 66 - 66;
 
-        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 1), "games.png", "Some card game");
-        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 2), "media.png", "Whoo");
-        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 3), "other.png", "Yellow app");
+        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 1) - 66, "games.png", "Some card game");
+        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 2) - 66, "media.png", "Whoo");
+        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 3) - 66, "other.png", "Yellow app");
 
-        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 1), "web.png", "Browser thing");
-        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 2), "other.png", "Other");
-        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 3), "media.png", "Movies");
+        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 1) - 66, "web.png", "Browser thing");
+        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 2) - 66, "other.png", "Other");
+        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 3) - 66, "media.png", "Movies");
+
+        Image* Header = new Image(Categories[i]->button->Show, "resources/header.png");
+        Header->AlphaBlend = 230;
 
         Image* CategoryImage = new Image(Categories[i]->button->Show, std::string("resources/icons/") + Categories[i]->IconPath);
         CategoryImage->Left = 8;
-        CategoryImage->Top = 8;
+        CategoryImage->Top = 2;
 
         Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, FontNormal, FontColorWhite);
-        CategoryLabel->Left = CategoryImage->Left + CategorySpacing + CategoryImage->Width;
-        CategoryLabel->Top = CategoryImage->Top + (CategoryImage->Height - CategoryLabel->Height) >> 1;
+        CategoryLabel->Left = CategoryImage->Left + 5 + CategoryImage->Width;
+        CategoryLabel->Top = CategoryImage->Top + ((CategoryImage->Height - CategoryLabel->Height) >> 1);
 
         Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, FontBig, FontColorWhite);
         CatLabel->Top = (Tabs->Height - CatLabel->Height) >> 1;

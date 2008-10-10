@@ -27,13 +27,13 @@ class CategoryScroller:
         CategoryScroller(Element* AOwner);
         virtual ~CategoryScroller();
 
-        void Target(int X);
+        void Target(int Y);
         void ReleaseTarget();
         void Animate(int Delta);
 
         bool Released;
         int Step;
-        int LeftTarget;
-        int LeftStart;
+        int TopTarget;
+        int TopStart;
         float Velocity;
 };

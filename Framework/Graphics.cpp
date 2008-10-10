@@ -77,104 +77,118 @@ void Graphics::ApplySurfaceEx(int tx, int ty, SDL_Surface* source, SDL_Surface* 
     if(source->format->Rmask == dest->format->Rmask)
     {
         for(int y = 0; y < source->h; y++)
-        for(int x = 0; x < source->w; x++)
         {
-            unsigned char As = reinterpret_cast<Uint8*>(Pixel)[3];
+            int yty = y + ty;
 
-            if(As < 5)
-            {
-                Pixel++;
+            if((yty >= dest->h) || (yty < 0))
                 continue;
-            }
 
-            Uint32* Dest = (Uint32*)dest->pixels + (y + ty) * dest->w + x + tx;
-
-            if(As > 250)
-                *Dest = *Pixel;
-            else
+            for(int x = 0; x < source->w; x++, Pixel++)
             {
-                unsigned char Ad = reinterpret_cast<Uint8*>(Dest)[3];
+                unsigned char As = reinterpret_cast<Uint8*>(Pixel)[3];
 
-                unsigned short Rs = reinterpret_cast<Uint8*>(Pixel)[0] * As;
-                unsigned short Gs = reinterpret_cast<Uint8*>(Pixel)[1] * As;
-                unsigned short Bs = reinterpret_cast<Uint8*>(Pixel)[2] * As;
+                if(As < 5)
+                    continue;
 
-                unsigned short Rd = reinterpret_cast<Uint8*>(Dest)[0] * Ad;
-                unsigned short Gd = reinterpret_cast<Uint8*>(Dest)[1] * Ad;
-                unsigned short Bd = reinterpret_cast<Uint8*>(Dest)[2] * Ad;
+                int xtx = x + tx;
 
-                int A = As + Ad - ((Ad * As) / 255);
+                if((xtx >= dest->w) || (xtx < 0))
+                    continue;
 
-                Rs = Rs + Rd - ((Rd * As) / 255);
-                Rs /= A;
+                Uint32* Dest = (Uint32*)dest->pixels + yty * dest->w + xtx;
 
-                Gs = Gs + Gd - ((Gd * As) / 255);
-                Gs /= A;
+                if(As > 250)
+                    *Dest = *Pixel;
+                else
+                {
+                    unsigned char Ad = reinterpret_cast<Uint8*>(Dest)[3];
 
-                Bs = Bs + Bd - ((Bd * As) / 255);
-                Bs /= A;
+                    unsigned short Rs = reinterpret_cast<Uint8*>(Pixel)[0] * As;
+                    unsigned short Gs = reinterpret_cast<Uint8*>(Pixel)[1] * As;
+                    unsigned short Bs = reinterpret_cast<Uint8*>(Pixel)[2] * As;
 
-                reinterpret_cast<Uint8*>(Dest)[0] = Rs;
-                reinterpret_cast<Uint8*>(Dest)[1] = Gs;
-                reinterpret_cast<Uint8*>(Dest)[2] = Bs;
-                reinterpret_cast<Uint8*>(Dest)[3] = A;
+                    unsigned short Rd = reinterpret_cast<Uint8*>(Dest)[0] * Ad;
+                    unsigned short Gd = reinterpret_cast<Uint8*>(Dest)[1] * Ad;
+                    unsigned short Bd = reinterpret_cast<Uint8*>(Dest)[2] * Ad;
+
+                    unsigned short A = As + Ad - ((Ad * As) / 255);
+
+                    Rs = Rs + Rd - ((Rd * As) / 255);
+                    Rs /= A;
+
+                    Gs = Gs + Gd - ((Gd * As) / 255);
+                    Gs /= A;
+
+                    Bs = Bs + Bd - ((Bd * As) / 255);
+                    Bs /= A;
+
+                    reinterpret_cast<Uint8*>(Dest)[0] = Rs;
+                    reinterpret_cast<Uint8*>(Dest)[1] = Gs;
+                    reinterpret_cast<Uint8*>(Dest)[2] = Bs;
+                    reinterpret_cast<Uint8*>(Dest)[3] = A;
+                }
             }
-
-            Pixel++;
         }
     }
     else
     {
         for(int y = 0; y < source->h; y++)
-        for(int x = 0; x < source->w; x++)
         {
-            unsigned char As = reinterpret_cast<Uint8*>(Pixel)[3];
+            int yty = y + ty;
 
-            if(As < 5)
-            {
-                Pixel++;
+            if((yty >= dest->h) || (yty < 0))
                 continue;
-            }
 
-            Uint32* Dest = (Uint32*)dest->pixels + (y + ty) * dest->w + x + tx;
-
-            if(As > 250)
+            for(int x = 0; x < source->w; x++, Pixel++)
             {
-                reinterpret_cast<Uint8*>(Dest)[0] = reinterpret_cast<Uint8*>(Pixel)[2];
-                reinterpret_cast<Uint8*>(Dest)[1] = reinterpret_cast<Uint8*>(Pixel)[1];
-                reinterpret_cast<Uint8*>(Dest)[2] = reinterpret_cast<Uint8*>(Pixel)[0];
-                reinterpret_cast<Uint8*>(Dest)[3] = reinterpret_cast<Uint8*>(Pixel)[3];
+                unsigned char As = reinterpret_cast<Uint8*>(Pixel)[3];
+
+                if(As < 5)
+                    continue;
+
+                int xtx = x + tx;
+
+                if((xtx >= dest->w) || (xtx < 0))
+                    continue;
+
+                Uint32* Dest = (Uint32*)dest->pixels + yty * dest->w + xtx;
+
+                if(As > 250)
+                {
+                    reinterpret_cast<Uint8*>(Dest)[0] = reinterpret_cast<Uint8*>(Pixel)[2];
+                    reinterpret_cast<Uint8*>(Dest)[1] = reinterpret_cast<Uint8*>(Pixel)[1];
+                    reinterpret_cast<Uint8*>(Dest)[2] = reinterpret_cast<Uint8*>(Pixel)[0];
+                    reinterpret_cast<Uint8*>(Dest)[3] = reinterpret_cast<Uint8*>(Pixel)[3];
+                }
+                else
+                {
+                    unsigned char Ad = reinterpret_cast<Uint8*>(Dest)[3];
+
+                    unsigned short Rs = reinterpret_cast<Uint8*>(Pixel)[2] * As;
+                    unsigned short Gs = reinterpret_cast<Uint8*>(Pixel)[1] * As;
+                    unsigned short Bs = reinterpret_cast<Uint8*>(Pixel)[0] * As;
+
+                    unsigned short Rd = reinterpret_cast<Uint8*>(Dest)[0] * Ad;
+                    unsigned short Gd = reinterpret_cast<Uint8*>(Dest)[1] * Ad;
+                    unsigned short Bd = reinterpret_cast<Uint8*>(Dest)[2] * Ad;
+
+                    unsigned short A = As + Ad - ((Ad * As) / 255);
+
+                    Rs = Rs + Rd - ((Rd * As) / 255);
+                    Rs /= A;
+
+                    Gs = Gs + Gd - ((Gd * As) / 255);
+                    Gs /= A;
+
+                    Bs = Bs + Bd - ((Bd * As) / 255);
+                    Bs /= A;
+
+                    reinterpret_cast<Uint8*>(Dest)[0] = Rs;
+                    reinterpret_cast<Uint8*>(Dest)[1] = Gs;
+                    reinterpret_cast<Uint8*>(Dest)[2] = Bs;
+                    reinterpret_cast<Uint8*>(Dest)[3] = A;
+                }
             }
-            else
-            {
-                unsigned char Ad = reinterpret_cast<Uint8*>(Dest)[3];
-
-                unsigned short Rs = reinterpret_cast<Uint8*>(Pixel)[2] * As;
-                unsigned short Gs = reinterpret_cast<Uint8*>(Pixel)[1] * As;
-                unsigned short Bs = reinterpret_cast<Uint8*>(Pixel)[0] * As;
-
-                unsigned short Rd = reinterpret_cast<Uint8*>(Dest)[0] * Ad;
-                unsigned short Gd = reinterpret_cast<Uint8*>(Dest)[1] * Ad;
-                unsigned short Bd = reinterpret_cast<Uint8*>(Dest)[2] * Ad;
-
-                int A = As + Ad - ((Ad * As) / 255);
-
-                Rs = Rs + Rd - ((Rd * As) / 255);
-                Rs /= A;
-
-                Gs = Gs + Gd - ((Gd * As) / 255);
-                Gs /= A;
-
-                Bs = Bs + Bd - ((Bd * As) / 255);
-                Bs /= A;
-
-                reinterpret_cast<Uint8*>(Dest)[0] = Rs;
-                reinterpret_cast<Uint8*>(Dest)[1] = Gs;
-                reinterpret_cast<Uint8*>(Dest)[2] = Bs;
-                reinterpret_cast<Uint8*>(Dest)[3] = A;
-            }
-
-            Pixel++;
         }
     }
 
@@ -215,31 +229,33 @@ void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest
     Uint32* Pixel = (Uint32*)source->pixels;
 
     for(int y = 0; y < source->h; y++)
-    for(int x = 0; x < source->w; x++, Pixel++)
     {
         int yty = y + ty;
 
         if((yty >= dest->h) || (yty < 0))
             continue;
 
-        int xtx = x + tx;
+        for(int x = 0; x < source->w; x++, Pixel++)
+        {
+            int xtx = x + tx;
 
-        if((xtx >= dest->w) || (xtx < 0))
-            continue;
+            if((xtx >= dest->w) || (xtx < 0))
+                continue;
 
-        Uint32* Dest = (Uint32*)dest->pixels + yty * dest->w + xtx;
+            Uint32* Dest = (Uint32*)dest->pixels + yty * dest->w + xtx;
 
-        unsigned char AlphaBlend = reinterpret_cast<Uint8*>(Pixel)[3];
-        AlphaBlend = (unsigned short)AlphaBlend * Alpha / 255;
+            unsigned char AlphaBlend = reinterpret_cast<Uint8*>(Pixel)[3];
+            AlphaBlend = (unsigned short)AlphaBlend * Alpha / 255;
 
-        if(AlphaBlend > 250)
-            *Dest = *Pixel;
-        else if(AlphaBlend < 5)
-            continue;
+            if(AlphaBlend > 250)
+                *Dest = *Pixel;
+            else if(AlphaBlend < 5)
+                continue;
 
-        reinterpret_cast<Uint8*>(Dest)[0] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[0] - reinterpret_cast<Uint8*>(Dest)[0])) / 255 + reinterpret_cast<Uint8*>(Dest)[0];
-        reinterpret_cast<Uint8*>(Dest)[1] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[1] - reinterpret_cast<Uint8*>(Dest)[1])) / 255 + reinterpret_cast<Uint8*>(Dest)[1];
-        reinterpret_cast<Uint8*>(Dest)[2] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[2] - reinterpret_cast<Uint8*>(Dest)[2])) / 255 + reinterpret_cast<Uint8*>(Dest)[2];
+            reinterpret_cast<Uint8*>(Dest)[0] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[0] - reinterpret_cast<Uint8*>(Dest)[0])) / 255 + reinterpret_cast<Uint8*>(Dest)[0];
+            reinterpret_cast<Uint8*>(Dest)[1] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[1] - reinterpret_cast<Uint8*>(Dest)[1])) / 255 + reinterpret_cast<Uint8*>(Dest)[1];
+            reinterpret_cast<Uint8*>(Dest)[2] = (AlphaBlend * (reinterpret_cast<Uint8*>(Pixel)[2] - reinterpret_cast<Uint8*>(Dest)[2])) / 255 + reinterpret_cast<Uint8*>(Dest)[2];
+        }
     }
 
     SDL_UnlockSurface(dest);
