@@ -53,7 +53,7 @@ void Icon::Allocate()
         BorderTR = Graphics::OptimizeSurface(IMG_Load("resources/border_tr.png"), true);
         BorderBL = Graphics::OptimizeSurface(IMG_Load("resources/border_bl.png"), true);
         BorderBR = Graphics::OptimizeSurface(IMG_Load("resources/border_br.png"), true);
-        SoundSelect = Mix_LoadWAV("resources/select.wav");
+        SoundSelect = Mix_LoadWAV("resources/select.ogg");
     }
 
     Fill = Graphics::CreateSurface(Width, Height, true);

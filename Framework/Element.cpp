@@ -111,7 +111,11 @@ void Window::Focus(Element* NewFocus)
     if(OldFocus != 0)
         OldFocus->Deactivate();
 
+    Focused = OldFocus;
+
     NewFocus->Activate();
+
+    Focused = NewFocus;
 }
 
 void Window::Redraw()

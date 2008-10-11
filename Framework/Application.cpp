@@ -72,6 +72,8 @@ void Application::Deallocate()
 {
     Element::Deallocate();
 
+    Mix_CloseAudio();
+
     SDL_Quit();
 }
 
@@ -137,8 +139,6 @@ void Application::MouseDown(int X, int Y)
 void Application::Run()
 {
     Terminated = false;
-
-    Allocate();
 
     if(Terminated)
         return;

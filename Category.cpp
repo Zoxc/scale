@@ -30,6 +30,7 @@ extern SDL_Surface* BorderTR;
 
 Mix_Chunk* SoundUp = 0;
 Mix_Chunk* SoundDown = 0;
+Mix_Chunk* SoundSwitch = 0;
 
 Category::Category(Element* AOwner) :
     Element::Element(AOwner),
@@ -76,9 +77,15 @@ void Category::MouseDown(int X, int Y, bool Hovered)
 void Category::Activate()
 {
     if(SoundUp == 0)
-        SoundUp = Mix_LoadWAV("resources/up.wav");
+        SoundUp = Mix_LoadWAV("resources/up.ogg");
 
-    Mix_PlayChannel(-1, SoundUp, 0);
+    if(SoundSwitch == 0)
+        SoundSwitch = Mix_LoadWAV("resources/switch.ogg");
+
+    if(Root->Focused == 0)
+        Mix_PlayChannel(-1, SoundUp, 0);
+    else
+        Mix_PlayChannel(-1, SoundSwitch, 0);
 
     TargetAlpha = 150;
 
@@ -97,7 +104,7 @@ void Category::Activate()
 void Category::Deactivate()
 {
     if(SoundDown == 0)
-        SoundDown = Mix_LoadWAV("resources/down.wav");
+        SoundDown = Mix_LoadWAV("resources/down.ogg");
 
     if(Root->Focused == 0)
         Mix_PlayChannel(-1, SoundDown, 0);

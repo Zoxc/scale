@@ -17,6 +17,7 @@
 */
 
 #include <sstream>
+#include "SDL_mixer.h"
 
 #include "Main.hpp"
 
@@ -314,6 +315,11 @@ int main( int argc, char* args[] )
 
     Menu.Title = "Scale Demo";
     Menu.EventKeyDown = &KeyDown;
+
+    Menu.Allocate();
+
+    Mix_Chunk* Startup = Mix_LoadWAV("resources/start.ogg");
+    Mix_PlayChannel(-1, Startup, 0);
 
     Menu.Run();
 
