@@ -25,7 +25,7 @@ std::vector<CatInfo*> Categories;
 
 Application Menu;
 CategoryBackground* Background;
-Element* Tabs;
+Window* Tabs;
 Element* TaskList;
 #ifdef FRAME_EVENT
 Label* FPS;
@@ -59,27 +59,27 @@ void KeyDown(SDLKey Key)
 {
     intptr_t Index = -1;
 
-    if(Tabs->SelectedElement != 0)
-        Index = (intptr_t)Tabs->SelectedElement->Tag;
+    if(Tabs->Focused != 0)
+        Index = (intptr_t)Tabs->Focused->Tag;
 
     switch((int)Key)
     {
         case SDLK_a:
             if(Index == -1)
-                Tabs->SelectElement(Categories[Categories.size()-1]->button);
+                Focus(Categories[Categories.size()-1]->button);
             else if(Index == 0)
-                Tabs->SelectElement(0);
+                Tabs->KillFocus();
             else
-                Tabs->SelectElement(Categories[Index-1]->button);
+                Focus(Categories[Index-1]->button);
             break;
 
         case SDLK_d:
             if(Index == -1)
-                Tabs->SelectElement(Categories[0]->button);
+                Focus(Categories[0]->button);
             else if(Index == int(Categories.size())-1)
-                Tabs->SelectElement(0);
+                Tabs->KillFocus();
             else
-                Tabs->SelectElement(Categories[Index+1]->button);
+                Focus(Categories[Index+1]->button);
             break;
     }
 }
@@ -168,7 +168,7 @@ int main( int argc, char* args[] )
     Image Wallpaper(&Menu, "resources/back.png");
     Wallpaper.NeedAlpha = false;
 
-    TaskList = new Element(&Menu);
+    TaskList = new Window(&Menu);
     TaskList->Width = Menu.Width;
     TaskList->Height = Menu.Height;
 
@@ -216,7 +216,7 @@ int main( int argc, char* args[] )
         Running[i]->button->Width = AppLabel->Width + 5 + 8 + AppIcon->Width + 7;
     }
 
-    Tabs = new Element(&Menu);
+    Tabs = new Window(&Menu);
     Tabs->Height = 66;
     Tabs->Top = 480 - Tabs->Height;
     Tabs->Width = 800;
@@ -240,10 +240,8 @@ int main( int argc, char* args[] )
 
         Categories[i]->button->Show = new CategoryBackground(&Menu);
         Categories[i]->button->Show->Width = 800;
+        Categories[i]->button->Show->Clip = true;
         Categories[i]->button->Show->Hide();
-
-        Categories[i]->button->Show = new CategoryBackground(&Menu);
-        Categories[i]->button->Show->Width = 800;
 
         Categories[i]->button->Show->Scroller = new CategoryScroller(Categories[i]->button->Show);
         Categories[i]->button->Show->Scroller->Top = 66;
@@ -301,8 +299,10 @@ int main( int argc, char* args[] )
     if(Running.size() > 0)
     {
         Power.Link(ElementLeft, Running[0]->button);
-        Menu.Focus(Running[0]->button);
+        Focus(Running[0]->button);
     }
+
+    Focus(TaskList);
 
     #ifdef FRAME_EVENT
     FPS = new Label(&Menu, "FPS:       ", FontSmall, FontColorWhite);

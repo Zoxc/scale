@@ -30,7 +30,7 @@ typedef void (*FrameEvent)();
 #endif
 
 class Application:
-    public ElementRoot
+    public Window
 {
     public:
         Application();
@@ -38,11 +38,9 @@ class Application:
 
         void Allocate();
         void Deallocate();
-        void Focus(Element* NewFocus);
-        void KillFocus();
         void Run();
-
         void Draw();
+        Element* GetTrapped();
 
         #ifdef FRAME_EVENT
         FrameEvent EventFrame;
@@ -60,6 +58,8 @@ class Application:
 
         SDL_Surface* Screen;
         void MouseDown(int X, int Y);
+
+        Element* Trapped;
 
         int TrappedX;
         int TrappedY;

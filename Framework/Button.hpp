@@ -29,6 +29,6 @@ class Button:
         virtual void Click() = 0;
 
         void MouseUp(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, Element** NewFocus, bool Hovered);
+        void MouseDown(int X, int Y, bool Hovered);
         void KeyDown(ElementKey Key);
 };

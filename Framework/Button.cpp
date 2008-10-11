@@ -21,7 +21,6 @@
 
 Button::Button(Element* Owner) : Element::Element(Owner)
 {
-    CanFocus = true;
 }
 
 Button::~Button()
@@ -44,10 +43,10 @@ void Button::MouseUp(int X, int Y, bool Hovered)
     Element::MouseUp(X, Y, Hovered);
 }
 
-void Button::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
+void Button::MouseDown(int X, int Y, bool Hovered)
 {
-    //if(Hovered)
-    //    Trap();
+    if(Hovered)
+        Root->Focus(this);
 
-    Element::MouseDown(X, Y, NewFocus, Hovered);
+    Element::MouseDown(X, Y, Hovered);
 }

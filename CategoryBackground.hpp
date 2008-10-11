@@ -32,7 +32,7 @@ class CategoryBackground:
 
         void MouseUp(int X, int Y, bool Hovered);
         void MouseMove(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, Element** NewFocus, bool Hovered);
+        void MouseDown(int X, int Y, bool Hovered);
         void Allocate();
         void Deallocate();
         void Up();

@@ -17,15 +17,17 @@
 */
 
 #include "SDL_ttf.h"
+#include "SDL_mixer.h"
 
 #include "Application.hpp"
 
 Application::Application():
-    ElementRoot(0),
+    Window(0),
     EventKeyDown(0),
-    Terminated(false)
+    Terminated(false),
+    Trapped(0)
 {
-    SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     TTF_Init();
 
     #ifdef FRAME_EVENT
@@ -36,6 +38,7 @@ Application::Application():
     Height = 480;
 
     Root = this;
+    RootElement = this;
 
     Children = new std::list<Element*>();
 }
@@ -46,6 +49,12 @@ Application::~Application()
 
 void Application::Allocate()
 {
+    if(Mix_OpenAudio(44100, AUDIO_S16SYS, 1, 4096) != 0)
+    {
+        fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
+        return;
+    }
+
     Screen = SDL_SetVideoMode(Width, Height, 32, SDL_DOUBLEBUF | SDL_HWSURFACE);
 
     if(Screen == NULL)
@@ -92,6 +101,11 @@ void Application::Trap(Element* Owner)
     }
 }
 
+Element* Application::GetTrapped()
+{
+    return Trapped;
+}
+
 void Application::Release()
 {
     Trapped = 0;
@@ -115,69 +129,9 @@ void Application::Stop(Element* Owner)
         Animations.remove(Owner);
 }
 
-void Application::KillFocus()
-{
-    Element* OldFocus = Application::Focused;
-
-    Application::Focused = 0;
-
-    if(OldFocus != 0)
-        OldFocus->Deactivate();
-}
-
-void Application::Focus(Element* NewFocus)
-{
-    if(NewFocus == 0)
-        return;
-
-    if(Application::Focused == NewFocus)
-        return;
-
-    Element* OldFocus = Application::Focused;
-
-    Application::Focused = NewFocus;
-
-    if(OldFocus != 0)
-        OldFocus->Deactivate();
-
-    NewFocus->Activate();
-}
-
 void Application::MouseDown(int X, int Y)
 {
-    Element* NewFocus = 0;
 
-    if(Trapped != 0)
-        Trapped->MouseDown(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, &NewFocus, Trapped->Inside(X - TrappedX, Y - TrappedY));
-    else
-    {
-        bool ChildStatus = false;
-
-        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
-        {
-            if(!ChildStatus)
-            {
-                ChildStatus = (*Child)->Inside(X, Y);
-
-                (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, &NewFocus, ChildStatus);
-            }
-            else
-                (*Child)->_MouseLeave();
-        }
-    }
-
-    if(NewFocus != 0 && NewFocus != Application::Focused)
-    {
-        Element* OldFocus = Application::Focused;
-
-        Application::Focused = NewFocus;
-
-        if(OldFocus != 0)
-            OldFocus->Deactivate();
-
-        if(NewFocus != 0)
-            NewFocus->Activate();
-    }
 }
 
 void Application::Run()
@@ -242,23 +196,11 @@ void Application::Run()
                     if(EventKeyDown != 0)
                         EventKeyDown(event.key.keysym.sym);
 
-                    if(Application::Focused != 0)
-                    {
-                        Application::Focused->KeyDown(event.key.keysym.sym);
-
-                        if(Application::Focused->Links != 0)
-                            for (ElementLinks::iterator Link = Application::Focused->Links->begin(); Link != Application::Focused->Links->end(); Link++)
-                                if(event.key.keysym.sym == Link->first)
-                                {
-                                    Focus(Link->second);
-                                    break;
-                                }
-                    }
+                    KeyDown(event.key.keysym.sym);
                     break;
 
                 case SDL_KEYUP:
-                    if(Application::Focused != 0)
-                        Application::Focused->KeyUp(event.key.keysym.sym);
+                    KeyUp(event.key.keysym.sym);
                     break;
 
                 case SDL_MOUSEMOTION:
@@ -283,7 +225,24 @@ void Application::Run()
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
-                    MouseDown(event.button.x, event.button.y);
+                    if(Trapped != 0)
+                        Trapped->MouseDown(event.button.x - TrappedX - Trapped->Left, event.button.y - TrappedY - Trapped->Top, Trapped->Inside(event.button.x - TrappedX, event.button.y - TrappedY));
+                    else
+                    {
+                        ChildStatus = false;
+
+                        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+                        {
+                            if(!ChildStatus)
+                            {
+                                ChildStatus = (*Child)->Inside(event.button.x, event.button.y);
+
+                                (*Child)->MouseDown(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
+                            }
+                            else
+                                (*Child)->_MouseLeave();
+                        }
+                    }
                     break;
 
                 case SDL_MOUSEBUTTONUP:

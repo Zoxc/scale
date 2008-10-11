@@ -18,15 +18,130 @@
 
 #include "Element.hpp"
 
-ElementRoot::ElementRoot(Element* Owner):
+void Focus(Element* NewFocus)
+{
+    if(NewFocus == 0)
+        return;
+
+    Element* Owner = NewFocus->Owner;
+
+    while(Owner != 0)
+    {
+        Window* Root = dynamic_cast<Window*>(Owner);
+
+        if(Root != 0)
+        {
+            Root->Focus(NewFocus);
+            return;
+        }
+
+        Owner = Owner->Owner;
+    }
+}
+
+Window::Window(Element* Owner):
     Element(Owner),
     Focused(0),
-    Trapped(0)
+    RootElement(0)
+{
+    Root = this;
+
+    if(Owner != 0 && Owner->Root != 0)
+    {
+        RootElement = Owner->Root->RootElement;
+    }
+}
+
+Window::~Window()
 {
 }
 
-ElementRoot::~ElementRoot()
+void Window::KeyDown(ElementKey Key)
 {
+    if(Focused != 0)
+    {
+        Focused->KeyDown(Key);
+
+        if(Focused->Links != 0)
+            for (ElementLinks::iterator Link = Focused->Links->begin(); Link != Focused->Links->end(); Link++)
+                if(Key == Link->first)
+                {
+                    Focus(Link->second);
+                    break;
+                }
+    }
+}
+
+void Window::KeyUp(ElementKey Key)
+{
+    if(Focused != 0)
+        Focused->KeyUp(Key);
+}
+
+void Window::MouseDown(int X, int Y, bool Hovered)
+{
+    if(Owner != 0 && Owner->Root != 0)
+        Owner->Root->Focus(this);
+
+    Element::MouseDown(X, Y, Hovered);
+}
+
+void Window::KillFocus()
+{
+    Element* OldFocus = Focused;
+
+    Focused = 0;
+
+    if(OldFocus != 0)
+        OldFocus->Deactivate();
+}
+
+void Window::Focus(Element* NewFocus)
+{
+    if(NewFocus == 0)
+        return;
+
+    if(Focused == NewFocus)
+        return;
+
+    Element* OldFocus = Focused;
+
+    Focused = NewFocus;
+
+    if(OldFocus != 0)
+        OldFocus->Deactivate();
+
+    NewFocus->Activate();
+}
+
+void Window::Redraw()
+{
+    RootElement->Redraw();
+}
+
+void Window::Start(Element* Owner)
+{
+    RootElement->Start(Owner);
+}
+
+void Window::Stop(Element* Owner)
+{
+    RootElement->Stop(Owner);
+}
+
+void Window::Trap(Element* Owner)
+{
+    RootElement->Trap(Owner);
+}
+
+Element* Window::GetTrapped()
+{
+    return RootElement->GetTrapped();
+}
+
+void Window::Release()
+{
+    RootElement->Release();
 }
 
 Element::Element(Element* Owner):
@@ -36,14 +151,10 @@ Element::Element(Element* Owner):
     Height(0),
     Owner(Owner),
     Root(0),
-    SelectedElement(0),
     Children(0),
     Links(0),
     Clip(false),
     Animated(false),
-    CanSelect(false),
-    CanFocus(false),
-    Selected(false),
     Visible(true),
     Hovered(false),
     Down(false),
@@ -131,16 +242,6 @@ void Element::Hide()
     Visible = false;
 }
 
-void Element::Select()
-{
-    Selected = true;
-}
-
-void Element::Deselect()
-{
-    Selected = false;
-}
-
 void Element::Activate()
 {
 }
@@ -201,14 +302,11 @@ void Element::MouseUp(int X, int Y, bool Hovered)
     }
 }
 
-void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
+void Element::MouseDown(int X, int Y, bool Hovered)
 {
     if(Hovered)
     {
         bool ChildStatus = false;
-
-        if(CanFocus)
-            *NewFocus = this;
 
         if(Children != 0)
             for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
@@ -217,7 +315,7 @@ void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
                 {
                     ChildStatus = (*Child)->Inside(X, Y);
 
-                    (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, NewFocus, ChildStatus);
+                    (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
                 }
                 else
                     (*Child)->_MouseLeave();
@@ -230,7 +328,7 @@ void Element::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
                 (*Child)->_MouseLeave();
     }
 
-    if(Hovered != Hovered)
+    if(Element::Hovered != Hovered)
     {
         Element::Hovered = Hovered;
 
@@ -344,17 +442,6 @@ void Element::Link(ElementKey Key, Element* Link)
     Links->insert(ElementLink(Key, Link));
 }
 
-void Element::SelectElement(Element* NewSelection)
-{
-    if(SelectedElement != 0)
-        SelectedElement->Deselect();
-
-    SelectedElement = NewSelection;
-
-    if(SelectedElement != 0)
-        SelectedElement->Select();
-}
-
 void Element::_MouseLeave()
 {
     if(Hovered)
@@ -406,7 +493,7 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 
         if(Children != 0)
             for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
-                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 255);
+                (*Child)->_Draw(Surface, X, Y, ((*Child)->AlphaBlend * Alpha) >> 8);
 
         SDL_SetClipRect(Surface, &OldClip);
     }
@@ -416,6 +503,6 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 
         if(Children != 0)
             for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
-                (*Child)->_Draw(Surface, X, Y, (*Child)->AlphaBlend * Alpha / 255);
+                (*Child)->_Draw(Surface, X, Y, ((*Child)->AlphaBlend * Alpha) >> 8);
     }
 }

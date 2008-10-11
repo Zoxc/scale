@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "SDL_mixer.h"
+
 #include "Icon.hpp"
 #include "Graphics.hpp"
 
@@ -23,6 +25,7 @@ SDL_Surface* BorderTL = NULL;
 SDL_Surface* BorderTR = NULL;
 SDL_Surface* BorderBL = NULL;
 SDL_Surface* BorderBR = NULL;
+Mix_Chunk* SoundSelect = 0;
 
 int IconCount = 0;
 
@@ -50,6 +53,7 @@ void Icon::Allocate()
         BorderTR = Graphics::OptimizeSurface(IMG_Load("resources/border_tr.png"), true);
         BorderBL = Graphics::OptimizeSurface(IMG_Load("resources/border_bl.png"), true);
         BorderBR = Graphics::OptimizeSurface(IMG_Load("resources/border_br.png"), true);
+        SoundSelect = Mix_LoadWAV("resources/select.wav");
     }
 
     Fill = Graphics::CreateSurface(Width, Height, true);
@@ -74,6 +78,7 @@ void Icon::Deallocate()
         SDL_FreeSurface(BorderTR);
         SDL_FreeSurface(BorderBL);
         SDL_FreeSurface(BorderBR);
+        Mix_FreeChunk(SoundSelect);
     }
 
     SDL_FreeSurface(Fill);
@@ -82,6 +87,8 @@ void Icon::Deallocate()
 void Icon::Activate()
 {
     Focused = true;
+
+    Mix_PlayChannel(-1, SoundSelect, 0);
 
     Redraw();
 }

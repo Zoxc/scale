@@ -214,10 +214,17 @@ void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest
         return;
     }
 
-    if(tx >= dest->w)
+    SDL_Rect Rect;
+
+    SDL_GetClipRect(dest, &Rect);
+
+    Rect.w += Rect.x;
+    Rect.h += Rect.y;
+
+    if(tx >= Rect.w)
         return;
 
-    if(ty >= dest->h)
+    if(ty >= Rect.h)
         return;
 
     SDL_LockSurface(source);
@@ -229,14 +236,14 @@ void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest
     {
         int yty = y + ty;
 
-        if((yty >= dest->h) || (yty < 0))
+        if((yty >= Rect.h) || (yty < Rect.y))
             continue;
 
         for(int x = 0; x < source->w; x++, Pixel++)
         {
             int xtx = x + tx;
 
-            if((xtx >= dest->w) || (xtx < 0))
+            if((xtx >= Rect.w) || (xtx < Rect.x))
                 continue;
 
             Uint32* Dest = (Uint32*)dest->pixels + yty * dest->w + xtx;

@@ -62,7 +62,7 @@ void CategoryBackground::MouseUp(int X, int Y, bool Hovered)
     if(Scroller != 0)
         Scroller->ReleaseTarget();
 
-    if(Root->Trapped == this)
+    if(Root->GetTrapped() == this)
         Release();
 
     Mode = 0;
@@ -70,7 +70,7 @@ void CategoryBackground::MouseUp(int X, int Y, bool Hovered)
     Element::MouseUp(X, Y, Hovered);
 }
 
-void CategoryBackground::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
+void CategoryBackground::MouseDown(int X, int Y, bool Hovered)
 {
     if(Hovered && Scroller != 0 && Y > 64)
     {
@@ -79,7 +79,7 @@ void CategoryBackground::MouseDown(int X, int Y, Element** NewFocus, bool Hovere
         MoveOffset = Y - Scroller->Top;
         Scroller->Target(Y - MoveOffset);
     }
-    Element::MouseDown(X, Y, NewFocus, Hovered);
+    Element::MouseDown(X, Y, Hovered);
 }
 
 void CategoryBackground::MouseMove(int X, int Y, bool Hovered)

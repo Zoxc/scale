@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "SDL_mixer.h"
+
 #include "Category.hpp"
 #include "Graphics.hpp"
 #include "Button.hpp"
@@ -25,6 +27,9 @@ extern SDL_Surface* BorderBL;
 extern SDL_Surface* BorderBR;
 extern SDL_Surface* BorderTL;
 extern SDL_Surface* BorderTR;
+
+Mix_Chunk* SoundUp = 0;
+Mix_Chunk* SoundDown = 0;
 
 Category::Category(Element* AOwner) :
     Element::Element(AOwner),
@@ -55,22 +60,25 @@ void Category::Deallocate()
     SDL_FreeSurface(Fill);
 }
 
-void Category::MouseDown(int X, int Y, Element** NewFocus, bool Hovered)
+void Category::MouseDown(int X, int Y, bool Hovered)
 {
     if(Hovered)
     {
-        if(Selected)
-            Owner->SelectElement(0);
+        if(Root->Focused == this)
+            Root->KillFocus();
         else
-            Owner->SelectElement(this);
+            Root->Focus(this);
     }
 
-    Element::MouseDown(X, Y, NewFocus, Hovered);
+    Element::MouseDown(X, Y, Hovered);
 }
 
-void Category::Select()
+void Category::Activate()
 {
-    Element::Select();
+    if(SoundUp == 0)
+        SoundUp = Mix_LoadWAV("resources/up.wav");
+
+    Mix_PlayChannel(-1, SoundUp, 0);
 
     TargetAlpha = 150;
 
@@ -86,15 +94,19 @@ void Category::Select()
         Hide->Hide();
 }
 
-void Category::Deselect()
+void Category::Deactivate()
 {
-    Element::Deselect();
+    if(SoundDown == 0)
+        SoundDown = Mix_LoadWAV("resources/down.wav");
+
+    if(Root->Focused == 0)
+        Mix_PlayChannel(-1, SoundDown, 0);
 
     TargetAlpha = 0;
 
-    Menu.Focus(Running[0]->button);
-
     Start();
+
+    Focus(TaskList);
 
     Show->Down();
 

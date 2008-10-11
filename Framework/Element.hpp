@@ -22,7 +22,7 @@
 #include <map>
 
 class Element;
-class ElementRoot;
+class Window;
 
 typedef void (*ElementNotifyEvent)(Element* Owner);
 typedef void (*ElementKeyEvent)(Element* Owner, SDLKey Key);
@@ -52,11 +52,9 @@ class Element
         virtual void MouseLeave();
         virtual void MouseUp(int X, int Y, bool Hovered);
         virtual void MouseMove(int X, int Y, bool Hovered);
-        virtual void MouseDown(int X, int Y, Element** NewFocus, bool Hovered);
+        virtual void MouseDown(int X, int Y, bool Hovered);
         virtual void Activate();
         virtual void Deactivate();
-        virtual void Select();
-        virtual void Deselect();
         virtual void Show();
         virtual void Hide();
         virtual void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
@@ -70,17 +68,13 @@ class Element
         void* Tag;
 
         Element* Owner;
-        ElementRoot* Root;
-        Element* SelectedElement;
+        Window* Root;
 
         std::list<Element*>* Children;
         ElementLinks* Links;
 
         bool Clip;
         bool Animated;
-        bool CanSelect;
-        bool CanFocus;
-        bool Selected;
         bool Visible;
         bool Hovered;
         bool Down;
@@ -104,19 +98,32 @@ class Element
         void _MouseLeave();
 };
 
-class ElementRoot:
+void Focus(Element* NewFocus);
+
+class Window:
     public Element
 {
     public:
-        ElementRoot(Element* Owner);
-        virtual ~ElementRoot();
+        Window(Element* Owner);
+        virtual ~Window();
 
         Element* Focused;
-        Element* Trapped;
 
-        virtual void Redraw() = 0;
-        virtual void Start(Element* Owner) = 0;
-        virtual void Stop(Element* Owner) = 0;
-        virtual void Trap(Element* Owner) = 0;
-        virtual void Release() = 0;
+        void KillFocus();
+        void Focus(Element* NewFocus);
+
+        void MouseDown(int X, int Y, bool Hovered);
+        void KeyDown(ElementKey Key);
+        void KeyUp(ElementKey Key);
+
+        virtual void Redraw();
+        virtual void Start(Element* Owner);
+        virtual void Stop(Element* Owner);
+        virtual void Trap(Element* Owner);
+        virtual Element* GetTrapped();
+        virtual void Release();
+
+        Window* RootElement;
+
+
 };
