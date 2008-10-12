@@ -20,6 +20,8 @@
 #include "SDL_mixer.h"
 
 #include "Main.hpp"
+#include "Resources.hpp"
+#include "List.hpp"
 
 std::vector<AppInfo*> Running;
 std::vector<CatInfo*> Categories;
@@ -40,7 +42,7 @@ PowerButton::PowerButton(Element* Owner) : Icon(Owner)
     PowerIcon->Left = 5;
     PowerIcon->Top = 5;
 
-    PowerLabel = new Label(this, "Power", FontNormal, FontColorBlack);
+    PowerLabel = new Label(this, "Power", Resources::FontNormal, FontColorBlack);
     PowerLabel->Left = 36;
     PowerLabel->Top = 8;
 }
@@ -111,25 +113,25 @@ void OnFrame()
 void AddIcon(Element* Root, int X, int Y, std::string IconPath, std::string Title)
 {
     Icon* IconButton = new Icon(Root);
+    IconButton->Width = 190;
 
     Image* IconIcon = new Image(IconButton, std::string("resources/icons_large/") + IconPath);
     IconIcon->Top = 4;
 
-    Label* IconLabel = new Label(IconButton, Title, FontNormal, FontColorBlack);
-    IconLabel->Top = 4 + ((IconIcon->Height - IconLabel->Height) >> 1);
+    Label* IconLabel = new Label(IconButton, Title, Resources::FontSmall, FontColorBlack);
+    IconLabel->Top = 4 + 64 + 4;
 
-    IconIcon->Left = 4;
-    IconLabel->Left = IconIcon->Left + 8 + IconIcon->Width;
+    IconIcon->Left = (IconButton->Width - IconIcon->Width >> 1);
+    IconLabel->Left = (IconButton->Width - IconLabel->Width >> 1);
 
-    IconButton->Left = X;
     IconButton->Top = Y;
-    IconButton->Width = 8 + IconLabel->Left + IconLabel->Width;
-    IconButton->Height = IconIcon->Height + 8;
+    IconButton->Height = 100;
+    IconButton->Left = X + (200 - 190) / 2;
 }
 
 int main( int argc, char* args[] )
 {
-    // 472 kB overhead
+    Resources::Allocate();
 
     AppInfo* App = new AppInfo();
     App->Name = "Package Manager";
@@ -173,15 +175,11 @@ int main( int argc, char* args[] )
     TaskList->Width = Menu.Width;
     TaskList->Height = Menu.Height;
 
-    FontSmall = TTF_OpenFont("resources/FreeSans.ttf", 18);
-    FontNormal = TTF_OpenFont("resources/FreeSans.ttf", 22);
-    FontBig = TTF_OpenFont("resources/FreeSans.ttf", 24);
-
-    Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", FontSmall, FontColorBlack);
+    Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", Resources::FontSmall, FontColorBlack);
     Welcome.Left = 15;
     Welcome.Top = 15;
 
-    Label RunningLabel(TaskList, "You are currently running:", FontSmall, FontColorBlack);
+    Label RunningLabel(TaskList, "You are currently running:", Resources::FontSmall, FontColorBlack);
     RunningLabel.Left = 15;
     RunningLabel.Top = 55;
 
@@ -194,9 +192,44 @@ int main( int argc, char* args[] )
 
     Element Applications(TaskList);
     Applications.Left = 15;
-    Applications.Top = 87;
+    Applications.Top = 92;
     Applications.Width = 800;
     Applications.Height = 52 * Running.size();
+
+    Applications.Hide();
+
+    Image Sample(TaskList, "resources/sample.png");
+    Sample.Left = (800 - Sample.Width) >> 1;
+    Sample.Top = 92;
+
+    Image Sample1(TaskList, "resources/samples.png");
+    Sample1.Left = Sample.Left - Sample1.Width - 20;
+    Sample1.Top = Sample.Top + Sample.Height - Sample1.Height;
+    Sample1.AlphaBlend = 128;
+
+    Image Sample2(TaskList, "resources/samples.png");
+    Sample2.Left = Sample.Left + Sample.Width + 20;
+    Sample2.Top = Sample.Top + Sample.Height - Sample2.Height;
+    Sample2.AlphaBlend = 128;
+
+    Image* AppIcon = new Image(TaskList, "resources/icons/other.png");
+    Label* AppLabel = new Label(TaskList, "Demostration Menu", Resources::FontNormal, FontColorBlack);
+
+    AppIcon->Left = (800 - (AppIcon->Width + AppLabel->Width + 8)) >> 1;
+    AppIcon->Top = Sample.Top + Sample.Height + 10;
+
+    AppLabel->Left = AppIcon->Left + AppIcon->Width + 8;
+    AppLabel->Top = Sample.Top + Sample.Height + 10 + ((AppIcon->Height - AppLabel->Height) >> 1);
+
+    Image ArrowR(TaskList, "resources/arrowr.png");
+    ArrowR.Left = AppLabel->Left + AppLabel->Width + 10;
+    ArrowR.Top = AppLabel->Top;
+    ArrowR.AlphaBlend = 128;
+
+    Image ArrowL(TaskList, "resources/arrowl.png");
+    ArrowL.Left = AppIcon->Left - 10 - ArrowL.Width;
+    ArrowL.Top = AppLabel->Top;
+    ArrowL.AlphaBlend = 128;
 
     for(size_t i = 0; i < Running.size(); i++)
     {
@@ -210,7 +243,7 @@ int main( int argc, char* args[] )
         AppIcon->Left = 5;
         AppIcon->Top = 2;
 
-        Label* AppLabel = new Label(Running[i]->button, Running[i]->Name, FontNormal, FontColorBlack);
+        Label* AppLabel = new Label(Running[i]->button, Running[i]->Name, Resources::FontNormal, FontColorBlack);
         AppLabel->Left = 5 + 48 + 8;
         AppLabel->Top = 12;
 
@@ -241,21 +274,46 @@ int main( int argc, char* args[] )
 
         Categories[i]->button->Show = new CategoryBackground(&Menu);
         Categories[i]->button->Show->Width = 800;
-        Categories[i]->button->Show->Clip = true;
         Categories[i]->button->Show->Hide();
 
-        Categories[i]->button->Show->Scroller = new CategoryScroller(Categories[i]->button->Show);
-        Categories[i]->button->Show->Scroller->Top = 66;
-        Categories[i]->button->Show->Scroller->Width = 800;
-        Categories[i]->button->Show->Scroller->Height = 480 - 66 - 66;
+        List* ListView = new List(Categories[i]->button->Show);
+        ListView->Top = 64;
+        ListView->Height = 480 -ListView->Top - Tabs->Height;
+        ListView->Width = 800;
+        ListView->Columns = 4;
+        ListView->Rows = 3;
 
-        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 1) - 66, "games.png", "Some card game");
-        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 2) - 66, "media.png", "Whoo");
-        AddIcon(Categories[i]->button->Show->Scroller, 15, (100 * 3) - 66, "other.png", "Yellow app");
+        ListView->Add("game-folder.png", "Emulators");
+        ListView->Add("calendar.png", "Calendar");
+        ListView->Add("media.png", "MPlayer");
 
-        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 1) - 66, "web.png", "Browser thing");
-        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 2) - 66, "other.png", "Other");
-        AddIcon(Categories[i]->button->Show->Scroller, 350, (100 * 3) - 66, "media.png", "Movies");
+        ListView->Add("installer.png", "Package Manager");
+        ListView->Add("games.png", "Poker");
+        ListView->Add("terminal.png", "Terminal");
+
+        ListView->Add("editor.png", "Editor");
+        ListView->Add("other.png", "This thing is too lon...");
+        ListView->Add("file-manager.png", "File Manager");
+
+        ListView->Add("web-browser.png", "Web Browser");
+        ListView->Add("internet-group-chat.png", "Internet Relay Chat");
+        ListView->Add("calculator.png", "Calculator");
+
+        ListView->Add("game-folder.png", "Emulators");
+        ListView->Add("calendar.png", "Calendar");
+        ListView->Add("media.png", "MPlayer");
+
+        ListView->Add("installer.png", "Package Manager");
+        ListView->Add("games.png", "Poker");
+        ListView->Add("terminal.png", "Terminal");
+
+        ListView->Add("game-folder.png", "Emulators");
+        ListView->Add("calendar.png", "Calendar");
+        ListView->Add("media.png", "MPlayer");
+
+        ListView->Add("web-browser.png", "Web Browser");
+        ListView->Add("internet-group-chat.png", "Internet Relay Chat");
+        ListView->Add("calculator.png", "Calculator");
 
         Image* Header = new Image(Categories[i]->button->Show, "resources/header.png");
         Header->AlphaBlend = 230;
@@ -264,11 +322,11 @@ int main( int argc, char* args[] )
         CategoryImage->Left = 8;
         CategoryImage->Top = 2;
 
-        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, FontNormal, FontColorWhite);
+        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, Resources::FontNormal, FontColorWhite);
         CategoryLabel->Left = CategoryImage->Left + 5 + CategoryImage->Width;
         CategoryLabel->Top = CategoryImage->Top + ((CategoryImage->Height - CategoryLabel->Height) >> 1);
 
-        Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, FontBig, FontColorWhite);
+        Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, Resources::FontBig, FontColorWhite);
         CatLabel->Top = (Tabs->Height - CatLabel->Height) >> 1;
 
         Image* CatIcon = new Image(Categories[i]->button, std::string("resources/icons_large/") + Categories[i]->IconPath);
@@ -306,7 +364,7 @@ int main( int argc, char* args[] )
     Focus(TaskList);
 
     #ifdef FRAME_EVENT
-    FPS = new Label(&Menu, "FPS:       ", FontSmall, FontColorWhite);
+    FPS = new Label(&Menu, "FPS:       ", Resources::FontSmall, FontColorWhite);
     FPS->Left = 800 - 50 - FPS->Width;
     FPS->Top = 60;
 
@@ -318,10 +376,12 @@ int main( int argc, char* args[] )
 
     Menu.Allocate();
 
+
     Mix_Chunk* Startup = Mix_LoadWAV("resources/start.ogg");
     Mix_PlayChannel(-1, Startup, 0);
 
     Menu.Run();
+    Resources::Deallocate();
 
     return 0;
 }

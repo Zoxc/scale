@@ -28,13 +28,10 @@ extern SDL_Surface* BorderTL;
 extern SDL_Surface* BorderTR;
 
 CategoryBackground::CategoryBackground(Element* AOwner):
-    Element::Element(AOwner),
-    Mode(0),
-    Scroller(0)
+    Element::Element(AOwner)
 {
     AlphaBlend = 0;
     Step = 0;
-    //Clip = true;
 }
 
 CategoryBackground::~CategoryBackground()
@@ -47,7 +44,7 @@ void CategoryBackground::Allocate()
 
     Fill = Graphics::CreateSurface(Width, 480, false);
 
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 110, 110, 110));
+    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 150, 150, 150));
 }
 
 void CategoryBackground::Deallocate()
@@ -55,46 +52,6 @@ void CategoryBackground::Deallocate()
     Element::Deallocate();
 
     SDL_FreeSurface(Fill);
-}
-
-void CategoryBackground::MouseUp(int X, int Y, bool Hovered)
-{
-    if(Scroller != 0)
-        Scroller->ReleaseTarget();
-
-    if(Root->GetTrapped() == this)
-        Release();
-
-    Mode = 0;
-
-    Element::MouseUp(X, Y, Hovered);
-}
-
-void CategoryBackground::MouseDown(int X, int Y, bool Hovered)
-{
-    if(Hovered && Scroller != 0 && Y > 64)
-    {
-        Mode = 1;
-        DownY = Y;
-        MoveOffset = Y - Scroller->Top;
-        Scroller->Target(Y - MoveOffset);
-    }
-    Element::MouseDown(X, Y, Hovered);
-}
-
-void CategoryBackground::MouseMove(int X, int Y, bool Hovered)
-{
-    if(Mode == 1)
-        if(abs(Y - DownY) > 15)
-        {
-            Mode = 2;
-            Trap();
-        }
-
-    if(Mode > 0)
-        Scroller->Target(Y - MoveOffset);
-
-    Element::MouseMove(X, Y, Hovered);
 }
 
 void CategoryBackground::Up()

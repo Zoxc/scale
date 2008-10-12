@@ -24,10 +24,6 @@
 
 #include "Element.hpp"
 
-extern TTF_Font* FontSmall;
-extern TTF_Font* FontNormal;
-extern TTF_Font* FontBig;
-
 enum FontColor
 {
     FontColorBlack, FontColorWhite

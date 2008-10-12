@@ -17,23 +17,22 @@
 */
 
 #pragma once
+#include "SDL.h"
+#include "SDL_ttf.h"
 
 #include "Element.hpp"
 
-class CategoryScroller:
-    public Element
+namespace Resources
 {
-    public:
-        CategoryScroller(Element* AOwner);
-        virtual ~CategoryScroller();
+    void Allocate();
+    void Deallocate();
 
-        void Target(int Y);
-        void ReleaseTarget();
-        void Animate(int Delta);
+    extern TTF_Font* FontSmall;
+    extern TTF_Font* FontNormal;
+    extern TTF_Font* FontBig;
 
-        bool Released;
-        int Step;
-        int TopTarget;
-        int TopStart;
-        float Velocity;
+    extern SDL_Surface* RoundTopLeft;
+    extern SDL_Surface* RoundTopRight;
+    extern SDL_Surface* RoundBottomLeft;
+    extern SDL_Surface* RoundBottomRight;
 };

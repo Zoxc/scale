@@ -21,7 +21,6 @@
 #include "SDL_image.h"
 
 #include "Element.hpp"
-#include "CategoryScroller.hpp"
 
 class CategoryBackground:
     public Element
@@ -30,9 +29,6 @@ class CategoryBackground:
         CategoryBackground(Element* AOwner);
         virtual ~CategoryBackground();
 
-        void MouseUp(int X, int Y, bool Hovered);
-        void MouseMove(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, bool Hovered);
         void Allocate();
         void Deallocate();
         void Up();
@@ -41,11 +37,7 @@ class CategoryBackground:
         void Animate(int Delta);
 
         bool Upping;
-        int DownY;
-        unsigned char Mode;
-        int MoveOffset;
         int Step;
-        CategoryScroller* Scroller;
 
         SDL_Surface* Fill;
 };

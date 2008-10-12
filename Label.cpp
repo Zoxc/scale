@@ -19,10 +19,6 @@
 #include "Label.hpp"
 #include "Graphics.hpp"
 
-TTF_Font* FontSmall = NULL;
-TTF_Font* FontNormal = NULL;
-TTF_Font* FontBig = NULL;
-
 Label::Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor) :
     Element::Element(Owner),
     Font(AFont),

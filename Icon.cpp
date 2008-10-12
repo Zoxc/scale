@@ -19,12 +19,9 @@
 #include "SDL_mixer.h"
 
 #include "Icon.hpp"
+#include "Resources.hpp"
 #include "Graphics.hpp"
 
-SDL_Surface* BorderTL = NULL;
-SDL_Surface* BorderTR = NULL;
-SDL_Surface* BorderBL = NULL;
-SDL_Surface* BorderBR = NULL;
 Mix_Chunk* SoundSelect = 0;
 
 int IconCount = 0;
@@ -49,10 +46,6 @@ void Icon::Allocate()
 
     if(IconCount++ == 0)
     {
-        BorderTL = Graphics::OptimizeSurface(IMG_Load("resources/border_tl.png"), true);
-        BorderTR = Graphics::OptimizeSurface(IMG_Load("resources/border_tr.png"), true);
-        BorderBL = Graphics::OptimizeSurface(IMG_Load("resources/border_bl.png"), true);
-        BorderBR = Graphics::OptimizeSurface(IMG_Load("resources/border_br.png"), true);
         SoundSelect = Mix_LoadWAV("resources/select.ogg");
     }
 
@@ -60,10 +53,10 @@ void Icon::Allocate()
 
     SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
 
-    Graphics::CopyAlpha(0, 0, BorderTL, Fill);
-    Graphics::CopyAlpha(Fill->w - BorderTR->w, 0, BorderTR, Fill);
-    Graphics::CopyAlpha(0, Fill->h - BorderTR->h, BorderBL, Fill);
-    Graphics::CopyAlpha(Fill->w - BorderTR->w, Fill->h - BorderTR->h, BorderBR, Fill);
+    Graphics::CopyAlpha(0, 0, Resources::RoundTopLeft, Fill);
+    Graphics::CopyAlpha(Fill->w - Resources::RoundTopRight->w, 0, Resources::RoundTopRight, Fill);
+    Graphics::CopyAlpha(0, Fill->h - Resources::RoundBottomLeft->h, Resources::RoundBottomLeft, Fill);
+    Graphics::CopyAlpha(Fill->w - Resources::RoundBottomRight->w, Fill->h - Resources::RoundBottomRight->h, Resources::RoundBottomRight, Fill);
 
     Graphics::HalfAlpha(Fill, 2);
 }
@@ -74,10 +67,6 @@ void Icon::Deallocate()
 
     if(--IconCount == 0)
     {
-        SDL_FreeSurface(BorderTL);
-        SDL_FreeSurface(BorderTR);
-        SDL_FreeSurface(BorderBL);
-        SDL_FreeSurface(BorderBR);
         Mix_FreeChunk(SoundSelect);
     }
 

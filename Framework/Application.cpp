@@ -131,11 +131,6 @@ void Application::Stop(Element* Owner)
         Animations.remove(Owner);
 }
 
-void Application::MouseDown(int X, int Y)
-{
-
-}
-
 void Application::Run()
 {
     Terminated = false;

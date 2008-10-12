@@ -45,22 +45,22 @@ class Application:
         #ifdef FRAME_EVENT
         FrameEvent EventFrame;
         #endif
+
         KeyEvent EventKeyDown;
         std::string Title;
         bool Terminated;
+
+    private:
         bool FlagRedraw;
         std::list<Element*> Animations;
 
-    private:
         std::list<Element*>::iterator Animation;
         std::list<Element*>::iterator Child;
         std::list<Element*>::reverse_iterator ChildBack;
 
         SDL_Surface* Screen;
-        void MouseDown(int X, int Y);
 
         Element* Trapped;
-
         int TrappedX;
         int TrappedY;
 
