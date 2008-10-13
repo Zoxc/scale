@@ -36,6 +36,8 @@ class Label:
         Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor);
         virtual ~Label();
 
+        static SDL_Surface* CreateFont(TTF_Font* Font, FontColor Color, std::string Text);
+
         void Allocate();
         void Deallocate();
         void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);

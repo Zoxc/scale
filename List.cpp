@@ -21,6 +21,7 @@
 #include "SDL_image.h"
 
 #include "List.hpp"
+#include "Label.hpp"
 #include "Graphics.hpp"
 #include "Resources.hpp"
 
@@ -286,7 +287,7 @@ void List::Allocate()
     for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
     {
         if(Captions)
-            (*Item)->CaptionSurface = Graphics::OptimizeSurface(TTF_RenderText_Blended(Resources::FontSmall, (char*)(*Item)->Caption.c_str(), Black), true);
+            (*Item)->CaptionSurface = Label::CreateFont(Resources::FontSmall, FontColorBlack, (*Item)->Caption.c_str());
 
         if(Icons != IconNone)
             (*Item)->IconSurface = Graphics::OptimizeSurface(IMG_Load(std::string("resources/icons_large/" + (*Item)->Icon).c_str()), true);
