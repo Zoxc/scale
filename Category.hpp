@@ -41,8 +41,8 @@ class Category:
         int Alpha;
         int TargetAlpha;
 
-        Element* Hide;
         CategoryBackground* Show;
+        Element* DoFocus;
 
         SDL_Surface* Fill;
 };

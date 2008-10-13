@@ -26,14 +26,17 @@
 
 List::List(Element* Owner):
     Element::Element(Owner),
+    Focused(0),
     Icons(IconAbove),
     Captions(true),
     IconSpacing(4),
     Columns(4),
     Rows(3),
+    FocusedIndex(-1),
     Position(0),
     Min(0),
-    Mode(0)
+    Mode(0),
+    Released(true)
 {
 }
 
@@ -46,6 +49,8 @@ const float Limit = 300;
 
 void List::Target(int X)
 {
+    Released = false;
+
     Start();
 
     PositionStart = Position;
@@ -54,14 +59,19 @@ void List::Target(int X)
 
     PositionTarget = X;
 
+    // Smooth bounds
+    /*
+    if(PositionStart + (PositionTarget - PositionStart) < Min)
+    {
+        PositionTarget = Min;
+    }
+
+    if(PositionStart + (PositionTarget - PositionStart) > 0)
+    {
+        PositionTarget = 0;
+    }
+    */
     Velocity = PositionTarget - PositionStart;
-
-    if(Velocity > Limit)
-        Velocity = Limit;
-    else if(Velocity < -Limit)
-        Velocity = -Limit;
-
-    Released = false;
 }
 
 void List::Animate(int Delta)
@@ -97,15 +107,9 @@ void List::Animate(int Delta)
         Position = NewPosition;
 
         if(Position < Min)
-        {
             Position = Min;
-            Stop();
-        }
         else if(Position > 0)
-        {
             Position = 0;
-            Stop();
-        }
 
         Redraw();
     }
@@ -138,6 +142,24 @@ void List::MouseDown(int X, int Y, bool Hovered)
 {
     if(Hovered)
     {
+        Root->Focus(this);
+
+        unsigned int Column = (X - Position) / ItemWidth;
+        unsigned int Row = Y / ItemHeight;
+        unsigned int Index = Column * Rows + Row;
+
+        if(Index < Items.size())
+        {
+            ListItem* NewFocus = Items[Index];
+
+            if(NewFocus != Focused)
+            {
+                FocusedIndex = Index;
+                Focused = NewFocus;
+                Redraw();
+            }
+        }
+
         Mode = 1;
         DownX = X;
         MoveOffset = X - Position;
@@ -161,6 +183,55 @@ void List::MouseMove(int X, int Y, bool Hovered)
     Element::MouseMove(X, Y, Hovered);
 }
 
+void List::TargetFocused()
+{
+    if(-Position > Focused->X)
+    {
+        Target(-Focused->X);
+    }
+    else if(Width < Focused->X + ItemWidth + Position)
+    {
+        Target(-Focused->X + Width - ItemWidth);
+    }
+}
+
+void List::KeyDown(ElementKey Key)
+{
+    int NewIndex = FocusedIndex;
+
+    switch((int)Key)
+    {
+        case ElementUp:
+            if(FocusedIndex % Rows != 0)
+                NewIndex--;
+            break;
+
+        case ElementDown:
+            if(FocusedIndex % Rows != Rows - 1)
+                NewIndex++;
+            break;
+
+        case ElementLeft:
+            if(FocusedIndex > Rows - 1)
+                NewIndex -= Rows;
+            break;
+
+        case ElementRight:
+            if(FocusedIndex + Rows < (int)Items.size())
+                NewIndex += Rows;
+            break;
+
+    }
+
+    if(NewIndex < (int)Items.size() && NewIndex != FocusedIndex)
+    {
+        FocusedIndex = NewIndex;
+        Focused = Items[FocusedIndex];
+        TargetFocused();
+        Redraw();
+    }
+}
+
 void List::Add(std::string Icon, std::string Caption)
 {
     ListItem* New = new ListItem();
@@ -173,6 +244,12 @@ void List::Add(std::string Icon, std::string Caption)
 void List::Allocate()
 {
     Element::Allocate();
+
+    if(FocusedIndex == -1 && Items.size() > 0)
+    {
+        FocusedIndex = 0;
+        Focused = Items[0];
+    }
 
     ItemHeight = Height / Rows;
     ItemWidth = Width / Columns;
@@ -206,10 +283,13 @@ void List::Allocate()
     const int IconSize = 64;
     const int FontSize = 19;
 
-    for (std::list<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
+    for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
     {
-        (*Item)->CaptionSurface = Graphics::OptimizeSurface(TTF_RenderText_Blended(Resources::FontSmall, (char*)(*Item)->Caption.c_str(), Black), true);
-        (*Item)->IconSurface = Graphics::OptimizeSurface(IMG_Load(std::string("resources/icons_large/" + (*Item)->Icon).c_str()), true);
+        if(Captions)
+            (*Item)->CaptionSurface = Graphics::OptimizeSurface(TTF_RenderText_Blended(Resources::FontSmall, (char*)(*Item)->Caption.c_str(), Black), true);
+
+        if(Icons != IconNone)
+            (*Item)->IconSurface = Graphics::OptimizeSurface(IMG_Load(std::string("resources/icons_large/" + (*Item)->Icon).c_str()), true);
 
         int X = ItemWidth * ItemX;
         int Y = ItemHeight * ItemY;
@@ -238,12 +318,28 @@ void List::Allocate()
                     (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionSurface->h >> 1);
                     break;
 
+                case IconRight:
+                    (*Item)->CaptionX = X + (ItemWidth - IconSize - IconSpacing - (*Item)->CaptionSurface->w >> 1);
+                    (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionSurface->h >> 1);
+
+                    (*Item)->IconX = (*Item)->CaptionX + (*Item)->CaptionSurface->w + IconSpacing;
+                    (*Item)->IconY = Y + (ItemHeight - IconSize >> 1);
+                    break;
+
                 case IconAbove:
                     (*Item)->IconX = X + (ItemWidth - IconSize >> 1);
                     (*Item)->IconY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
 
                     (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionSurface->w >> 1);
                     (*Item)->CaptionY = (*Item)->IconY + IconSize + IconSpacing;
+                    break;
+
+                case IconBelow:
+                    (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionSurface->w >> 1);
+                    (*Item)->CaptionY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
+
+                    (*Item)->IconX = X + (ItemWidth - IconSize >> 1);
+                    (*Item)->IconY = (*Item)->CaptionY + FontSize + IconSpacing;
                     break;
             }
 
@@ -262,21 +358,25 @@ void List::Deallocate()
     Element::Deallocate();
 
     SDL_FreeSurface(ItemFill);
+
+    for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
+    {
+        if(Captions)
+            SDL_FreeSurface((*Item)->CaptionSurface);
+
+        if(Icons != IconNone && (*Item)->IconSurface != 0)
+            SDL_FreeSurface((*Item)->IconSurface);
+    }
 }
 
 void List::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
 {
     X += Position;
 
-    for (std::list<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
+    for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
     {
-     /*   if((*Item)->X + ItemWidth < X)
-            continue;
-
-        if((*Item)->X + Left >= X + Width)
-            break;*/
-
-        //Graphics::ApplyAlpha(X + (*Item)->X, Y + (*Item)->Y, ItemFill, Surface, Alpha);
+        if(Focused == *Item)
+            Graphics::ApplyAlpha(X + (*Item)->X, Y + (*Item)->Y, ItemFill, Surface, Alpha);
 
         if(Captions == false)
         {

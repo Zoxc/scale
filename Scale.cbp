@@ -28,8 +28,6 @@
 		<Unit filename="Category.hpp" />
 		<Unit filename="CategoryBackground.cpp" />
 		<Unit filename="CategoryBackground.hpp" />
-		<Unit filename="CategoryScroller.cpp" />
-		<Unit filename="CategoryScroller.hpp" />
 		<Unit filename="Framework\Application.cpp" />
 		<Unit filename="Framework\Application.hpp" />
 		<Unit filename="Framework\Button.cpp" />
@@ -45,8 +43,12 @@
 		<Unit filename="Image.hpp" />
 		<Unit filename="Label.cpp" />
 		<Unit filename="Label.hpp" />
+		<Unit filename="List.cpp" />
+		<Unit filename="List.hpp" />
 		<Unit filename="Main.cpp" />
 		<Unit filename="Main.hpp" />
+		<Unit filename="Resources.cpp" />
+		<Unit filename="Resources.hpp" />
 		<Unit filename="Solid.cpp" />
 		<Unit filename="Solid.hpp" />
 		<Extensions>

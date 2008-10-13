@@ -36,8 +36,8 @@ Category::Category(Element* AOwner) :
     Element::Element(AOwner),
     Alpha(0),
     TargetAlpha(0),
-    Hide(0),
-    Show(0)
+    Show(0),
+    DoFocus(0)
 {
 }
 
@@ -93,12 +93,10 @@ void Category::Activate()
 
     Redraw();
 
-    Menu.KillFocus();
+    if(DoFocus != 0)
+        Focus(DoFocus);
 
     Show->Up();
-
-    if(Hide != 0)
-        Hide->Hide();
 }
 
 void Category::Deactivate()
@@ -116,9 +114,6 @@ void Category::Deactivate()
     Focus(TaskList);
 
     Show->Down();
-
-    if(Hide != 0)
-        Hide->Show();
 }
 
 void Category::Animate(int Delta)

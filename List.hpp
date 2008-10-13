@@ -18,6 +18,7 @@
 
 #pragma once
 #include <string>
+#include <vector>
 
 #include "Element.hpp"
 
@@ -29,12 +30,12 @@ struct ListItem
     SDL_Surface* CaptionSurface;
     SDL_Surface* IconSurface;
 
-    int X;
-    int Y;
-    int CaptionX;
-    int CaptionY;
-    int IconX;
-    int IconY;
+    unsigned short X;
+    unsigned short Y;
+    unsigned short CaptionX;
+    unsigned short CaptionY;
+    unsigned short IconX;
+    unsigned short IconY;
 };
 
 enum IconPlacement
@@ -56,6 +57,7 @@ class List:
         void Allocate();
         void Deallocate();
         void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void KeyDown(ElementKey Key);
         void MouseUp(int X, int Y, bool Hovered);
         void MouseMove(int X, int Y, bool Hovered);
         void MouseDown(int X, int Y, bool Hovered);
@@ -63,7 +65,9 @@ class List:
 
         void Add(std::string Icon, std::string Caption);
 
-        std::list<ListItem*> Items;
+        std::vector<ListItem*> Items;
+
+        ListItem* Focused;
 
         IconPlacement Icons;
         bool Captions;
@@ -75,10 +79,13 @@ class List:
     private:
         SDL_Surface* ItemFill;
 
+        int FocusedIndex;
+
         int Position;
         int Min;
 
         void Target(int X);
+        void TargetFocused();
 
         int DownX;
         unsigned char Mode;

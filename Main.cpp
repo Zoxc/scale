@@ -195,7 +195,7 @@ int main( int argc, char* args[] )
     Applications.Top = 92;
     Applications.Width = 800;
     Applications.Height = 52 * Running.size();
-
+/*
     Applications.Hide();
 
     Image Sample(TaskList, "resources/sample.png");
@@ -230,7 +230,7 @@ int main( int argc, char* args[] )
     ArrowL.Left = AppIcon->Left - 10 - ArrowL.Width;
     ArrowL.Top = AppLabel->Top;
     ArrowL.AlphaBlend = 128;
-
+*/
     for(size_t i = 0; i < Running.size(); i++)
     {
         Running[i]->button = new Icon(&Applications);
@@ -280,8 +280,8 @@ int main( int argc, char* args[] )
         ListView->Top = 64;
         ListView->Height = 480 -ListView->Top - Tabs->Height;
         ListView->Width = 800;
-        ListView->Columns = 4;
-        ListView->Rows = 3;
+
+        Categories[i]->button->DoFocus = ListView;
 
         ListView->Add("game-folder.png", "Emulators");
         ListView->Add("calendar.png", "Calendar");
@@ -309,11 +309,11 @@ int main( int argc, char* args[] )
 
         ListView->Add("game-folder.png", "Emulators");
         ListView->Add("calendar.png", "Calendar");
-        ListView->Add("media.png", "MPlayer");
+        //ListView->Add("media.png", "MPlayer");
 
         ListView->Add("web-browser.png", "Web Browser");
         ListView->Add("internet-group-chat.png", "Internet Relay Chat");
-        ListView->Add("calculator.png", "Calculator");
+        //ListView->Add("calculator.png", "Calculator");
 
         Image* Header = new Image(Categories[i]->button->Show, "resources/header.png");
         Header->AlphaBlend = 230;
