@@ -219,6 +219,12 @@ void Graphics::ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest
     Rect.w += Rect.x;
     Rect.h += Rect.y;
 
+    if(tx + source->w < Rect.x)
+        return;
+
+    if(ty + source->h < Rect.y)
+        return;
+
     if(tx >= Rect.w)
         return;
 
@@ -327,17 +333,17 @@ SDL_Surface* Graphics::BlurAlpha(SDL_Surface* source)
         int result = 0;
 
         for(int sy = -4; sy < 0; sy++)
-        for(int sx = -4; sx < 0; sx++)
         {
-            int ix = x + sx;
+            int iy = y + sy;
 
-            if(ix > 0 && ix < source->w)
-            {
-                int iy = y + sy;
+            if(iy > 0 && iy < source->h)
+                for(int sx = -4; sx < 0; sx++)
+                {
+                    int ix = x + sx;
 
-                if(iy > 0 && iy < source->h)
-                    result += reinterpret_cast<Uint8*>((Uint32*)source->pixels + iy * source->w + ix)[3];
-            }
+                    if(ix > 0 && ix < source->w)
+                        result += reinterpret_cast<Uint8*>((Uint32*)source->pixels + iy * source->w + ix)[3];
+                }
         }
 
         reinterpret_cast<Uint8*>(pixel++)[3] = result >> 4;

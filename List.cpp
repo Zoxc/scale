@@ -218,8 +218,10 @@ void List::KeyDown(ElementKey Key)
             break;
 
         case ElementRight:
-            if(FocusedIndex + Rows < (int)Items.size())
-                NewIndex += Rows;
+            NewIndex += Rows;
+
+            if(NewIndex + 1 > (int)Items.size())
+                NewIndex = Items.size() - 1;
             break;
 
     }
