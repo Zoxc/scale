@@ -17,8 +17,6 @@
 */
 
 #pragma once
-#include "SDL.h"
-#include "SDL_image.h"
 
 #include "Element.hpp"
 
@@ -33,11 +31,9 @@ class CategoryBackground:
         void Deallocate();
         void Up();
         void Down();
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Draw(int X, int Y, unsigned char Alpha);
         void Animate(int Delta);
 
         bool Upping;
         int Step;
-
-        SDL_Surface* Fill;
 };

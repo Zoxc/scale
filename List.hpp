@@ -27,8 +27,8 @@ struct ListItem
     std::string Caption;
     std::string Icon;
 
-    SDL_Surface* CaptionSurface;
-    SDL_Surface* IconSurface;
+    OpenGL::Texture* IconTexture;
+    OpenGL::Texture* CaptionTexture;
 
     unsigned short X;
     unsigned short Y;
@@ -56,7 +56,7 @@ class List:
 
         void Allocate();
         void Deallocate();
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Draw(int X, int Y, unsigned char Alpha);
         void KeyDown(ElementKey Key);
         void MouseUp(int X, int Y, bool Hovered);
         void MouseMove(int X, int Y, bool Hovered);
@@ -77,8 +77,6 @@ class List:
         int Rows;
 
     private:
-        SDL_Surface* ItemFill;
-
         int FocusedIndex;
 
         int Position;

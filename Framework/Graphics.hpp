@@ -17,20 +17,10 @@
 */
 
 #pragma once
-#include "SDL.h"
-#include "SDL_ttf.h"
-
-extern SDL_Color Black;
-extern SDL_Color White;
+#include "OpenGL/OpenGL.Texture.hpp"
 
 namespace Graphics
 {
-    SDL_Surface* OptimizeSurface(SDL_Surface* source, bool Alpha);
-    SDL_Surface* CreateSurface(int Width, int Height, bool Alpha);
-    void ApplySurface(int x, int y, SDL_Surface* source, SDL_Surface* destination);
-    void ApplySurfaceEx(int x, int y, SDL_Surface* source, SDL_Surface* destination);
-    SDL_Surface* BlurAlpha(SDL_Surface* source);
-    void HalfAlpha(SDL_Surface* Surface, unsigned char Times);
-    void CopyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest);
-    void ApplyAlpha(int tx, int ty, SDL_Surface* source, SDL_Surface* dest, unsigned char Alpha);
+    void Texture(OpenGL::Texture* Tex, int X, int Y, unsigned char Alpha);
+    void Rect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha);
 };

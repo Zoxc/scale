@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Solid.hpp"
 #include "Graphics.hpp"
+#include "Solid.hpp"
 
 Solid::Solid(Element* AOwner) :
     Element::Element(AOwner),
@@ -34,22 +34,14 @@ Solid::~Solid()
 void Solid::Allocate()
 {
     Element::Allocate();
-
-    Fill = Graphics::CreateSurface(Width, Height, false);
-
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, R, G, B));
 }
 
 void Solid::Deallocate()
 {
     Element::Deallocate();
-
-    SDL_FreeSurface(Fill);
 }
 
-void Solid::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void Solid::Draw(int X, int Y, unsigned char Alpha)
 {
-    SDL_SetAlpha(Fill, SDL_SRCALPHA, Alpha);
-
-    Graphics::ApplySurface(X, Y, Fill, Surface);
+    Graphics::Rect(X, Y, Width, Height, R, G, B, Alpha);
 }

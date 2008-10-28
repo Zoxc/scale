@@ -17,10 +17,102 @@
 */
 
 #include "Label.hpp"
-#include "Graphics.hpp"
 
-SDL_Surface* Label::CreateFont(TTF_Font* Font, FontColor Color, std::string Text)
+void Label::FontSize(FT_Face Font, std::string Text, int* Width, int* Height)
 {
+    FT_Error Error;
+
+    for (unsigned int i = 0; i < Text.length(); i++)
+    {
+        Error = FT_Load_Glyph(Font, FT_Get_Char_Index(Font,  Text[i]), FT_LOAD_DEFAULT);
+        if(Error)
+            continue;
+
+        *Width += Font->glyph->advance.x >> 6;
+    }
+
+    *Height = Font->height >> 6;
+}
+
+void Label::DrawFont(FT_Face Font, unsigned int Color, std::string Text, int X, int Y, unsigned char Alpha)
+{
+    if(Y > Screen->Height)
+        return;
+
+    FT_Error Error;
+
+    int Position = X;
+
+    Y += Font->height >> 6;
+
+    if(Y < 0)
+        return;
+
+    for (unsigned int i = 0; i < Text.length(); i++)
+    {
+        Error = FT_Load_Glyph(Font, FT_Get_Char_Index(Font,  Text[i]), FT_LOAD_DEFAULT );
+        if(Error)
+            continue;
+
+        if(X + Font->glyph->advance.x < 0)
+            continue;
+
+        if(X > Screen->Width)
+            return;
+
+        Error = FT_Render_Glyph(Font->glyph, FT_RENDER_MODE_NORMAL);
+        if(Error)
+            continue;
+
+        int Width = Font->glyph->bitmap.width;
+
+        unsigned int* Data = new unsigned int[Width * Font->glyph->bitmap.rows];
+
+        unsigned int* Pixel = Data;
+        unsigned int* PixelEnd = Data + Font->glyph->bitmap.rows * Width;
+
+        unsigned char* Buffer = Font->glyph->bitmap.buffer;
+
+        while(Pixel != PixelEnd)
+        {
+            *Pixel = Color;
+            reinterpret_cast<unsigned char*>(Pixel++)[3] = *Buffer++;
+        }
+
+        OpenGL::Texture Glyph;
+
+        glBindTexture(GL_TEXTURE_2D, Glyph.Handle);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Font->glyph->bitmap.width, Font->glyph->bitmap.rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+
+        delete[] Data;
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        GLshort Positions[] = {
+            Position, Y - Font->glyph->bitmap_top + Font->glyph->bitmap.rows,
+            Position, Y - Font->glyph->bitmap_top,
+            Position + Font->glyph->bitmap.width, Y - Font->glyph->bitmap_top + Font->glyph->bitmap.rows,
+            Position + Font->glyph->bitmap.width, Y - Font->glyph->bitmap_top
+        };
+
+        glUniform4f(Screen->ColorUniform, 0, 0, 0, Alpha / 255.0f);
+        glUniform1i(Screen->TexturedUniform, 1);
+        glUniform1i(Screen->TextureUniform, 0);
+
+        glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
+        glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_FALSE, 0, TextureCoordinate);
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        Position += Font->glyph->advance.x >> 6;
+    }
+}
+/*
+VGImage Label::CreateFont(FT_Face Font, unsigned int Color, std::string Text)
+{
+
     if(Color == FontColorBlack)
     {
         SDL_Surface* Shadow = TTF_RenderText_Blended(Font, (char*)Text.c_str(), White);
@@ -58,22 +150,18 @@ SDL_Surface* Label::CreateFont(TTF_Font* Font, FontColor Color, std::string Text
 
         return Bitmap;
     }
+    return 0;
 }
-
-Label::Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor) :
+*/
+Label::Label(Element* Owner, std::string ACaption, FT_Face AFont, unsigned int AColor) :
     Element::Element(Owner),
     Font(AFont),
-    Color(AColor),
-    Bitmap(0)
+    Color(AColor)//,
+   // Bitmap(0)
 {
     Caption = ACaption;
 
-    SDL_Surface* Text = TTF_RenderText_Blended(Font, Caption.c_str(), White);
-
-    Width = Text->w;
-    Height = Text->h + 1;
-
-    SDL_FreeSurface(Text);
+    FontSize(Font, Caption, &Width, &Height);
 }
 
 Label::~Label()
@@ -83,13 +171,13 @@ Label::~Label()
 
 void Label::SetCaption(std::string NewCaption)
 {
-    if(Caption != NewCaption && Bitmap != 0)
+    if(Caption != NewCaption /*&& Bitmap != 0*/)
     {
        Caption = NewCaption;
 
-       SDL_FreeSurface(Bitmap);
+       //SDL_FreeSurface(Bitmap);
 
-       Bitmap = CreateFont(Font, Color, Caption);
+       //Bitmap = CreateFont(Font, Color, Caption);
     }
     else
         Caption = NewCaption;
@@ -99,23 +187,20 @@ void Label::Allocate()
 {
     Element::Allocate();
 
-    Bitmap = CreateFont(Font, Color, Caption);
+    //Bitmap = CreateFont(Font, Color, Caption);
 }
 
 void Label::Deallocate()
 {
     Element::Deallocate();
-
-    SDL_FreeSurface(Bitmap);
-
-    Bitmap = 0;
 }
 
-void Label::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void Label::Draw(int X, int Y, unsigned char Alpha)
 {
-    if(Color == FontColorBlack)
+    DrawFont(Font, Color, Caption, X, Y, Alpha);
+   /* if(Color == FontColorBlack)
         Graphics::ApplyAlpha(X, Y + 1, Bitmap, Surface, Alpha);
     else
-        Graphics::ApplyAlpha(X - 2, Y - 1, Bitmap, Surface, Alpha);
+        Graphics::ApplyAlpha(X - 2, Y - 1, Bitmap, Surface, Alpha);*/
 
 }

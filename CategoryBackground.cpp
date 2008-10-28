@@ -19,13 +19,8 @@
 #include <math.h>
 
 #include "CategoryBackground.hpp"
-#include "Graphics.hpp"
 #include "Button.hpp"
-
-extern SDL_Surface* BorderBL;
-extern SDL_Surface* BorderBR;
-extern SDL_Surface* BorderTL;
-extern SDL_Surface* BorderTR;
+#include "Graphics.hpp"
 
 CategoryBackground::CategoryBackground(Element* AOwner):
     Element::Element(AOwner)
@@ -41,17 +36,11 @@ CategoryBackground::~CategoryBackground()
 void CategoryBackground::Allocate()
 {
     Element::Allocate();
-
-    Fill = Graphics::CreateSurface(Width, 480, false);
-
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 150, 150, 150));
 }
 
 void CategoryBackground::Deallocate()
 {
     Element::Deallocate();
-
-    SDL_FreeSurface(Fill);
 }
 
 void CategoryBackground::Up()
@@ -60,6 +49,8 @@ void CategoryBackground::Up()
     Show();
 
     Upping = true;
+    Top = 480 - (int)floor(sin(((float)Step / 1000) * M_PI_2) * 480);
+    AlphaBlend = Step * 255 / 1000;
 
     Redraw();
 }
@@ -90,19 +81,13 @@ void CategoryBackground::Animate(int Delta)
         Stop();
     }
 
-    Height =  (int)floor(sin(((float)Step / 1000) * M_PI_2) * 480);
+    Top = 480 - (int)floor(sin(((float)Step / 1000) * M_PI_2) * 480);
     AlphaBlend = Step * 255 / 1000;
-    Top = 480 - Height;
 
     Redraw();
 }
 
-void CategoryBackground::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void CategoryBackground::Draw(int X, int Y, unsigned char Alpha)
 {
-    if(AlphaBlend == 0)
-        return;
-
-    SDL_SetAlpha(Fill, SDL_SRCALPHA, AlphaBlend / 15 * 14);
-
-    Graphics::ApplySurface(X, Y, Fill, Surface);
+    Graphics::Rect(X, Y, Width, Height, 150, 150, 150,  Alpha / 10 * 9);
 }

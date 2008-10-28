@@ -17,38 +17,37 @@
 */
 
 #pragma once
-#include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_ttf.h"
 #include <string>
-
+#include "Resources.hpp"
 #include "Element.hpp"
 
-enum FontColor
-{
-    FontColorBlack, FontColorWhite
-};
+const unsigned int ColorBlack = 0;
+const unsigned int ColorWhite = 0x00FFFFFF;
 
 class Label:
     public Element
 {
     public:
-        Label(Element* Owner, std::string ACaption, TTF_Font* AFont, FontColor AColor);
+        Label(Element* Owner, std::string ACaption, FT_Face AFont, unsigned int AColor);
         virtual ~Label();
 
-        static SDL_Surface* CreateFont(TTF_Font* Font, FontColor Color, std::string Text);
+        static void FontSize(FT_Face Font, std::string Text, int* Width, int* Height);
+
+        static void DrawFont(FT_Face Font, unsigned int Color, std::string Text, int X, int Y, unsigned char Alpha);
+       // static VGImage CreateFont(FT_Face Font, unsigned int Color, std::string Text);
 
         void Allocate();
         void Deallocate();
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Draw(int X, int Y, unsigned char Alpha);
         void SetCaption(std::string NewCaption);
 
-        TTF_Font* Font;
-        FontColor Color;
+        FT_Face Font;
+        unsigned int Color;
 
-        SDL_Surface* Bitmap;
+       // VGImage Bitmap;
 
         std::string Caption;
+
     private:
         void _CreateCaption();
 };

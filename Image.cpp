@@ -16,8 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Image.hpp"
+#include <stdarg.h>
+#include "png.h"
+
 #include "Graphics.hpp"
+#include "Image.hpp"
 
 Image::Image(Element* Owner, std::string Path):
     Element::Element(Owner),
@@ -25,35 +28,81 @@ Image::Image(Element* Owner, std::string Path):
 {
     Filename = Path;
 
-    ImageSurface = IMG_Load(Path.c_str());
-
-    if(ImageSurface == 0)
-        return;
-
-    Width = ImageSurface->w;
-    Height = ImageSurface->h;
-
-    SDL_FreeSurface(ImageSurface);
+    SizeFromFile(Path, &Width, &Height);
 }
 
 Image::~Image()
 {
 }
 
+void Image::SizeFromFile(std::string FileName, int* Width, int* Height)
+{
+    png_structp PngPtr;
+    png_infop InfoPtr;
+
+	char Header[8];
+
+	FILE *File = fopen(FileName.c_str(), "rb");
+	if (!File)
+	{
+		printf("File %s could not be opened for reading\n", FileName.c_str());
+		return;
+	}
+
+	fread(Header, 1, 8, File);
+
+	if (png_sig_cmp((png_byte*)Header, 0, 8))
+		printf("File %s is not recognized as a PNG file\n", FileName.c_str());
+
+	PngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+	if(!PngPtr)
+	{
+		printf("png_create_read_struct failed on file: %s\n", FileName.c_str());
+		return;
+	}
+
+	InfoPtr = png_create_info_struct(PngPtr);
+	if(!InfoPtr)
+	{
+		printf("png_create_info_struct failed on file: %s\n", FileName.c_str());
+		return;
+	}
+
+	if(setjmp(png_jmpbuf(PngPtr)))
+	{
+		printf("Error during init_io\n");
+		return;
+	}
+
+	png_init_io(PngPtr, File);
+	png_set_sig_bytes(PngPtr, 8);
+
+    png_read_info(PngPtr, InfoPtr);
+
+	*Width = InfoPtr->width;
+	*Height = InfoPtr->height;
+
+    png_destroy_read_struct(&PngPtr, &InfoPtr, 0);
+
+    fclose(File);
+}
+
 void Image::Allocate()
 {
-    ImageSurface = Graphics::OptimizeSurface(IMG_Load(Filename.c_str()), NeedAlpha);
+    Element::Allocate();
+
+    Texture = new OpenGL::Texture();
+    Texture->Load(Filename.c_str());
 }
 
 void Image::Deallocate()
 {
     Element::Deallocate();
 
-    SDL_FreeSurface(ImageSurface);
+    delete Texture;
 }
 
-void Image::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void Image::Draw(int X, int Y, unsigned char Alpha)
 {
-    if(ImageSurface != 0)
-        Graphics::ApplyAlpha(X, Y, ImageSurface, Surface, Alpha);
+    Graphics::Texture(Texture, X, Y, Alpha);
 }

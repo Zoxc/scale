@@ -16,15 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SDL_mixer.h"
-
 #include "Icon.hpp"
 #include "Resources.hpp"
-#include "Graphics.hpp"
 
-Mix_Chunk* SoundSelect = 0;
-
-int IconCount = 0;
 
 Icon::Icon(Element* Owner) :
     Button(Owner),
@@ -43,41 +37,16 @@ void Icon::Click()
 void Icon::Allocate()
 {
     Element::Allocate();
-
-    if(IconCount++ == 0)
-    {
-        SoundSelect = Mix_LoadWAV("resources/select.ogg");
-    }
-
-    Fill = Graphics::CreateSurface(Width, Height, true);
-
-    SDL_FillRect(Fill, 0, SDL_MapRGB(Fill->format, 255, 255, 255));
-
-    Graphics::CopyAlpha(0, 0, Resources::RoundTopLeft, Fill);
-    Graphics::CopyAlpha(Fill->w - Resources::RoundTopRight->w, 0, Resources::RoundTopRight, Fill);
-    Graphics::CopyAlpha(0, Fill->h - Resources::RoundBottomLeft->h, Resources::RoundBottomLeft, Fill);
-    Graphics::CopyAlpha(Fill->w - Resources::RoundBottomRight->w, Fill->h - Resources::RoundBottomRight->h, Resources::RoundBottomRight, Fill);
-
-    Graphics::HalfAlpha(Fill, 2);
 }
 
 void Icon::Deallocate()
 {
     Element::Deallocate();
-
-    if(--IconCount == 0)
-    {
-        Mix_FreeChunk(SoundSelect);
-    }
-
-    SDL_FreeSurface(Fill);
 }
 
 void Icon::Activate()
 {
     Focused = true;
-
-    Mix_PlayChannel(-1, SoundSelect, 0);
 
     Redraw();
 }
@@ -89,10 +58,21 @@ void Icon::Deactivate()
     Redraw();
 }
 
-void Icon::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void Icon::Draw(int X, int Y, unsigned char Alpha)
 {
     if(!Focused)
         return;
 
-    Graphics::ApplyAlpha(X, Y, Fill, Surface, Alpha);
+    GLshort Positions[] = {
+        X, Y + Height,
+        X, Y,
+        X + Width, Y + Height,
+        X + Width, Y
+    };
+
+    glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
+    glUniform1i(Screen->TexturedUniform, 0);
+    glUniform4f(Screen->ColorUniform, 1, 1, 1, Alpha / 255.0f / 4);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }

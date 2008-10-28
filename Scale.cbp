@@ -6,15 +6,25 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
+			<Target title="Debug">
+				<Option output="bin\Scale" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
 			<Target title="Release">
 				<Option output="bin\Scale" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin\" />
-				<Option object_output="obj\" />
-				<Option type="0" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-fexpensive-optimizations" />
-					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-D_STDCALL_SUPPORTED -D_M_IX86" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -23,7 +33,15 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-fexceptions" />
 		</Compiler>
+		<Linker>
+			<Add option="-llibEGL" />
+			<Add library="libpng" />
+			<Add library="freetype" />
+			<Add library="libEGL" />
+			<Add library="libGLESv2" />
+		</Linker>
 		<Unit filename="Category.cpp" />
 		<Unit filename="Category.hpp" />
 		<Unit filename="CategoryBackground.cpp" />
@@ -36,6 +54,14 @@
 		<Unit filename="Framework\Element.hpp" />
 		<Unit filename="Framework\Graphics.cpp" />
 		<Unit filename="Framework\Graphics.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Program.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Program.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Shader.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Shader.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Texture.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Texture.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Window.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Window.hpp" />
 		<Unit filename="Framework\Options.hpp" />
 		<Unit filename="Icon.cpp" />
 		<Unit filename="Icon.hpp" />

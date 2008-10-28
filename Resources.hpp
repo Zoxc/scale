@@ -17,8 +17,8 @@
 */
 
 #pragma once
-#include "SDL.h"
-#include "SDL_ttf.h"
+#include "ft2build.h"
+#include FT_FREETYPE_H
 
 #include "Element.hpp"
 
@@ -27,12 +27,9 @@ namespace Resources
     void Allocate();
     void Deallocate();
 
-    extern TTF_Font* FontSmall;
-    extern TTF_Font* FontNormal;
-    extern TTF_Font* FontBig;
+    extern FT_Library FreeType;
 
-    extern SDL_Surface* RoundTopLeft;
-    extern SDL_Surface* RoundTopRight;
-    extern SDL_Surface* RoundBottomLeft;
-    extern SDL_Surface* RoundBottomRight;
+    extern FT_Face FontSmall;
+    extern FT_Face FontNormal;
+    extern FT_Face FontBig;
 };

@@ -17,13 +17,11 @@
 */
 
 #include <math.h>
-#include "SDL_ttf.h"
-#include "SDL_image.h"
 
 #include "List.hpp"
 #include "Label.hpp"
-#include "Graphics.hpp"
 #include "Resources.hpp"
+#include "Graphics.hpp"
 
 List::List(Element* Owner):
     Element::Element(Owner),
@@ -131,7 +129,7 @@ void List::MouseUp(int X, int Y, bool Hovered)
 
     Step = 0;
 
-    if(Root->GetTrapped() == this)
+    if(Screen->Trapped == this)
         Release();
 
     Mode = 0;
@@ -257,17 +255,6 @@ void List::Allocate()
     ItemHeight = Height / Rows;
     ItemWidth = Width / Columns;
 
-    ItemFill = Graphics::CreateSurface(ItemWidth, ItemHeight, true);
-
-    SDL_FillRect(ItemFill, 0, SDL_MapRGB(ItemFill->format, 255, 255, 255));
-
-    Graphics::CopyAlpha(0, 0, Resources::RoundTopLeft, ItemFill);
-    Graphics::CopyAlpha(ItemFill->w - Resources::RoundTopRight->w, 0, Resources::RoundTopRight, ItemFill);
-    Graphics::CopyAlpha(0, ItemFill->h - Resources::RoundBottomLeft->h, Resources::RoundBottomLeft, ItemFill);
-    Graphics::CopyAlpha(ItemFill->w - Resources::RoundBottomRight->w, ItemFill->h - Resources::RoundBottomRight->h, Resources::RoundBottomRight, ItemFill);
-
-    Graphics::HalfAlpha(ItemFill, 2);
-
     if(Items.size() % Rows > 0)
         Min = Items.size() / Rows + 1;
     else
@@ -289,10 +276,18 @@ void List::Allocate()
     for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
     {
         if(Captions)
-            (*Item)->CaptionSurface = Label::CreateFont(Resources::FontSmall, FontColorBlack, (*Item)->Caption.c_str());
+        {
+            (*Item)->CaptionTexture = new OpenGL::Texture();
+
+            Label::FontSize(Resources::FontSmall, (*Item)->Caption, &(*Item)->CaptionTexture->Width, &(*Item)->CaptionTexture->Height);
+        }
 
         if(Icons != IconNone)
-            (*Item)->IconSurface = Graphics::OptimizeSurface(IMG_Load(std::string("resources/icons_large/" + (*Item)->Icon).c_str()), true);
+        {
+            (*Item)->IconTexture = new OpenGL::Texture();
+
+            (*Item)->IconTexture->Load(std::string("resources/icons_large/" + (*Item)->Icon).c_str());
+        }
 
         int X = ItemWidth * ItemX;
         int Y = ItemHeight * ItemY;
@@ -309,23 +304,23 @@ void List::Allocate()
             switch(Icons)
             {
                 case IconNone:
-                    (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionSurface->w >> 1);
-                    (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionSurface->h >> 1);
+                    (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionTexture->Width >> 1);
+                    (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionTexture->Height >> 1);
                     break;
 
                 case IconLeft:
-                    (*Item)->IconX = X + (ItemWidth - IconSize - IconSpacing - (*Item)->CaptionSurface->w >> 1);
+                    (*Item)->IconX = X + (ItemWidth - IconSize - IconSpacing - (*Item)->CaptionTexture->Width >> 1);
                     (*Item)->IconY = Y + (ItemHeight - IconSize >> 1);
 
                     (*Item)->CaptionX = (*Item)->IconX + IconSize + IconSpacing;
-                    (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionSurface->h >> 1);
+                    (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionTexture->Width >> 1);
                     break;
 
                 case IconRight:
-                    (*Item)->CaptionX = X + (ItemWidth - IconSize - IconSpacing - (*Item)->CaptionSurface->w >> 1);
-                    (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionSurface->h >> 1);
+                    (*Item)->CaptionX = X + (ItemWidth - IconSize - IconSpacing - (*Item)->CaptionTexture->Width >> 1);
+                    (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionTexture->Height >> 1);
 
-                    (*Item)->IconX = (*Item)->CaptionX + (*Item)->CaptionSurface->w + IconSpacing;
+                    (*Item)->IconX = (*Item)->CaptionX + (*Item)->CaptionTexture->Width + IconSpacing;
                     (*Item)->IconY = Y + (ItemHeight - IconSize >> 1);
                     break;
 
@@ -333,12 +328,12 @@ void List::Allocate()
                     (*Item)->IconX = X + (ItemWidth - IconSize >> 1);
                     (*Item)->IconY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
 
-                    (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionSurface->w >> 1);
+                    (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionTexture->Width >> 1);
                     (*Item)->CaptionY = (*Item)->IconY + IconSize + IconSpacing;
                     break;
 
                 case IconBelow:
-                    (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionSurface->w >> 1);
+                    (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionTexture->Width >> 1);
                     (*Item)->CaptionY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
 
                     (*Item)->IconX = X + (ItemWidth - IconSize >> 1);
@@ -360,38 +355,30 @@ void List::Deallocate()
 {
     Element::Deallocate();
 
-    SDL_FreeSurface(ItemFill);
 
     for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
     {
         if(Captions)
-            SDL_FreeSurface((*Item)->CaptionSurface);
+            delete (*Item)->CaptionTexture;
 
-        if(Icons != IconNone && (*Item)->IconSurface != 0)
-            SDL_FreeSurface((*Item)->IconSurface);
+        if(Icons != IconNone && (*Item)->IconTexture != 0)
+            delete (*Item)->IconTexture;
     }
 }
 
-void List::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void List::Draw(int X, int Y, unsigned char Alpha)
 {
     X += Position;
 
     for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
     {
         if(Focused == *Item)
-            Graphics::ApplyAlpha(X + (*Item)->X, Y + (*Item)->Y, ItemFill, Surface, Alpha);
+            Graphics::Rect(X + (*Item)->X, Y + (*Item)->Y, ItemWidth, ItemHeight, 0, 0, 0, Alpha / 4);
 
-        if(Captions == false)
-        {
-            if((*Item)->IconSurface != 0)
-                Graphics::ApplyAlpha(X + (*Item)->IconX, Y + (*Item)->IconY, (*Item)->IconSurface, Surface, Alpha);
-        }
-        else
-        {
-            if((Icons != IconNone) && ((*Item)->IconSurface != 0))
-                Graphics::ApplyAlpha(X + (*Item)->IconX, Y + (*Item)->IconY, (*Item)->IconSurface, Surface, Alpha);
+        if((Icons != IconNone) && ((*Item)->IconTexture != 0))
+            Graphics::Texture((*Item)->IconTexture, X + (*Item)->IconX, Y + (*Item)->IconY, Alpha);
 
-            Graphics::ApplyAlpha(X + (*Item)->CaptionX, Y + (*Item)->CaptionY, (*Item)->CaptionSurface, Surface, Alpha);
-        }
+        if(Captions)
+            Label::DrawFont(Resources::FontSmall, 0, (*Item)->Caption, X + (*Item)->CaptionX, Y + (*Item)->CaptionY, Alpha);
     }
 }

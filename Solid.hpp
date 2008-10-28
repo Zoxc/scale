@@ -17,7 +17,6 @@
 */
 
 #pragma once
-#include "SDL.h"
 
 #include "Element.hpp"
 
@@ -35,7 +34,5 @@ class Solid:
         unsigned char G;
         unsigned char B;
 
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
-
-        SDL_Surface* Fill;
+        void Draw(int X, int Y, unsigned char Alpha);
 };

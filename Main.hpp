@@ -19,6 +19,7 @@
 #pragma once
 #include <vector>
 
+#include "Element.hpp"
 #include "Options.hpp"
 #include "Application.hpp"
 #include "Image.hpp"
@@ -44,9 +45,7 @@ struct CatInfo
 
 extern std::vector<AppInfo*> Running;
 extern std::vector<CatInfo*> Categories;
-
 extern Application Menu;
-extern CategoryBackground* Background;
 extern Window* Tabs;
 extern Element* TaskList;
 
@@ -62,3 +61,4 @@ class PowerButton:
 
         void Click();
 };
+

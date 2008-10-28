@@ -17,8 +17,6 @@
 */
 
 #pragma once
-#include "SDL.h"
-#include "SDL_image.h"
 
 #include "Button.hpp"
 
@@ -31,12 +29,11 @@ class Icon:
 
         void Click();
 
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Draw(int X, int Y, unsigned char Alpha);
         void Allocate();
         void Deallocate();
         void Activate();
         void Deactivate();
 
         bool Focused;
-        SDL_Surface* Fill;
 };

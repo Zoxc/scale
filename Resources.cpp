@@ -15,44 +15,36 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-#include "SDL_image.h"
-
 #include "Resources.hpp"
-#include "Graphics.hpp"
 
 namespace Resources
 {
-    TTF_Font* FontSmall = 0;
-    TTF_Font* FontNormal = 0;
-    TTF_Font* FontBig = 0;
+    FT_Library FreeType;
 
-    SDL_Surface* RoundTopLeft = 0;
-    SDL_Surface* RoundTopRight = 0;
-    SDL_Surface* RoundBottomLeft = 0;
-    SDL_Surface* RoundBottomRight = 0;
+    FT_Face FontSmall = 0;
+    FT_Face FontNormal = 0;
+    FT_Face FontBig = 0;
 };
 
 void Resources::Allocate()
 {
-    FontSmall = TTF_OpenFont("resources/FreeSans.ttf", 19);
-    FontNormal = TTF_OpenFont("resources/FreeSans.ttf", 22);
-    FontBig = TTF_OpenFont("resources/FreeSans.ttf", 24);
+    FT_Init_FreeType(&FreeType);
 
-    RoundTopLeft = Graphics::OptimizeSurface(IMG_Load("resources/border_tl.png"), true);
-    RoundTopRight = Graphics::OptimizeSurface(IMG_Load("resources/border_tr.png"), true);
-    RoundBottomLeft = Graphics::OptimizeSurface(IMG_Load("resources/border_bl.png"), true);
-    RoundBottomRight = Graphics::OptimizeSurface(IMG_Load("resources/border_br.png"), true);
+    FT_New_Face(FreeType, "resources/FreeSans.ttf", 0, &FontSmall);
+    FT_Set_Char_Size(FontSmall, 0, 16 * 64, 96, 96);  // 19pt
+
+    FT_New_Face(FreeType, "resources/FreeSans.ttf", 0, &FontNormal);
+    FT_Set_Char_Size(FontNormal, 0, 18 * 64, 96, 96); // 22pt
+
+    FT_New_Face(FreeType, "resources/FreeSans.ttf", 0, &FontBig);
+    FT_Set_Char_Size(FontBig, 0, 20 * 64, 96, 96);    // 24pt
 }
 
 void Resources::Deallocate()
 {
-    TTF_CloseFont(FontSmall);
-    TTF_CloseFont(FontNormal);
-    TTF_CloseFont(FontBig);
+    FT_Done_Face(FontSmall);
 
-    SDL_FreeSurface(RoundTopLeft);
-    SDL_FreeSurface(RoundTopRight);
-    SDL_FreeSurface(RoundBottomLeft);
-    SDL_FreeSurface(RoundBottomRight);
+    FT_Done_Face(FontNormal);
+
+    FT_Done_Face(FontBig);
 }

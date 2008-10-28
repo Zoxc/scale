@@ -17,7 +17,6 @@
 */
 
 #include "Button.hpp"
-#include "Graphics.hpp"
 
 Button::Button(Element* Owner) : Element::Element(Owner)
 {

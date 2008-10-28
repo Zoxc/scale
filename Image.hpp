@@ -17,8 +17,6 @@
 */
 
 #pragma once
-#include "SDL.h"
-#include "SDL_image.h"
 #include <string>
 
 #include "Element.hpp"
@@ -33,9 +31,11 @@ class Image:
         std::string Filename;
         bool NeedAlpha;
 
+        static void SizeFromFile(std::string FileName, int* Width, int* Height);
+
         void Allocate();
         void Deallocate();
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Draw(int X, int Y, unsigned char Alpha);
 
-        SDL_Surface* ImageSurface;
+        OpenGL::Texture* Texture;
 };

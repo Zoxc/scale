@@ -17,25 +17,36 @@
 */
 
 #pragma once
-#include "SDL.h"
+#include "EGL/egl.h"
+#include "GLES2/gl2.h"
+
+#ifdef WIN32
+    #include "windows.h"
+#endif
+
+#include "OpenGL/OpenGL.Texture.hpp"
+#include "OpenGL/OpenGL.Shader.hpp"
+#include "OpenGL/OpenGL.Program.hpp"
+
 #include <list>
 #include <map>
 
 class Element;
 class Window;
 
+typedef int ElementKey;
+
 typedef void (*ElementNotifyEvent)(Element* Owner);
-typedef void (*ElementKeyEvent)(Element* Owner, SDLKey Key);
-typedef SDLKey ElementKey;
+typedef void (*ElementKeyEvent)(Element* Owner, ElementKey Key);
 
 typedef std::pair<ElementKey, Element*> ElementLink;
 typedef std::map<ElementKey, Element*> ElementLinks;
 
-#define ElementUp SDLK_UP
-#define ElementDown SDLK_DOWN
-#define ElementLeft SDLK_LEFT
-#define ElementRight SDLK_RIGHT
-#define ElementGo SDLK_RETURN
+#define ElementUp VK_UP
+#define ElementDown VK_DOWN
+#define ElementLeft VK_LEFT
+#define ElementRight VK_RIGHT
+#define ElementGo VK_RETURN
 
 class Element
 {
@@ -57,7 +68,7 @@ class Element
         virtual void Deactivate();
         virtual void Show();
         virtual void Hide();
-        virtual void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        virtual void Draw(int X, int Y, unsigned char Alpha);
 
         int Left;
         int Top;
@@ -73,7 +84,6 @@ class Element
         std::list<Element*>* Children;
         ElementLinks* Links;
 
-        bool Clip;
         bool Animated;
         bool Visible;
         bool Hovered;
@@ -94,11 +104,12 @@ class Element
         void Release();
 
         // Called by Root
-        void _Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void DrawChildren(int X, int Y, unsigned char Alpha);
         void _MouseLeave();
 };
 
 void Focus(Element* NewFocus);
+int GetTicks();
 
 class Window:
     public Element
@@ -115,15 +126,31 @@ class Window:
         void MouseDown(int X, int Y, bool Hovered);
         void KeyDown(ElementKey Key);
         void KeyUp(ElementKey Key);
-
-        virtual void Redraw();
-        virtual void Start(Element* Owner);
-        virtual void Stop(Element* Owner);
-        virtual void Trap(Element* Owner);
-        virtual Element* GetTrapped();
-        virtual void Release();
-
-        Window* RootElement;
-
-
 };
+
+class WindowScreen:
+    public Window
+{
+    public:
+        WindowScreen(Element* Owner);
+        virtual ~WindowScreen();
+
+        Element* Trapped;
+
+        OpenGL::Program* Shader;
+        GLuint TexturedUniform;
+        GLuint TextureUniform;
+        GLuint ColorUniform;
+
+        bool Running;
+        bool Terminated;
+        bool DoRedraw;
+
+        virtual void Trap(Element* Owner) = 0;
+        virtual void Release() = 0;
+        virtual void Start(Element* Owner) = 0;
+        virtual void Stop(Element* Owner) = 0;
+};
+
+extern WindowScreen* Screen;
+extern GLubyte TextureCoordinate[];

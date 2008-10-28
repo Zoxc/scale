@@ -17,8 +17,6 @@
 */
 
 #pragma once
-#include "SDL.h"
-#include "SDL_image.h"
 
 #include "Element.hpp"
 #include "CategoryBackground.hpp"
@@ -33,16 +31,14 @@ class Category:
         void Allocate();
         void Deallocate();
         void MouseDown(int X, int Y, bool Hovered);
-        void Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha);
+        void Draw(int X, int Y, unsigned char Alpha);
         void Activate();
         void Deactivate();
         void Animate(int Delta);
 
-        int Alpha;
         int TargetAlpha;
+        int Alpha;
 
         CategoryBackground* Show;
         Element* DoFocus;
-
-        SDL_Surface* Fill;
 };

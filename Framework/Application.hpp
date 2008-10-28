@@ -19,27 +19,36 @@
 #pragma once
 #include <string>
 #include <list>
-#include "SDL.h"
 
 #include "Options.hpp"
 #include "Element.hpp"
 
-typedef void (*KeyEvent)(SDLKey Key);
+typedef void (*KeyEvent)(ElementKey Key);
 #ifdef FRAME_EVENT
 typedef void (*FrameEvent)();
 #endif
 
 class Application:
-    public Window
+    public WindowScreen
 {
     public:
         Application();
         virtual ~Application();
 
+
         void Allocate();
         void Deallocate();
+
+        void MouseUp(int X, int Y, bool Hovered);
+        void MouseMove(int X, int Y, bool Hovered);
+        void MouseDown(int X, int Y, bool Hovered);
+
+        void KeyDown(ElementKey Key);
+        void KeyUp(ElementKey Key);
+
+        void Stop();
         void Run();
-        void Draw();
+
         Element* GetTrapped();
 
         #ifdef FRAME_EVENT
@@ -47,10 +56,22 @@ class Application:
         #endif
 
         KeyEvent EventKeyDown;
+
         std::string Title;
-        bool Terminated;
 
     private:
+        EGLDisplay Display;
+        EGLConfig Config;
+        EGLSurface Surface;
+        EGLContext Context;
+        EGLNativeWindowType Handle;
+
+        #ifdef WIN32
+        HWND hWnd;
+        HDC hDC;
+        static LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+        #endif
+
         bool FlagRedraw;
         std::list<Element*> Animations;
 
@@ -58,11 +79,12 @@ class Application:
         std::list<Element*>::iterator Child;
         std::list<Element*>::reverse_iterator ChildBack;
 
-        SDL_Surface* Screen;
-
-        Element* Trapped;
         int TrappedX;
         int TrappedY;
+
+        void MouseDown(int X, int Y);
+        void MouseUp(int X, int Y);
+        void MouseMove(int X, int Y);
 
         void Trap(Element* Owner);
         void Release();

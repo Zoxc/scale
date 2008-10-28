@@ -15,25 +15,22 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include <iostream>
 #include <sstream>
-#include "SDL_mixer.h"
-
 #include "Main.hpp"
 #include "Resources.hpp"
 #include "List.hpp"
 
 std::vector<AppInfo*> Running;
 std::vector<CatInfo*> Categories;
-
 Application Menu;
-CategoryBackground* Background;
 Window* Tabs;
 Element* TaskList;
+
 #ifdef FRAME_EVENT
-Label* FPS;
-int LastUpdate = 0;
-int Frames = 0;
+    Label* FPS;
+    int LastUpdate = 0;
+    int Frames = 0;
 #endif
 
 PowerButton::PowerButton(Element* Owner) : Icon(Owner)
@@ -42,7 +39,7 @@ PowerButton::PowerButton(Element* Owner) : Icon(Owner)
     PowerIcon->Left = 5;
     PowerIcon->Top = 5;
 
-    PowerLabel = new Label(this, "Power", Resources::FontNormal, FontColorBlack);
+    PowerLabel = new Label(this, "Power", Resources::FontNormal, ColorBlack);
     PowerLabel->Left = 36;
     PowerLabel->Top = 8;
 }
@@ -55,10 +52,10 @@ PowerButton::~PowerButton()
 
 void PowerButton::Click()
 {
-    Menu.Terminated = true;
+    Menu.Stop();
 }
 
-void KeyDown(SDLKey Key)
+void KeyDown(ElementKey Key)
 {
     intptr_t Index = -1;
 
@@ -67,7 +64,7 @@ void KeyDown(SDLKey Key)
 
     switch((int)Key)
     {
-        case SDLK_a:
+        case 0x41: // A Key
             if(Index == -1)
                 Focus(Categories[Categories.size()-1]->button);
             else if(Index == 0)
@@ -76,7 +73,7 @@ void KeyDown(SDLKey Key)
                 Focus(Categories[Index-1]->button);
             break;
 
-        case SDLK_d:
+        case 0x44: // D Key
             if(Index == -1)
                 Focus(Categories[0]->button);
             else if(Index == int(Categories.size())-1)
@@ -92,17 +89,17 @@ void OnFrame()
 {
     Frames++;
 
-    if( SDL_GetTicks() - LastUpdate > 100)
+    if( GetTicks() - LastUpdate > 100)
     {
             std::stringstream Caption;
 
             Caption << "FPS: ";
 
-            Caption << Frames / ((SDL_GetTicks() - LastUpdate) / 1000.f);
+            Caption << Frames / ((GetTicks() - LastUpdate) / 1000.f);
 
             FPS->SetCaption(Caption.str());
 
-            LastUpdate = SDL_GetTicks();
+            LastUpdate = GetTicks();
 
             Frames = 0;
     }
@@ -110,26 +107,7 @@ void OnFrame()
 }
 #endif
 
-void AddIcon(Element* Root, int X, int Y, std::string IconPath, std::string Title)
-{
-    Icon* IconButton = new Icon(Root);
-    IconButton->Width = 190;
-
-    Image* IconIcon = new Image(IconButton, std::string("resources/icons_large/") + IconPath);
-    IconIcon->Top = 4;
-
-    Label* IconLabel = new Label(IconButton, Title, Resources::FontSmall, FontColorBlack);
-    IconLabel->Top = 4 + 64 + 4;
-
-    IconIcon->Left = (IconButton->Width - IconIcon->Width >> 1);
-    IconLabel->Left = (IconButton->Width - IconLabel->Width >> 1);
-
-    IconButton->Top = Y;
-    IconButton->Height = 100;
-    IconButton->Left = X + (200 - 190) / 2;
-}
-
-int main( int argc, char* args[] )
+int main()
 {
     Resources::Allocate();
 
@@ -169,17 +147,16 @@ int main( int argc, char* args[] )
     Categories.push_back(Cat);
 
     Image Wallpaper(&Menu, "resources/back.png");
-    Wallpaper.NeedAlpha = false;
 
     TaskList = new Window(&Menu);
     TaskList->Width = Menu.Width;
     TaskList->Height = Menu.Height;
 
-    Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", Resources::FontSmall, FontColorBlack);
+    Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", Resources::FontSmall, ColorBlack);
     Welcome.Left = 15;
     Welcome.Top = 15;
 
-    Label RunningLabel(TaskList, "You are currently running:", Resources::FontSmall, FontColorBlack);
+    Label RunningLabel(TaskList, "You are currently running:", Resources::FontSmall, ColorBlack);
     RunningLabel.Left = 15;
     RunningLabel.Top = 55;
 
@@ -213,7 +190,7 @@ int main( int argc, char* args[] )
     Sample2.AlphaBlend = 128;
 
     Image* AppIcon = new Image(TaskList, "resources/icons/other.png");
-    Label* AppLabel = new Label(TaskList, "Demostration Menu", Resources::FontNormal, FontColorBlack);
+    Label* AppLabel = new Label(TaskList, "Demostration Menu", Resources::FontNormal, ColorBlack);
 
     AppIcon->Left = (800 - (AppIcon->Width + AppLabel->Width + 8)) >> 1;
     AppIcon->Top = Sample.Top + Sample.Height + 10;
@@ -231,6 +208,7 @@ int main( int argc, char* args[] )
     ArrowL.Top = AppLabel->Top;
     ArrowL.AlphaBlend = 128;
 */
+
     for(size_t i = 0; i < Running.size(); i++)
     {
         Running[i]->button = new Icon(&Applications);
@@ -243,7 +221,7 @@ int main( int argc, char* args[] )
         AppIcon->Left = 5;
         AppIcon->Top = 2;
 
-        Label* AppLabel = new Label(Running[i]->button, Running[i]->Name, Resources::FontNormal, FontColorBlack);
+        Label* AppLabel = new Label(Running[i]->button, Running[i]->Name, Resources::FontNormal, ColorBlack);
         AppLabel->Left = 5 + 48 + 8;
         AppLabel->Top = 12;
 
@@ -274,6 +252,7 @@ int main( int argc, char* args[] )
 
         Categories[i]->button->Show = new CategoryBackground(&Menu);
         Categories[i]->button->Show->Width = 800;
+        Categories[i]->button->Show->Height = 800;
         Categories[i]->button->Show->Hide();
 
         List* ListView = new List(Categories[i]->button->Show);
@@ -322,11 +301,11 @@ int main( int argc, char* args[] )
         CategoryImage->Left = 8;
         CategoryImage->Top = 2;
 
-        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, Resources::FontNormal, FontColorWhite);
+        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, Resources::FontNormal, ColorWhite);
         CategoryLabel->Left = CategoryImage->Left + 5 + CategoryImage->Width;
         CategoryLabel->Top = CategoryImage->Top + ((CategoryImage->Height - CategoryLabel->Height) >> 1);
 
-        Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, Resources::FontBig, FontColorWhite);
+        Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, Resources::FontBig, ColorWhite);
         CatLabel->Top = (Tabs->Height - CatLabel->Height) >> 1;
 
         Image* CatIcon = new Image(Categories[i]->button, std::string("resources/icons_large/") + Categories[i]->IconPath);
@@ -364,7 +343,7 @@ int main( int argc, char* args[] )
     Focus(TaskList);
 
     #ifdef FRAME_EVENT
-    FPS = new Label(&Menu, "FPS:       ", Resources::FontSmall, FontColorWhite);
+    FPS = new Label(&Menu, "FPS:       ", Resources::FontSmall, 0xFFFFFFFF);
     FPS->Left = 800 - 50 - FPS->Width;
     FPS->Top = 60;
 
@@ -376,11 +355,8 @@ int main( int argc, char* args[] )
 
     Menu.Allocate();
 
-
-    Mix_Chunk* Startup = Mix_LoadWAV("resources/start.ogg");
-    Mix_PlayChannel(-1, Startup, 0);
-
     Menu.Run();
+
     Resources::Deallocate();
 
     return 0;

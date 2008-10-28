@@ -18,6 +18,22 @@
 
 #include "Element.hpp"
 
+WindowScreen* Screen = 0;
+
+GLubyte TextureCoordinate[] = {
+    0, 1,
+    0, 0,
+    1, 1,
+    1, 0
+};
+
+int GetTicks()
+{
+    #ifdef WIN32
+        return GetTickCount();
+    #endif
+}
+
 void Focus(Element* NewFocus)
 {
     if(NewFocus == 0)
@@ -39,17 +55,23 @@ void Focus(Element* NewFocus)
     }
 }
 
+WindowScreen::WindowScreen(Element* Owner):
+    Window(Owner),
+    Trapped(0),
+    Running(false),
+    Terminated(false)
+{
+}
+
+WindowScreen::~WindowScreen()
+{
+}
+
 Window::Window(Element* Owner):
     Element(Owner),
-    Focused(0),
-    RootElement(0)
+    Focused(0)
 {
     Root = this;
-
-    if(Owner != 0 && Owner->Root != 0)
-    {
-        RootElement = Owner->Root->RootElement;
-    }
 }
 
 Window::~Window()
@@ -118,36 +140,6 @@ void Window::Focus(Element* NewFocus)
     Focused = NewFocus;
 }
 
-void Window::Redraw()
-{
-    RootElement->Redraw();
-}
-
-void Window::Start(Element* Owner)
-{
-    RootElement->Start(Owner);
-}
-
-void Window::Stop(Element* Owner)
-{
-    RootElement->Stop(Owner);
-}
-
-void Window::Trap(Element* Owner)
-{
-    RootElement->Trap(Owner);
-}
-
-Element* Window::GetTrapped()
-{
-    return RootElement->GetTrapped();
-}
-
-void Window::Release()
-{
-    RootElement->Release();
-}
-
 Element::Element(Element* Owner):
     Left(0),
     Top(0),
@@ -157,7 +149,6 @@ Element::Element(Element* Owner):
     Root(0),
     Children(0),
     Links(0),
-    Clip(false),
     Animated(false),
     Visible(true),
     Hovered(false),
@@ -279,9 +270,12 @@ void Element::MouseUp(int X, int Y, bool Hovered)
             {
                 if(!ChildStatus)
                 {
-                    ChildStatus = (*Child)->Inside(X, Y);
+                    if((*Child)->Visible)
+                    {
+                        ChildStatus = (*Child)->Inside(X, Y);
 
-                    (*Child)->MouseUp(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                        (*Child)->MouseUp(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                    }
                 }
                 else
                     (*Child)->_MouseLeave();
@@ -317,9 +311,12 @@ void Element::MouseDown(int X, int Y, bool Hovered)
             {
                 if(!ChildStatus)
                 {
-                    ChildStatus = (*Child)->Inside(X, Y);
+                    if((*Child)->Visible)
+                    {
+                        ChildStatus = (*Child)->Inside(X, Y);
 
-                    (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                        (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                    }
                 }
                 else
                     (*Child)->_MouseLeave();
@@ -355,9 +352,12 @@ void Element::MouseMove(int X, int Y, bool Hovered)
             {
                 if(!ChildStatus)
                 {
-                    ChildStatus = (*Child)->Inside(X, Y);
+                    if((*Child)->Visible)
+                    {
+                        ChildStatus = (*Child)->Inside(X, Y);
 
-                    (*Child)->MouseMove(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                        (*Child)->MouseMove(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                    }
                 }
                 else
                     (*Child)->_MouseLeave();
@@ -382,43 +382,35 @@ void Element::MouseMove(int X, int Y, bool Hovered)
     }
 }
 
-void Element::Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void Element::Draw(int X, int Y, unsigned char Alpha)
 {
 }
 
 void Element::Trap()
 {
-    Root->Trap(this);
+    Screen->Trap(this);
 }
 
 void Element::Release()
 {
-    Root->Release();
+    Screen->Release();
 }
 
 void Element::Start()
 {
-    Frame = SDL_GetTicks();
+    Frame = GetTicks();
 
-    if(!Animated)
-    {
-        Animated = true;
-        Root->Start(this);
-    }
+    Screen->Start(this);
 }
 
 void Element::Stop()
 {
-    if(Animated)
-    {
-        Animated = false;
-        Root->Stop(this);
-    }
+    Screen->Stop(this);
 }
 
 void Element::Redraw()
 {
-    Root->Redraw();
+    Screen->DoRedraw = true;
 }
 
 bool Element::Inside(int X, int Y)
@@ -462,7 +454,7 @@ void Element::_MouseLeave()
     }
 }
 
-void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
+void Element::DrawChildren(int X, int Y, unsigned char Alpha)
 {
     if(!Visible)
         return;
@@ -470,43 +462,9 @@ void Element::_Draw(SDL_Surface* Surface, int X, int Y, unsigned char Alpha)
     X += Left;
     Y += Top;
 
-    if(Clip)
-    {
-        SDL_Rect OldClip;
+    Draw(X, Y, Alpha);
 
-        SDL_GetClipRect(Surface, &OldClip);
-
-        SDL_Rect ClipRect;
-
-        ClipRect.x = X;
-        ClipRect.y = Y;
-
-        if(Owner->Width - Left < 0)
-            ClipRect.w = 0;
-        else
-            ClipRect.w = Owner->Width - Left;
-
-        if(Owner->Height - Top < 0)
-            ClipRect.h = 0;
-        else
-            ClipRect.h = Owner->Height - Top;
-
-        SDL_SetClipRect(Surface, &ClipRect);
-
-        Draw(Surface, X, Y, Alpha);
-
-        if(Children != 0)
-            for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
-                (*Child)->_Draw(Surface, X, Y, ((*Child)->AlphaBlend * Alpha) >> 8);
-
-        SDL_SetClipRect(Surface, &OldClip);
-    }
-    else
-    {
-        Draw(Surface, X, Y, Alpha);
-
-        if(Children != 0)
-            for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
-                (*Child)->_Draw(Surface, X, Y, ((*Child)->AlphaBlend * Alpha) >> 8);
-    }
+    if(Children != 0)
+        for (std::list<Element*>::iterator Child = Children->begin(); Child != Children->end(); Child++)
+            (*Child)->DrawChildren(X, Y, ((*Child)->AlphaBlend * Alpha) >> 8);
 }

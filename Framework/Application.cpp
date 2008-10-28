@@ -16,54 +16,153 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "SDL_ttf.h"
-#include "SDL_mixer.h"
+#include <math.h>
 
 #include "Application.hpp"
 
 Application::Application():
-    Window(0),
+    WindowScreen(0),
     EventKeyDown(0),
-    Terminated(false),
-    Trapped(0)
+    Handle(0)
 {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    TTF_Init();
+    if(Screen != 0)
+        return;
 
     #ifdef FRAME_EVENT
-    EventFrame = 0;
+        EventFrame = 0;
     #endif
 
     Width = 800;
     Height = 480;
 
-    Root = this;
-    RootElement = this;
+    Screen = this;
 
     Children = new std::list<Element*>();
 }
 
 Application::~Application()
 {
+    Screen = 0;
 }
 
 void Application::Allocate()
 {
-    if(Mix_OpenAudio(44100, AUDIO_S16SYS, 1, 4096) != 0)
+    #ifdef WIN32
+        WNDCLASS sWC;
+        sWC.style = CS_HREDRAW | CS_VREDRAW;
+        sWC.lpfnWndProc = WndProc;
+        sWC.cbClsExtra = 0;
+        sWC.cbWndExtra = 0;
+        sWC.hInstance = 0;
+        sWC.hIcon = 0;
+        sWC.hCursor = 0;
+        sWC.lpszMenuName = 0;
+        sWC.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
+        sWC.lpszClassName = "WindowHandle";
+        ATOM registerClass = RegisterClass(&sWC);
+
+        if (!registerClass)
+            throw "Failed to register the window class";
+
+        RECT	sRect;
+        SetRect(&sRect, 0, 0, Width, Height);
+        AdjustWindowRectEx(&sRect, WS_CAPTION | WS_SYSMENU, false, 0);
+        Handle = CreateWindow("WindowHandle", Title.c_str(), WS_VISIBLE | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, Width + GetSystemMetrics(SM_CXFIXEDFRAME) * 2, Height + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYFIXEDFRAME) * 2, 0, 0, 0, 0);
+
+        hDC = GetDC(Handle);
+        if (!hDC)
+            throw "Failed to create the device context";
+
+        Display = eglGetDisplay(hDC);
+    #endif
+
+    if(Display == EGL_NO_DISPLAY)
+         Display = eglGetDisplay((EGLNativeDisplayType) EGL_DEFAULT_DISPLAY);
+
+    EGLint iMajorVersion, iMinorVersion;
+    if (!eglInitialize(Display, &iMajorVersion, &iMinorVersion))
+        throw "eglInitialize() failed.";
+
+    const EGLint pi32ConfigAttribs[] =
     {
-        fprintf(stderr, "Unable to initialize audio: %s\n", Mix_GetError());
-        return;
+        EGL_LEVEL,				0,
+        EGL_SURFACE_TYPE,		EGL_WINDOW_BIT,
+        EGL_RENDERABLE_TYPE,	EGL_OPENGL_ES2_BIT,
+        EGL_NATIVE_RENDERABLE,	EGL_FALSE,
+        EGL_DEPTH_SIZE,			EGL_DONT_CARE,
+        EGL_NONE
+    };
+
+    int iConfigs;
+    if (!eglChooseConfig(Display, pi32ConfigAttribs, &Config, 1, &iConfigs) || (iConfigs != 1))
+        throw "eglChooseConfig() failed.";
+
+    Surface = eglCreateWindowSurface(Display, Config, Handle, NULL);
+
+    if(Surface == EGL_NO_SURFACE)
+    {
+        eglGetError(); // Clear error
+        Surface = eglCreateWindowSurface(Display, Config, NULL, NULL);
     }
 
-    Screen = SDL_SetVideoMode(Width, Height, 32, SDL_DOUBLEBUF | SDL_HWSURFACE);
+    eglBindAPI(EGL_OPENGL_ES_API);
+    EGLint ai32ContextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+    Context = eglCreateContext(Display, Config, NULL, ai32ContextAttribs);
 
-    if(Screen == NULL)
-    {
-        Terminated = true;
-        return;
-    }
+    eglMakeCurrent(Display, Surface, Surface, Context);
 
-    SDL_WM_SetCaption(Title.c_str(), NULL);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    Shader = new OpenGL::Program();
+
+    // Fragment and vertex shaders code
+    char* FragmentSource = "precision lowp float;\
+        varying vec2 VCord;\
+        uniform sampler2D Texture;\
+        uniform vec4 Color;\
+        uniform bool Textured;\
+        void main (void)\
+        {\
+            if(Textured)\
+            {\
+            gl_FragColor = texture2D(Texture, VCord);\
+            gl_FragColor.a = gl_FragColor.a * Color.a;\
+            }\
+            else\
+                gl_FragColor = Color;\
+        }";
+
+    char* VertexSource = "precision lowp float;\
+        attribute vec2 APoint;\
+        attribute vec2 ACord;\
+        varying vec2 VCord;\
+        void main(void)\
+        {\
+            gl_Position.x = APoint.x / 400.0 - 1.0;\
+            gl_Position.y = -(APoint.y / 240.0 - 1.0);\
+            VCord = ACord;\
+        }";
+
+    OpenGL::Shader FragmentShader(GL_FRAGMENT_SHADER, FragmentSource);
+    OpenGL::Shader VertexShader(GL_VERTEX_SHADER, VertexSource);
+
+    *Shader << FragmentShader;
+    *Shader << VertexShader;
+
+    glBindAttribLocation(Shader->Handle, 0, "APoint");
+    glBindAttribLocation(Shader->Handle, 1, "ACord");
+
+    Shader->Assign();
+
+    TextureUniform = glGetUniformLocation(Shader->Handle, "Texture");
+    TexturedUniform = glGetUniformLocation(Shader->Handle, "Textured");
+    ColorUniform = glGetUniformLocation(Shader->Handle, "Color");
 
     Element::Allocate();
 }
@@ -72,17 +171,8 @@ void Application::Deallocate()
 {
     Element::Deallocate();
 
-    Mix_CloseAudio();
-
-    SDL_Quit();
-}
-
-void Application::Draw()
-{
-    for (Child = Children->begin(); Child != Children->end(); Child++)
-        (*Child)->_Draw(Screen, 0, 0, (*Child)->AlphaBlend);
-
-    SDL_Flip(Screen);
+    delete Shader;
+    delete Handle;
 }
 
 void Application::Trap(Element* Owner)
@@ -113,11 +203,6 @@ void Application::Release()
     Trapped = 0;
 }
 
-void Application::Redraw()
-{
-    FlagRedraw = true;
-}
-
 void Application::Start(Element* Owner)
 {
     Animations.push_back(Owner);
@@ -131,22 +216,165 @@ void Application::Stop(Element* Owner)
         Animations.remove(Owner);
 }
 
+void Application::Stop()
+{
+    Running = false;
+}
+
+void Application::KeyDown(ElementKey Key)
+{
+    if(EventKeyDown != 0)
+        EventKeyDown(Key);
+
+    Window::KeyDown(Key);
+}
+
+void Application::KeyUp(ElementKey Key)
+{
+    Window::KeyUp(Key);
+}
+
+void Application::MouseDown(int X, int Y, bool Hovered)
+{
+    if(Trapped != 0)
+        Trapped->MouseDown(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, Trapped->Inside(X - TrappedX, Y - TrappedY));
+    else
+    {
+        bool ChildStatus = false;
+
+        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+        {
+            if(!ChildStatus)
+            {
+                if((*Child)->Visible)
+                {
+                    ChildStatus = (*Child)->Inside(X, Y);
+
+                    (*Child)->MouseDown(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                }
+            }
+            else
+                (*Child)->_MouseLeave();
+        }
+    }
+}
+
+void Application::MouseMove(int X, int Y, bool Hovered)
+{
+    if(Trapped != 0)
+        Trapped->MouseMove(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, Trapped->Inside(X - TrappedX, Y - TrappedY));
+    else
+    {
+        bool ChildStatus = false;
+
+        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+        {
+            if(!ChildStatus)
+            {
+                if((*Child)->Visible)
+                {
+                    ChildStatus = (*Child)->Inside(X, Y);
+
+                    (*Child)->MouseMove(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                }
+            }
+            else
+                (*Child)->_MouseLeave();
+        }
+    }
+}
+
+void Application::MouseUp(int X, int Y, bool Hovered)
+{
+    if(Trapped != 0)
+        Trapped->MouseUp(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, Trapped->Inside(X - TrappedX, Y - TrappedY));
+    else
+    {
+        bool ChildStatus = false;
+
+        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
+        {
+            if(!ChildStatus)
+            {
+                if((*Child)->Visible)
+                {
+                    ChildStatus = (*Child)->Inside(X, Y);
+
+                    (*Child)->MouseUp(X - (*Child)->Left, Y - (*Child)->Top, ChildStatus);
+                }
+            }
+            else
+                (*Child)->_MouseLeave();
+        }
+    }
+}
+
+#ifdef WIN32
+LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+		case WM_SYSCOMMAND:
+			switch (wParam)
+			{
+				case SC_SCREENSAVE:
+				case SC_MONITORPOWER:
+				return 0;
+			}
+			break;
+
+        case WM_KEYDOWN:
+            Screen->KeyDown(wParam);
+            return 0;
+
+        case WM_KEYUP:
+            Screen->KeyUp(wParam);
+            return 0;
+
+        case WM_LBUTTONDOWN:
+        case WM_RBUTTONDOWN:
+        case WM_MBUTTONDOWN:
+            Screen->MouseDown(LOWORD(lParam), HIWORD(lParam), 0);
+            return 0;
+
+        case WM_LBUTTONUP:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONUP:
+            Screen->MouseUp(LOWORD(lParam), HIWORD(lParam), 0);
+            return 0;
+
+		case WM_CLOSE:
+			Screen->Running = false;
+			PostQuitMessage(0);
+			return 1;
+
+        case WM_PAINT:
+            Screen->DoRedraw = true;
+            break;
+	}
+
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+#endif
+
 void Application::Run()
 {
-    Terminated = false;
+    Running = true;
+    DoRedraw = true;
 
-    if(Terminated)
-        return;
+    MSG msg;
 
-    SDL_Event event;
-
-    FlagRedraw = true;
-
-    while(Terminated == false)
+    while(Running)
     {
+        while(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
         for (Animation = Animations.begin(); Animation != Animations.end(); Animation++)
         {
-            int Ticks = SDL_GetTicks();
+            int Ticks = GetTicks();
             int Delta = Ticks - (*Animation)->Frame;
 
             if(Delta > 0)
@@ -156,122 +384,32 @@ void Application::Run()
             }
         }
 
-        #ifdef NO_FRAME_LIMIT
-        FlagRedraw = true;
-        #endif
-
-        if(FlagRedraw)
+        if(DoRedraw)
         {
-            FlagRedraw = false;
+            glClearColor(0.0f, 0.0f, (1 + sin(GetTicks() / 1000.0f)) / 3, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            for (Child = Children->begin(); Child != Children->end(); Child++)
+                (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
 
             #ifdef FRAME_EVENT
             if(EventFrame != 0)
                 EventFrame();
             #endif
 
-            Draw();
+            eglSwapBuffers(Display, Surface);
+
+            FlagRedraw = false;
         }
 
         #ifndef NO_FRAME_LIMIT
         if(Animations.size() == 0)
-            SDL_WaitEvent(0);
-        #endif
+            WaitMessage();
 
-        bool ChildStatus;
-
-        while(SDL_PollEvent(&event))
-        {
-            switch(event.type)
-            {
-                case SDL_QUIT:
-                    Terminated = true;
-                    break;
-
-                case SDL_KEYDOWN:
-                    if(EventKeyDown != 0)
-                        EventKeyDown(event.key.keysym.sym);
-
-                    KeyDown(event.key.keysym.sym);
-                    break;
-
-                case SDL_KEYUP:
-                    KeyUp(event.key.keysym.sym);
-                    break;
-
-                case SDL_MOUSEMOTION:
-                    if(Trapped != 0)
-                        Trapped->MouseMove(event.motion.x - TrappedX - Trapped->Left, event.motion.y - TrappedY - Trapped->Top, Trapped->Inside(event.motion.x - TrappedX, event.motion.y - TrappedY));
-                    else
-                    {
-                        ChildStatus = false;
-
-                        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
-                        {
-                            if(!ChildStatus)
-                            {
-                                ChildStatus = (*Child)->Inside(event.motion.x, event.motion.y);
-
-                                (*Child)->MouseMove(event.motion.x - (*Child)->Left, event.motion.y - (*Child)->Top, ChildStatus);
-                            }
-                            else
-                                (*Child)->_MouseLeave();
-                        }
-                    }
-                    break;
-
-                case SDL_MOUSEBUTTONDOWN:
-                    if(Trapped != 0)
-                        Trapped->MouseDown(event.button.x - TrappedX - Trapped->Left, event.button.y - TrappedY - Trapped->Top, Trapped->Inside(event.button.x - TrappedX, event.button.y - TrappedY));
-                    else
-                    {
-                        ChildStatus = false;
-
-                        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
-                        {
-                            if(!ChildStatus)
-                            {
-                                ChildStatus = (*Child)->Inside(event.button.x, event.button.y);
-
-                                (*Child)->MouseDown(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
-                            }
-                            else
-                                (*Child)->_MouseLeave();
-                        }
-                    }
-                    break;
-
-                case SDL_MOUSEBUTTONUP:
-                    if(Trapped != 0)
-                        Trapped->MouseUp(event.button.x - TrappedX - Trapped->Left, event.button.y - TrappedY - Trapped->Top, Trapped->Inside(event.button.x - TrappedX, event.button.y - TrappedY));
-                    else
-                    {
-                        ChildStatus = false;
-
-                        for (std::list<Element*>::reverse_iterator Child = Children->rbegin(); Child != Children->rend(); Child++)
-                        {
-                            if(!ChildStatus)
-                            {
-                                ChildStatus = (*Child)->Inside(event.button.x, event.button.y);
-
-                                (*Child)->MouseUp(event.button.x - (*Child)->Left, event.button.y - (*Child)->Top, ChildStatus);
-                            }
-                            else
-                                (*Child)->_MouseLeave();
-                        }
-                    }
-                    break;
-            }
-
-            if(Terminated)
-                goto End;
-        }
-
-        #ifndef NO_FRAME_LIMIT
-        SDL_Delay(1);
+        Sleep(1);
         #endif
     }
 
-    End:
-        Deallocate();
+    Deallocate();
 }
 
