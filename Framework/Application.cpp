@@ -399,7 +399,7 @@ void Application::Run()
 
             eglSwapBuffers(Display, Surface);
 
-            FlagRedraw = false;
+            DoRedraw = false;
         }
 
         #ifndef NO_FRAME_LIMIT

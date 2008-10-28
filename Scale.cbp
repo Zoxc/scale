@@ -60,8 +60,6 @@
 		<Unit filename="Framework\OpenGL\OpenGL.Shader.hpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Texture.cpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Texture.hpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Window.cpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Window.hpp" />
 		<Unit filename="Framework\Options.hpp" />
 		<Unit filename="Icon.cpp" />
 		<Unit filename="Icon.hpp" />

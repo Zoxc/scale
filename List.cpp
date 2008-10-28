@@ -164,6 +164,7 @@ void List::MouseDown(int X, int Y, bool Hovered)
         MoveOffset = X - Position;
         Target(X - MoveOffset);
     }
+
     Element::MouseDown(X, Y, Hovered);
 }
 

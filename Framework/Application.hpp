@@ -72,7 +72,6 @@ class Application:
         static LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         #endif
 
-        bool FlagRedraw;
         std::list<Element*> Animations;
 
         std::list<Element*>::iterator Animation;
