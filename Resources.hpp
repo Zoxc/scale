@@ -17,6 +17,7 @@
 */
 
 #pragma once
+#include <string>
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
@@ -24,12 +25,42 @@
 
 namespace Resources
 {
+    class Font
+    {
+        public:
+            Font();
+            ~Font();
+
+            void Allocate(const char* Filename, int Size);
+            void Deallocate();
+
+            void Print(std::string Text, unsigned int Color, int X, int Y, unsigned char Alpha);
+            void Size(std::string Text, int* Width, int* Height);
+
+            int FontHeight;
+
+            OpenGL::Texture* Bitmap;
+
+        private:
+            struct Glyph
+            {
+                GLfloat Cords[8];
+
+                int Width;
+                int Height;
+                int Advance;
+                int Top;
+            };
+
+            Glyph Glyphs[256];
+    };
+
     void Allocate();
     void Deallocate();
 
     extern FT_Library FreeType;
 
-    extern FT_Face FontSmall;
-    extern FT_Face FontNormal;
-    extern FT_Face FontBig;
+    extern Font FontSmall;
+    extern Font FontNormal;
+    extern Font FontBig;
 };

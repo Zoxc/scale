@@ -280,7 +280,7 @@ void List::Allocate()
         {
             (*Item)->CaptionTexture = new OpenGL::Texture();
 
-            Label::FontSize(Resources::FontSmall, (*Item)->Caption, &(*Item)->CaptionTexture->Width, &(*Item)->CaptionTexture->Height);
+            Resources::FontSmall.Size((*Item)->Caption, &(*Item)->CaptionTexture->Width, &(*Item)->CaptionTexture->Height);
         }
 
         if(Icons != IconNone)
@@ -380,6 +380,9 @@ void List::Draw(int X, int Y, unsigned char Alpha)
             Graphics::Texture((*Item)->IconTexture, X + (*Item)->IconX, Y + (*Item)->IconY, Alpha);
 
         if(Captions)
-            Label::DrawFont(Resources::FontSmall, 0, (*Item)->Caption, X + (*Item)->CaptionX, Y + (*Item)->CaptionY, Alpha);
+        {
+            Resources::FontSmall.Print((*Item)->Caption, ColorWhite, X + (*Item)->CaptionX + 1, Y + (*Item)->CaptionY + 1, Alpha / 2);
+            Resources::FontSmall.Print((*Item)->Caption, ColorBlack, X + (*Item)->CaptionX, Y + (*Item)->CaptionY, Alpha);
+        }
     }
 }

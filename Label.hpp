@@ -22,32 +22,19 @@
 #include "Element.hpp"
 
 const unsigned int ColorBlack = 0;
-const unsigned int ColorWhite = 0x00FFFFFF;
+const unsigned int ColorWhite = 0xFFFFFFFF;
 
 class Label:
     public Element
 {
     public:
-        Label(Element* Owner, std::string ACaption, FT_Face AFont, unsigned int AColor);
+        Label(Element* Owner, std::string ACaption, Resources::Font* AFont, unsigned int AColor);
         virtual ~Label();
 
-        static void FontSize(FT_Face Font, std::string Text, int* Width, int* Height);
-
-        static void DrawFont(FT_Face Font, unsigned int Color, std::string Text, int X, int Y, unsigned char Alpha);
-       // static VGImage CreateFont(FT_Face Font, unsigned int Color, std::string Text);
-
-        void Allocate();
-        void Deallocate();
         void Draw(int X, int Y, unsigned char Alpha);
-        void SetCaption(std::string NewCaption);
 
-        FT_Face Font;
+        Resources::Font* Font;
         unsigned int Color;
 
-       // VGImage Bitmap;
-
         std::string Caption;
-
-    private:
-        void _CreateCaption();
 };

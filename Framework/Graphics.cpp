@@ -31,7 +31,7 @@ void Graphics::Texture(OpenGL::Texture* Tex, int X, int Y, unsigned char Alpha)
     };
 
     glBindTexture(GL_TEXTURE_2D, Tex->Handle);
-    glUniform1i(Screen->TexturedUniform, 1);
+    glUniform1i(Screen->ModeUniform, 1);
     glUniform1i(Screen->TextureUniform, 0);
     glUniform4f(Screen->ColorUniform, 0, 0, 0, Alpha / 255.0f);
 
@@ -51,7 +51,7 @@ void Graphics::Rect(int X, int Y, int Width, int Height, unsigned char R, unsign
     };
 
     glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
-    glUniform1i(Screen->TexturedUniform, 0);
+    glUniform1i(Screen->ModeUniform, 0);
     glUniform4f(Screen->ColorUniform, R / 255.0f, G / 255.0f, B / 255.0f, Alpha / 255.0f);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

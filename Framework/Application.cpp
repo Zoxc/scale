@@ -19,6 +19,8 @@
 #include <math.h>
 
 #include "Application.hpp"
+#include "Graphics.hpp"
+#include "../Resources.hpp"
 
 Application::Application():
     WindowScreen(0),
@@ -126,16 +128,21 @@ void Application::Allocate()
         varying vec2 VCord;\
         uniform sampler2D Texture;\
         uniform vec4 Color;\
-        uniform bool Textured;\
+        uniform int Mode;\
         void main (void)\
         {\
-            if(Textured)\
+            if(Mode == 1)\
             {\
             gl_FragColor = texture2D(Texture, VCord);\
             gl_FragColor.a = gl_FragColor.a * Color.a;\
             }\
-            else\
+            else if(Mode == 0)\
                 gl_FragColor = Color;\
+            else\
+            {\
+                gl_FragColor = Color;\
+                gl_FragColor.a = texture2D(Texture, VCord).a * Color.a;\
+            }\
         }";
 
     char* VertexSource = "precision lowp float;\
@@ -161,10 +168,8 @@ void Application::Allocate()
     Shader->Assign();
 
     TextureUniform = glGetUniformLocation(Shader->Handle, "Texture");
-    TexturedUniform = glGetUniformLocation(Shader->Handle, "Textured");
+    ModeUniform = glGetUniformLocation(Shader->Handle, "Mode");
     ColorUniform = glGetUniformLocation(Shader->Handle, "Color");
-
-    Element::Allocate();
 }
 
 void Application::Deallocate()
@@ -359,6 +364,8 @@ LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 
 void Application::Run()
 {
+    Element::Allocate();
+
     Running = true;
     DoRedraw = true;
 

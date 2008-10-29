@@ -138,7 +138,7 @@ class WindowScreen:
         Element* Trapped;
 
         OpenGL::Program* Shader;
-        GLuint TexturedUniform;
+        GLuint ModeUniform;
         GLuint TextureUniform;
         GLuint ColorUniform;
 

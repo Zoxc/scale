@@ -71,7 +71,7 @@ void Icon::Draw(int X, int Y, unsigned char Alpha)
     };
 
     glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
-    glUniform1i(Screen->TexturedUniform, 0);
+    glUniform1i(Screen->ModeUniform, 0);
     glUniform4f(Screen->ColorUniform, 1, 1, 1, Alpha / 255.0f / 4);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
