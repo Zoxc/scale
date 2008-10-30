@@ -49,7 +49,7 @@ void Resources::Font::Size(std::string Text, int* Width, int* Height)
         else
             *Width += Glyphs[(unsigned char)Text[i]].Advance;
 
-        *Height = std::max(*Height, Glyphs[(unsigned char)Text[i]].Height);
+       // *Height = std::max(*Height, Glyphs[(unsigned char)Text[i]].Height);
     }
 }
 
@@ -117,8 +117,8 @@ void Resources::Font::Allocate(const char* Filename, int Size)
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Bitmap->Width, Bitmap->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     for(int i = 0; i <= 255; i++)
     {
@@ -149,11 +149,11 @@ void Resources::Font::Allocate(const char* Filename, int Size)
 
         delete[] Data;
 
-        Glyphs[i].Cords[0] = (float)Glyphs[i].Width / (float)(Bitmap->Width - 1);
-        Glyphs[i].Cords[1] = (float)Font->glyph->bitmap.rows / (float)(Bitmap->Height - 1);
+        Glyphs[i].Cords[0] = (float)Glyphs[i].Width / (float)Bitmap->Width; // X
+        Glyphs[i].Cords[1] = (float)Font->glyph->bitmap.rows / (float)Bitmap->Height; // Height
         Glyphs[i].Cords[2] = Glyphs[i].Cords[0];
         Glyphs[i].Cords[3] = 0;
-        Glyphs[i].Cords[4] = ((float)Glyphs[i].Width + (float)Font->glyph->bitmap.width) / (float)(Bitmap->Width - 1);
+        Glyphs[i].Cords[4] = ((float)Glyphs[i].Width + (float)Font->glyph->bitmap.width) / (float)Bitmap->Width; // X + Width
         Glyphs[i].Cords[5] = Glyphs[i].Cords[1];
         Glyphs[i].Cords[6] = Glyphs[i].Cords[4];
         Glyphs[i].Cords[7] = 0;

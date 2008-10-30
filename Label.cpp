@@ -37,7 +37,7 @@ void Label::Draw(int X, int Y, unsigned char Alpha)
 {
     if(Color == ColorBlack)
     {
-        Font->Print(Caption, ColorWhite, X + 1, Y + 1, Alpha / 2);
+        Font->Print(Caption, ColorWhite, X + 1, Y + 1, Alpha / 3);
         Font->Print(Caption, ColorBlack, X, Y, Alpha);
     }
     else if(Color == ColorWhite)

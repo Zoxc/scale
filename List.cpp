@@ -381,7 +381,7 @@ void List::Draw(int X, int Y, unsigned char Alpha)
 
         if(Captions)
         {
-            Resources::FontSmall.Print((*Item)->Caption, ColorWhite, X + (*Item)->CaptionX + 1, Y + (*Item)->CaptionY + 1, Alpha / 2);
+            Resources::FontSmall.Print((*Item)->Caption, ColorWhite, X + (*Item)->CaptionX + 1, Y + (*Item)->CaptionY + 1, Alpha / 3);
             Resources::FontSmall.Print((*Item)->Caption, ColorBlack, X + (*Item)->CaptionX, Y + (*Item)->CaptionY, Alpha);
         }
     }
