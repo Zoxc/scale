@@ -16,11 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <math.h>
-
 #include "Application.hpp"
-#include "Graphics.hpp"
-#include "../Resources.hpp"
 
 Application::Application():
     WindowScreen(0),
@@ -330,23 +326,34 @@ LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LP
 
         case WM_KEYDOWN:
             Screen->KeyDown(wParam);
-            return 0;
+            break;
 
         case WM_KEYUP:
             Screen->KeyUp(wParam);
-            return 0;
+            break;
 
         case WM_LBUTTONDOWN:
         case WM_RBUTTONDOWN:
         case WM_MBUTTONDOWN:
             Screen->MouseDown(LOWORD(lParam), HIWORD(lParam), 0);
-            return 0;
+            SetCapture(hWnd);
+            break;
+
+        case WM_MOUSEMOVE:
+            Screen->MouseMove((short)LOWORD(lParam), (short)HIWORD(lParam), 0);
+            break;
+
+        case WM_MOUSELEAVE:
+            for (std::list<Element*>::reverse_iterator Child = Screen->Children->rbegin(); Child != Screen->Children->rend(); Child++)
+                    (*Child)->_MouseLeave();
+            break;
 
         case WM_LBUTTONUP:
         case WM_RBUTTONUP:
         case WM_MBUTTONUP:
             Screen->MouseUp(LOWORD(lParam), HIWORD(lParam), 0);
-            return 0;
+            ReleaseCapture();
+            break;
 
 		case WM_CLOSE:
 			Screen->Running = false;
@@ -393,9 +400,6 @@ void Application::Run()
 
         if(DoRedraw)
         {
-            glClearColor(0.0f, 0.0f, (1 + sin(GetTicks() / 1000.0f)) / 3, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
             for (Child = Children->begin(); Child != Children->end(); Child++)
                 (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
 

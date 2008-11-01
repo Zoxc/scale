@@ -90,6 +90,7 @@ class List:
         int MoveOffset;
 
         bool Released;
+        bool Animated;
         int Step;
         float Velocity;
         int PositionStart;

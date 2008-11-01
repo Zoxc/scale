@@ -28,12 +28,12 @@ class Label:
     public Element
 {
     public:
-        Label(Element* Owner, std::string ACaption, Resources::Font* AFont, unsigned int AColor);
+        Label(Element* Owner, std::string ACaption, Font* AFont, unsigned int AColor);
         virtual ~Label();
 
         void Draw(int X, int Y, unsigned char Alpha);
 
-        Resources::Font* Font;
+        Font* LabelFont;
         unsigned int Color;
 
         std::string Caption;

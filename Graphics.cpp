@@ -16,10 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <math.h>
-
-#include "Element.hpp"
 #include "Graphics.hpp"
+#include "Element.hpp"
+#include "Resources.hpp"
 
 void Graphics::Texture(OpenGL::Texture* Tex, int X, int Y, unsigned char Alpha)
 {
@@ -41,6 +40,26 @@ void Graphics::Texture(OpenGL::Texture* Tex, int X, int Y, unsigned char Alpha)
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
+void Graphics::AlphaTexture(OpenGL::Texture* Tex, int X, int Y, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
+{
+    GLshort Positions[] = {
+        X, Y + Tex->Height,
+        X, Y,
+        X + Tex->Width, Y + Tex->Height,
+        X + Tex->Width, Y
+    };
+
+    glBindTexture(GL_TEXTURE_2D, Tex->Handle);
+    glUniform1i(Screen->ModeUniform, 2);
+    glUniform1i(Screen->TextureUniform, 0);
+    glUniform4f(Screen->ColorUniform, R / 255.0f, G / 255.0f, B / 255.0f, Alpha / 255.0f);
+
+    glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
+    glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_FALSE, 0, TextureCoordinate);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
 void Graphics::Rect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
 {
     GLshort Positions[] = {
@@ -55,4 +74,18 @@ void Graphics::Rect(int X, int Y, int Width, int Height, unsigned char R, unsign
     glUniform4f(Screen->ColorUniform, R / 255.0f, G / 255.0f, B / 255.0f, Alpha / 255.0f);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+void Graphics::RoundRect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
+{
+    const int RoundSize = 10;
+
+    AlphaTexture(Resources::RoundCornerTopLeft, X, Y, R, G, B, Alpha);
+    AlphaTexture(Resources::RoundCornerTopRight, X + Width - RoundSize, Y, R, G, B, Alpha);
+    AlphaTexture(Resources::RoundCornerBottomLeft, X, Y + Height - RoundSize, R, G, B, Alpha);
+    AlphaTexture(Resources::RoundCornerBottomRight, X + Width - RoundSize, Y + Height - RoundSize, R, G, B, Alpha);
+
+    Rect(X, Y + RoundSize, Width, Height - RoundSize - RoundSize, R, G, B, Alpha);
+    Rect(X + RoundSize, Y, Width - RoundSize - RoundSize, RoundSize, R, G, B, Alpha);
+    Rect(X + RoundSize, Y + Height - RoundSize, Width - RoundSize - RoundSize, RoundSize, R, G, B, Alpha);
 }

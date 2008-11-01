@@ -35,7 +35,8 @@ List::List(Element* Owner):
     Position(0),
     Min(0),
     Mode(0),
-    Released(true)
+    Released(true),
+    Animated(false)
 {
 }
 
@@ -43,14 +44,17 @@ List::~List()
 {
 }
 
-
 const float Limit = 300;
 
 void List::Target(int X)
 {
     Released = false;
 
-    Start();
+    if(!Animated)
+    {
+        Start();
+        Animated = true;
+    }
 
     PositionStart = Position;
 
@@ -82,6 +86,7 @@ void List::Animate(int Delta)
         if(Step >= 1000)
         {
             Step = 1000;
+            Animated = false;
             Stop();
         }
     }
@@ -90,6 +95,7 @@ void List::Animate(int Delta)
         if(Step >= 200)
         {
             Step = 200;
+            Animated = false;
             Stop();
         }
     }
@@ -170,15 +176,18 @@ void List::MouseDown(int X, int Y, bool Hovered)
 
 void List::MouseMove(int X, int Y, bool Hovered)
 {
-    if(Mode == 1)
+ /*   if(Mode == 1)
         if(abs(X - DownX) > 15)
         {
             Mode = 2;
             Trap();
         }
-
+*/
     if(Mode > 0)
+    {
+        Trap();
         Target(X - MoveOffset);
+    }
 
     Element::MouseMove(X, Y, Hovered);
 }
@@ -280,7 +289,7 @@ void List::Allocate()
         {
             (*Item)->CaptionTexture = new OpenGL::Texture();
 
-            Resources::FontSmall.Size((*Item)->Caption, &(*Item)->CaptionTexture->Width, &(*Item)->CaptionTexture->Height);
+            Resources::FontSmall->Size((*Item)->Caption, (*Item)->CaptionTexture->Width, (*Item)->CaptionTexture->Height);
         }
 
         if(Icons != IconNone)
@@ -374,15 +383,15 @@ void List::Draw(int X, int Y, unsigned char Alpha)
     for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
     {
         if(Focused == *Item)
-            Graphics::Rect(X + (*Item)->X, Y + (*Item)->Y, ItemWidth, ItemHeight, 0, 0, 0, Alpha / 4);
+            Graphics::RoundRect(X + (*Item)->X, Y + (*Item)->Y, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
 
         if((Icons != IconNone) && ((*Item)->IconTexture != 0))
             Graphics::Texture((*Item)->IconTexture, X + (*Item)->IconX, Y + (*Item)->IconY, Alpha);
 
         if(Captions)
         {
-            Resources::FontSmall.Print((*Item)->Caption, ColorWhite, X + (*Item)->CaptionX + 1, Y + (*Item)->CaptionY + 1, Alpha / 3);
-            Resources::FontSmall.Print((*Item)->Caption, ColorBlack, X + (*Item)->CaptionX, Y + (*Item)->CaptionY, Alpha);
+            Resources::FontSmall->Print((*Item)->Caption, ColorWhite, X + (*Item)->CaptionX + 1, Y + (*Item)->CaptionY + 1, Alpha / 3);
+            Resources::FontSmall->Print((*Item)->Caption, ColorBlack, X + (*Item)->CaptionX, Y + (*Item)->CaptionY, Alpha);
         }
     }
 }

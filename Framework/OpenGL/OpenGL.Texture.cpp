@@ -15,8 +15,6 @@ OpenGL::Texture::~Texture()
 
 void OpenGL::Texture::Load(const char* FileName)
 {
-    int ColorType;
-
     png_structp PngPtr;
     png_infop InfoPtr;
     png_bytepp RowPointers;
@@ -65,16 +63,14 @@ void OpenGL::Texture::Load(const char* FileName)
 
     Width = InfoPtr->width;
     Height = InfoPtr->height;
-    ColorType = InfoPtr->color_type;
 
     // Expand to RGB
     png_set_expand(PngPtr);
-
-    png_read_update_info(PngPtr, InfoPtr);
+    //png_set_filler(PngPtr, 0xFF, PNG_FILLER_AFTER);
 
     unsigned int RowSize = png_get_rowbytes(PngPtr, InfoPtr);
 
-    ImageData = new unsigned char[RowSize * Height];
+    ImageData = new unsigned char[RowSize * Height + 4096];
 
     RowPointers = new png_bytep[RowSize];
 
@@ -87,9 +83,9 @@ void OpenGL::Texture::Load(const char* FileName)
 
     glBindTexture(GL_TEXTURE_2D, Handle);
 
-    if(ColorType & PNG_COLOR_MASK_ALPHA)
+    if(InfoPtr->channels == 4 && InfoPtr->bit_depth == 8)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ImageData);
-    else
+    else if(InfoPtr->channels == 3 && InfoPtr->bit_depth == 8)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, ImageData);
 
     delete[] ImageData;

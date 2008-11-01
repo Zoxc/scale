@@ -16,16 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <sstream>
 #include "Label.hpp"
 
-Label::Label(Element* Owner, std::string ACaption, Resources::Font* AFont, unsigned int AColor) :
+Label::Label(Element* Owner, std::string ACaption, Font* AFont, unsigned int AColor) :
     Element::Element(Owner),
-    Font(AFont),
+    LabelFont(AFont),
     Color(AColor)
 {
     Caption = ACaption;
 
-    Font->Size(Caption, &Width, &Height);
+    LabelFont->Size(ACaption, Width, Height);
 }
 
 Label::~Label()
@@ -37,14 +38,14 @@ void Label::Draw(int X, int Y, unsigned char Alpha)
 {
     if(Color == ColorBlack)
     {
-        Font->Print(Caption, ColorWhite, X + 1, Y + 1, Alpha / 3);
-        Font->Print(Caption, ColorBlack, X, Y, Alpha);
+        LabelFont->Print(Caption, ColorWhite, X + 1, Y + 1, Alpha / 3);
+        LabelFont->Print(Caption, ColorBlack, X, Y, Alpha);
     }
     else if(Color == ColorWhite)
     {
-        Font->Print(Caption, ColorBlack, X + 2, Y + 2, Alpha / 2);
-        Font->Print(Caption, ColorWhite, X, Y, Alpha);
+        LabelFont->Print(Caption, ColorBlack, X + 2, Y + 2, Alpha / 2);
+        LabelFont->Print(Caption, ColorWhite, X, Y, Alpha);
     }
     else
-        Font->Print(Caption, Color, X, Y, Alpha);
+        LabelFont->Print(Caption, Color, X, Y, Alpha);
 }

@@ -18,27 +18,40 @@
 
 #pragma once
 #include <string>
-#include "ft2build.h"
-#include FT_FREETYPE_H
 
-#include "Element.hpp"
-#include "Font.hpp"
-
-namespace Resources
+class Font
 {
-    void Init();
+    public:
+        Font(const char* Filename, int PointHeight);
+        ~Font();
 
-    void Allocate();
-    void Deallocate();
+        void Allocate();
+        void Deallocate();
 
-    extern FT_Library FreeType;
+        void Print(std::string& Text, unsigned int Color, int X, int Y, unsigned char Alpha);
+        void Size(std::string& Text, int& Width, int& Height);
 
-    extern OpenGL::Texture* RoundCornerTopLeft;
-    extern OpenGL::Texture* RoundCornerTopRight;
-    extern OpenGL::Texture* RoundCornerBottomLeft;
-    extern OpenGL::Texture* RoundCornerBottomRight;
+        int PixelHeight;
+        int PointHeight;
 
-    extern Font* FontSmall;
-    extern Font* FontNormal;
-    extern Font* FontBig;
+    private:
+        void Measure();
+
+        OpenGL::Texture* Bitmap;
+
+        FT_Face FontFace;
+
+        const char* _Filename;
+
+        struct Glyph
+        {
+            GLfloat Cords[8];
+
+            int Width;
+            int Height;
+            int Advance;
+            int Top;
+        };
+
+        Glyph Glyphs[256];
 };

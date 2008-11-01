@@ -18,7 +18,7 @@
 
 #include "Icon.hpp"
 #include "Resources.hpp"
-
+#include "Graphics.hpp"
 
 Icon::Icon(Element* Owner) :
     Button(Owner),
@@ -63,16 +63,5 @@ void Icon::Draw(int X, int Y, unsigned char Alpha)
     if(!Focused)
         return;
 
-    GLshort Positions[] = {
-        X, Y + Height,
-        X, Y,
-        X + Width, Y + Height,
-        X + Width, Y
-    };
-
-    glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
-    glUniform1i(Screen->ModeUniform, 0);
-    glUniform4f(Screen->ColorUniform, 1, 1, 1, Alpha / 255.0f / 4);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 4);
 }

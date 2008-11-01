@@ -46,14 +46,14 @@
 		<Unit filename="Category.hpp" />
 		<Unit filename="CategoryBackground.cpp" />
 		<Unit filename="CategoryBackground.hpp" />
+		<Unit filename="Font.cpp" />
+		<Unit filename="Font.hpp" />
 		<Unit filename="Framework\Application.cpp" />
 		<Unit filename="Framework\Application.hpp" />
 		<Unit filename="Framework\Button.cpp" />
 		<Unit filename="Framework\Button.hpp" />
 		<Unit filename="Framework\Element.cpp" />
 		<Unit filename="Framework\Element.hpp" />
-		<Unit filename="Framework\Graphics.cpp" />
-		<Unit filename="Framework\Graphics.hpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Program.cpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Program.hpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Shader.cpp" />
@@ -61,6 +61,8 @@
 		<Unit filename="Framework\OpenGL\OpenGL.Texture.cpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Texture.hpp" />
 		<Unit filename="Framework\Options.hpp" />
+		<Unit filename="Graphics.cpp" />
+		<Unit filename="Graphics.hpp" />
 		<Unit filename="Icon.cpp" />
 		<Unit filename="Icon.hpp" />
 		<Unit filename="Image.cpp" />

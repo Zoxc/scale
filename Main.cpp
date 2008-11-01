@@ -39,7 +39,7 @@ PowerButton::PowerButton(Element* Owner) : Icon(Owner)
     PowerIcon->Left = 5;
     PowerIcon->Top = 5;
 
-    PowerLabel = new Label(this, "Power", &Resources::FontNormal, ColorBlack);
+    PowerLabel = new Label(this, "Power", Resources::FontNormal, ColorBlack);
     PowerLabel->Left = 36;
     PowerLabel->Top = 8;
 }
@@ -109,6 +109,8 @@ void OnFrame()
 
 int main()
 {
+    Resources::Init();
+
     AppInfo* App = new AppInfo();
     App->Name = "Package Manager";
     App->IconPath = "resources/icons/installer.png";
@@ -150,11 +152,11 @@ int main()
     TaskList->Width = Menu.Width;
     TaskList->Height = Menu.Height;
 
-    Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", &Resources::FontSmall, ColorBlack);
+    Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", Resources::FontSmall, ColorBlack);
     Welcome.Left = 15;
     Welcome.Top = 15;
 
-    Label RunningLabel(TaskList, "You are currently running:", &Resources::FontSmall, ColorBlack);
+    Label RunningLabel(TaskList, "You are currently running:", Resources::FontSmall, ColorBlack);
     RunningLabel.Left = 15;
     RunningLabel.Top = 55;
 
@@ -219,7 +221,7 @@ int main()
         AppIcon->Left = 5;
         AppIcon->Top = 2;
 
-        Label* AppLabel = new Label(Running[i]->button, Running[i]->Name, &Resources::FontNormal, ColorBlack);
+        Label* AppLabel = new Label(Running[i]->button, Running[i]->Name, Resources::FontNormal, ColorBlack);
         AppLabel->Left = 5 + 48 + 8;
         AppLabel->Top = 12;
 
@@ -299,11 +301,11 @@ int main()
         CategoryImage->Left = 8;
         CategoryImage->Top = 2;
 
-        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, &Resources::FontNormal, ColorWhite);
+        Label* CategoryLabel = new Label(Categories[i]->button->Show, Categories[i]->Name, Resources::FontNormal, ColorWhite);
         CategoryLabel->Left = CategoryImage->Left + 5 + CategoryImage->Width;
         CategoryLabel->Top = CategoryImage->Top + ((CategoryImage->Height - CategoryLabel->Height) >> 1);
 
-        Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, &Resources::FontBig, ColorWhite);
+        Label* CatLabel = new Label(Categories[i]->button, Categories[i]->Name, Resources::FontBig, ColorWhite);
         CatLabel->Top = (Tabs->Height - CatLabel->Height) >> 1;
 
         Image* CatIcon = new Image(Categories[i]->button, std::string("resources/icons_large/") + Categories[i]->IconPath);
@@ -341,7 +343,7 @@ int main()
     Focus(TaskList);
 
     #ifdef FRAME_EVENT
-    FPS = new Label(&Menu, "FPS:       ", &Resources::FontSmall, ColorWhite);
+    FPS = new Label(&Menu, "FPS:       ", Resources::FontSmall, ColorWhite);
     FPS->Left = 800 - 150;
     FPS->Top = 60;
 
