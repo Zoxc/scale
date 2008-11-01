@@ -107,15 +107,14 @@ void List::Animate(int Delta)
     else
         NewPosition = PositionStart + (int)floor(Velocity * sin(Step / 200.f * M_PI_2));
 
+    if(NewPosition < Min)
+        NewPosition = Min;
+    else if(NewPosition > 0)
+        NewPosition = 0;
+
     if(Position != NewPosition)
     {
         Position = NewPosition;
-
-        if(Position < Min)
-            Position = Min;
-        else if(Position > 0)
-            Position = 0;
-
         Redraw();
     }
 }
