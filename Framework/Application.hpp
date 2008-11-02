@@ -78,14 +78,14 @@ class Application:
         std::list<Element*>::iterator Child;
         std::list<Element*>::reverse_iterator ChildBack;
 
-        int TrappedX;
-        int TrappedY;
+        int CapturedX;
+        int CapturedY;
 
         void MouseDown(int X, int Y);
         void MouseUp(int X, int Y);
         void MouseMove(int X, int Y);
 
-        void Trap(Element* Owner);
+        void Capture(Element* Owner);
         void Release();
         void Redraw();
         void Start(Element* Owner);

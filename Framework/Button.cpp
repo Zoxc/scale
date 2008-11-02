@@ -34,10 +34,10 @@ void Button::KeyDown(ElementKey Key)
 
 void Button::MouseUp(int X, int Y, bool Hovered)
 {
-    if(Hovered/* && Root->Trapped == this*/)
+    if(Hovered && Screen->Captured == this)
         Click();
 
-    //Release();
+    Release();
 
     Element::MouseUp(X, Y, Hovered);
 }
@@ -45,7 +45,10 @@ void Button::MouseUp(int X, int Y, bool Hovered)
 void Button::MouseDown(int X, int Y, bool Hovered)
 {
     if(Hovered)
+    {
         Root->Focus(this);
+        Capture();
+    }
 
     Element::MouseDown(X, Y, Hovered);
 }

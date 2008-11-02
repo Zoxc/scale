@@ -315,8 +315,7 @@ int main()
         CatLabel->Left = CatIcon->Left + CategorySpacing + CatIcon->Width;
     }
 
-    Menu.Children->remove(Tabs);
-    Menu.Children->push_back(Tabs);
+    Tabs->ToFront();
 
     // Add Links
     for(size_t i = 0; i < Running.size(); i++)

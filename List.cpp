@@ -134,7 +134,7 @@ void List::MouseUp(int X, int Y, bool Hovered)
 
     Step = 0;
 
-    if(Screen->Trapped == this)
+    if(Screen->Captured == this)
         Release();
 
     Mode = 0;
@@ -164,6 +164,8 @@ void List::MouseDown(int X, int Y, bool Hovered)
             }
         }
 
+        Capture();
+
         Mode = 1;
         DownX = X;
         MoveOffset = X - Position;
@@ -175,18 +177,12 @@ void List::MouseDown(int X, int Y, bool Hovered)
 
 void List::MouseMove(int X, int Y, bool Hovered)
 {
- /*   if(Mode == 1)
+    if(Mode == 1)
         if(abs(X - DownX) > 15)
-        {
             Mode = 2;
-            Trap();
-        }
-*/
-    if(Mode > 0)
-    {
-        Trap();
+
+    if(Mode > 1)
         Target(X - MoveOffset);
-    }
 
     Element::MouseMove(X, Y, Hovered);
 }

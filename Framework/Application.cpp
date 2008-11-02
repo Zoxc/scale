@@ -176,32 +176,27 @@ void Application::Deallocate()
     delete Handle;
 }
 
-void Application::Trap(Element* Owner)
+void Application::Capture(Element* Owner)
 {
-    Trapped = Owner;
+    Captured = Owner;
 
-    TrappedX = 0;
-    TrappedY = 0;
+    CapturedX = 0;
+    CapturedY = 0;
 
     Owner = Owner->Owner;
 
     while(Owner->Owner != 0)
     {
-        TrappedX += Owner->Left;
-        TrappedY += Owner->Top;
+        CapturedX += Owner->Left;
+        CapturedY += Owner->Top;
 
         Owner = Owner->Owner;
     }
 }
 
-Element* Application::GetTrapped()
-{
-    return Trapped;
-}
-
 void Application::Release()
 {
-    Trapped = 0;
+    Captured = 0;
 }
 
 void Application::Start(Element* Owner)
@@ -237,8 +232,8 @@ void Application::KeyUp(ElementKey Key)
 
 void Application::MouseDown(int X, int Y, bool Hovered)
 {
-    if(Trapped != 0)
-        Trapped->MouseDown(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, Trapped->Inside(X - TrappedX, Y - TrappedY));
+    if(Captured != 0)
+        Captured->MouseDown(X - CapturedX - Captured->Left, Y - CapturedY - Captured->Top, Captured->Inside(X - CapturedX, Y - CapturedY));
     else
     {
         bool ChildStatus = false;
@@ -262,8 +257,8 @@ void Application::MouseDown(int X, int Y, bool Hovered)
 
 void Application::MouseMove(int X, int Y, bool Hovered)
 {
-    if(Trapped != 0)
-        Trapped->MouseMove(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, Trapped->Inside(X - TrappedX, Y - TrappedY));
+    if(Captured != 0)
+        Captured->MouseMove(X - CapturedX - Captured->Left, Y - CapturedY - Captured->Top, Captured->Inside(X - CapturedX, Y - CapturedY));
     else
     {
         bool ChildStatus = false;
@@ -287,8 +282,8 @@ void Application::MouseMove(int X, int Y, bool Hovered)
 
 void Application::MouseUp(int X, int Y, bool Hovered)
 {
-    if(Trapped != 0)
-        Trapped->MouseUp(X - TrappedX - Trapped->Left, Y - TrappedY - Trapped->Top, Trapped->Inside(X - TrappedX, Y - TrappedY));
+    if(Captured != 0)
+        Captured->MouseUp(X - CapturedX - Captured->Left, Y - CapturedY - Captured->Top, Captured->Inside(X - CapturedX, Y - CapturedY));
     else
     {
         bool ChildStatus = false;
@@ -386,6 +381,9 @@ void Application::Run()
             DispatchMessage(&msg);
         }
 
+        if(!Running)
+            break;
+
         for (Animation = Animations.begin(); Animation != Animations.end(); Animation++)
         {
             int Ticks = GetTicks();
@@ -397,6 +395,9 @@ void Application::Run()
                 (*Animation)->Animate(Delta);
             }
         }
+
+        if(!Running)
+            break;
 
         if(DoRedraw)
         {

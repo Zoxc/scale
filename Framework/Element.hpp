@@ -87,9 +87,12 @@ class Element
         bool Animated;
         bool Visible;
         bool Hovered;
-        bool Down;
+        //bool Down;
 
         unsigned char AlphaBlend;
+
+        void ToFront();
+        void ToBack();
 
         void Link(ElementKey Key, Element* Link);
         void SelectElement(Element* NewSelection);
@@ -100,7 +103,7 @@ class Element
         void Redraw();
         void Start();
         void Stop();
-        void Trap();
+        void Capture();
         void Release();
 
         // Called by Root
@@ -135,7 +138,7 @@ class WindowScreen:
         WindowScreen(Element* Owner);
         virtual ~WindowScreen();
 
-        Element* Trapped;
+        Element* Captured;
 
         OpenGL::Program* Shader;
         GLuint ModeUniform;
@@ -146,7 +149,7 @@ class WindowScreen:
         bool Terminated;
         bool DoRedraw;
 
-        virtual void Trap(Element* Owner) = 0;
+        virtual void Capture(Element* Owner) = 0;
         virtual void Release() = 0;
         virtual void Start(Element* Owner) = 0;
         virtual void Stop(Element* Owner) = 0;

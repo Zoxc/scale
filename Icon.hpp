@@ -29,11 +29,17 @@ class Icon:
 
         void Click();
 
+        void MouseUp(int X, int Y, bool Hovered);
+        void MouseDown(int X, int Y, bool Hovered);
+
+        void MouseEnter();
+        void MouseLeave();
+
         void Draw(int X, int Y, unsigned char Alpha);
-        void Allocate();
-        void Deallocate();
+
         void Activate();
         void Deactivate();
 
+        bool Down;
         bool Focused;
 };

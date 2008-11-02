@@ -22,6 +22,7 @@
 
 Icon::Icon(Element* Owner) :
     Button(Owner),
+    Down(false),
     Focused(false)
 {
 }
@@ -34,14 +35,41 @@ void Icon::Click()
 {
 }
 
-void Icon::Allocate()
+void Icon::MouseEnter()
 {
-    Element::Allocate();
+    if(Down)
+        Redraw();
 }
 
-void Icon::Deallocate()
+void Icon::MouseLeave()
 {
-    Element::Deallocate();
+    if(Down)
+        Redraw();
+}
+
+void Icon::MouseUp(int X, int Y, bool Hovered)
+{
+    if(Down)
+    {
+        Down = false;
+
+        if(Element::Hovered)
+            Redraw();
+    }
+
+    Button::MouseUp(X, Y, Hovered);
+}
+
+void Icon::MouseDown(int X, int Y, bool Hovered)
+{
+    if(Hovered)
+        if(!Down)
+        {
+            Down = true;
+            Redraw();
+        }
+
+    Button::MouseDown(X, Y, Hovered);
 }
 
 void Icon::Activate()
@@ -63,5 +91,8 @@ void Icon::Draw(int X, int Y, unsigned char Alpha)
     if(!Focused)
         return;
 
-    Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 4);
+    if(Down && Hovered)
+        Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 6);
+    else
+        Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 4);
 }

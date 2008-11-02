@@ -57,7 +57,7 @@ void Focus(Element* NewFocus)
 
 WindowScreen::WindowScreen(Element* Owner):
     Window(Owner),
-    Trapped(0),
+    Captured(0),
     Running(false),
     Terminated(false)
 {
@@ -152,7 +152,6 @@ Element::Element(Element* Owner):
     Animated(false),
     Visible(true),
     Hovered(false),
-    Down(false),
     AlphaBlend(255)
 {
     if(Owner != 0)
@@ -247,7 +246,6 @@ void Element::Deactivate()
 
 void Element::MouseLeave()
 {
-    Down = false;
 }
 
 void Element::Animate(int Delta)
@@ -386,9 +384,9 @@ void Element::Draw(int X, int Y, unsigned char Alpha)
 {
 }
 
-void Element::Trap()
+void Element::Capture()
 {
-    Screen->Trap(this);
+    Screen->Capture(this);
 }
 
 void Element::Release()
@@ -411,6 +409,24 @@ void Element::Stop()
 void Element::Redraw()
 {
     Screen->DoRedraw = true;
+}
+
+void Element::ToFront()
+{
+    if(Owner == 0)
+        return;
+
+    Owner->Children->remove(this);
+    Owner->Children->push_back(this);
+}
+
+void Element::ToBack()
+{
+    if(Owner == 0)
+        return;
+
+    Owner->Children->remove(this);
+    Owner->Children->push_front(this);
 }
 
 bool Element::Inside(int X, int Y)
