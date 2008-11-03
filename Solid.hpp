@@ -20,19 +20,19 @@
 
 #include "Element.hpp"
 
-class Solid:
-    public Element
+namespace Scale
 {
-    public:
-        Solid(Element* AOwner);
-        virtual ~Solid();
+    class Solid:
+        public Element
+    {
+        public:
+            Solid(Element* AOwner);
+            virtual ~Solid();
 
-        void Allocate();
-        void Deallocate();
+            unsigned char R;
+            unsigned char G;
+            unsigned char B;
 
-        unsigned char R;
-        unsigned char G;
-        unsigned char B;
-
-        void Draw(int X, int Y, unsigned char Alpha);
+            void Draw(int X, int Y, unsigned char Alpha);
+    };
 };

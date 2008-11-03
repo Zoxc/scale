@@ -20,20 +20,23 @@
 
 #include "Element.hpp"
 
-class CategoryBackground:
-    public Element
+namespace Scale
 {
-    public:
-        CategoryBackground(Element* AOwner);
-        virtual ~CategoryBackground();
+    class CategoryBackground:
+        public Element
+    {
+        public:
+            CategoryBackground(Element* AOwner);
+            virtual ~CategoryBackground();
 
-        void Allocate();
-        void Deallocate();
-        void Up();
-        void Down();
-        void Draw(int X, int Y, unsigned char Alpha);
-        void Animate(int Delta);
+            void Allocate();
+            void Deallocate();
+            void Up();
+            void Down();
+            void Draw(int X, int Y, unsigned char Alpha);
+            void Animate(int Delta);
 
-        bool Upping;
-        int Step;
+            bool Upping;
+            int Step;
+    };
 };

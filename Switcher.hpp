@@ -16,42 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Button.hpp"
+#pragma once
+
+#include "Element.hpp"
 
 namespace Scale
 {
-    Button::Button(Element* Owner) : Element::Element(Owner)
+    class Switcher:
+        public Element
     {
-    }
+        public:
+            Switcher(Element* AOwner);
+            virtual ~Switcher();
 
-    Button::~Button()
-    {
-    }
+            void Allocate();
+            void Deallocate();
 
-    void Button::KeyDown(ElementKey Key)
-    {
-        if(Key == ElementGo)
-            Click();
-    }
-
-    void Button::MouseUp(int X, int Y, bool Hovered)
-    {
-        if(Hovered && Screen->Captured == this)
-            Click();
-
-        Release();
-
-        Element::MouseUp(X, Y, Hovered);
-    }
-
-    void Button::MouseDown(int X, int Y, bool Hovered)
-    {
-        if(Hovered)
-        {
-            Root->Focus(this);
-            Capture();
-        }
-
-        Element::MouseDown(X, Y, Hovered);
-    }
+            void Draw(int X, int Y, unsigned char Alpha);
+    };
 };

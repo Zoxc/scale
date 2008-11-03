@@ -20,79 +20,82 @@
 #include "Resources.hpp"
 #include "Graphics.hpp"
 
-Icon::Icon(Element* Owner) :
-    Button(Owner),
-    Down(false),
-    Focused(false)
+namespace Scale
 {
-}
-
-Icon::~Icon()
-{
-}
-
-void Icon::Click()
-{
-}
-
-void Icon::MouseEnter()
-{
-    if(Down)
-        Redraw();
-}
-
-void Icon::MouseLeave()
-{
-    if(Down)
-        Redraw();
-}
-
-void Icon::MouseUp(int X, int Y, bool Hovered)
-{
-    if(Down)
+    Icon::Icon(Element* Owner) :
+        Button(Owner),
+        Down(false),
+        Focused(false)
     {
-        Down = false;
+    }
 
-        if(Element::Hovered)
+    Icon::~Icon()
+    {
+    }
+
+    void Icon::Click()
+    {
+    }
+
+    void Icon::MouseEnter()
+    {
+        if(Down)
             Redraw();
     }
 
-    Button::MouseUp(X, Y, Hovered);
-}
-
-void Icon::MouseDown(int X, int Y, bool Hovered)
-{
-    if(Hovered)
-        if(!Down)
-        {
-            Down = true;
+    void Icon::MouseLeave()
+    {
+        if(Down)
             Redraw();
+    }
+
+    void Icon::MouseUp(int X, int Y, bool Hovered)
+    {
+        if(Down)
+        {
+            Down = false;
+
+            if(Element::Hovered)
+                Redraw();
         }
 
-    Button::MouseDown(X, Y, Hovered);
-}
+        Button::MouseUp(X, Y, Hovered);
+    }
 
-void Icon::Activate()
-{
-    Focused = true;
+    void Icon::MouseDown(int X, int Y, bool Hovered)
+    {
+        if(Hovered)
+            if(!Down)
+            {
+                Down = true;
+                Redraw();
+            }
 
-    Redraw();
-}
+        Button::MouseDown(X, Y, Hovered);
+    }
 
-void Icon::Deactivate()
-{
-    Focused = false;
+    void Icon::Activate()
+    {
+        Focused = true;
 
-    Redraw();
-}
+        Redraw();
+    }
 
-void Icon::Draw(int X, int Y, unsigned char Alpha)
-{
-    if(!Focused)
-        return;
+    void Icon::Deactivate()
+    {
+        Focused = false;
 
-    if(Down && Hovered)
-        Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 6);
-    else
-        Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 4);
-}
+        Redraw();
+    }
+
+    void Icon::Draw(int X, int Y, unsigned char Alpha)
+    {
+        if(!Focused)
+            return;
+
+        if(Down && Hovered)
+            Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 6);
+        else
+            Graphics::RoundRect(X, Y, Width, Height, 255, 255, 255, Alpha / 4);
+    }
+};

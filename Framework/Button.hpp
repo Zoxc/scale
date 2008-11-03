@@ -19,16 +19,19 @@
 #pragma once
 #include "Element.hpp"
 
-class Button:
-    public Element
+namespace Scale
 {
-    public:
-        Button(Element* Owner);
-        virtual ~Button();
+    class Button:
+        public Element
+    {
+        public:
+            Button(Element* Owner);
+            virtual ~Button();
 
-        virtual void Click() = 0;
+            virtual void Click() = 0;
 
-        void MouseUp(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, bool Hovered);
-        void KeyDown(ElementKey Key);
+            void MouseUp(int X, int Y, bool Hovered);
+            void MouseDown(int X, int Y, bool Hovered);
+            void KeyDown(ElementKey Key);
+    };
 };

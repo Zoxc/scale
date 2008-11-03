@@ -16,38 +16,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Label.hpp"
+#include "Graphics.hpp"
+#include "Switcher.hpp"
 
 namespace Scale
 {
-    Label::Label(Element* Owner, std::string ACaption, Font* AFont, unsigned int AColor) :
-        Element::Element(Owner),
-        LabelFont(AFont),
-        Color(AColor)
+    Switcher::Switcher(Element* AOwner) : Element::Element(AOwner)
     {
-        Caption = ACaption;
-
-        LabelFont->Size(ACaption, Width, Height);
     }
 
-    Label::~Label()
+    Switcher::~Switcher()
     {
-
     }
 
-    void Label::Draw(int X, int Y, unsigned char Alpha)
+    void Switcher::Allocate()
     {
-        if(Color == ColorBlack)
-        {
-            LabelFont->Print(Caption, ColorWhite, X + 1, Y + 1, Alpha / 3);
-            LabelFont->Print(Caption, ColorBlack, X, Y, Alpha);
-        }
-        else if(Color == ColorWhite)
-        {
-            LabelFont->Print(Caption, ColorBlack, X + 2, Y + 2, Alpha / 2);
-            LabelFont->Print(Caption, ColorWhite, X, Y, Alpha);
-        }
-        else
-            LabelFont->Print(Caption, Color, X, Y, Alpha);
+        Element::Allocate();
+    }
+
+    void Switcher::Deallocate()
+    {
+        Element::Deallocate();
+    }
+
+    void Switcher::Draw(int X, int Y, unsigned char Alpha)
+    {
+        Graphics::Rect(X, Y, Width, Height, 255, 255, 255, Alpha / 2);
     }
 };

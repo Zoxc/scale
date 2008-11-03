@@ -22,79 +22,82 @@
 
 #include "Element.hpp"
 
-struct ListItem
+namespace Scale
 {
-    std::string Caption;
-    std::string Icon;
+    struct ListItem
+    {
+        std::string Caption;
+        std::string Icon;
 
-    OpenGL::Texture* IconTexture;
-    OpenGL::Texture* CaptionTexture;
+        OpenGL::Texture* IconTexture;
+        OpenGL::Texture* CaptionTexture;
 
-    unsigned short X;
-    unsigned short Y;
-    unsigned short CaptionX;
-    unsigned short CaptionY;
-    unsigned short IconX;
-    unsigned short IconY;
-};
+        unsigned short X;
+        unsigned short Y;
+        unsigned short CaptionX;
+        unsigned short CaptionY;
+        unsigned short IconX;
+        unsigned short IconY;
+    };
 
-enum IconPlacement
-{
-    IconNone,
-    IconLeft,
-    IconRight,
-    IconAbove,
-    IconBelow
-};
+    enum IconPlacement
+    {
+        IconNone,
+        IconLeft,
+        IconRight,
+        IconAbove,
+        IconBelow
+    };
 
-class List:
-    public Element
-{
-    public:
-        List(Element* Owner);
-        virtual ~List();
+    class List:
+        public Element
+    {
+        public:
+            List(Element* Owner);
+            virtual ~List();
 
-        void Allocate();
-        void Deallocate();
-        void Draw(int X, int Y, unsigned char Alpha);
-        void KeyDown(ElementKey Key);
-        void MouseUp(int X, int Y, bool Hovered);
-        void MouseMove(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, bool Hovered);
-        void Animate(int Delta);
+            void Allocate();
+            void Deallocate();
+            void Draw(int X, int Y, unsigned char Alpha);
+            void KeyDown(ElementKey Key);
+            void MouseUp(int X, int Y, bool Hovered);
+            void MouseMove(int X, int Y, bool Hovered);
+            void MouseDown(int X, int Y, bool Hovered);
+            void Animate(int Delta);
 
-        void Add(std::string Icon, std::string Caption);
+            void Add(std::string Icon, std::string Caption);
 
-        std::vector<ListItem*> Items;
+            std::vector<ListItem*> Items;
 
-        ListItem* Focused;
+            ListItem* Focused;
 
-        IconPlacement Icons;
-        bool Captions;
+            IconPlacement Icons;
+            bool Captions;
 
-        int IconSpacing;
-        int Columns;
-        int Rows;
+            int IconSpacing;
+            int Columns;
+            int Rows;
 
-    private:
-        int FocusedIndex;
+        private:
+            int FocusedIndex;
 
-        int Position;
-        int Min;
+            int Position;
+            int Min;
 
-        void Target(int X);
-        void TargetFocused();
+            void Target(int X);
+            void TargetFocused();
 
-        int DownX;
-        unsigned char Mode;
-        int MoveOffset;
+            int DownX;
+            unsigned char Mode;
+            int MoveOffset;
 
-        bool Released;
-        bool Animated;
-        int Step;
-        float Velocity;
-        int PositionStart;
-        int PositionTarget;
-        int ItemHeight;
-        int ItemWidth;
+            bool Released;
+            bool Animated;
+            int Step;
+            float Velocity;
+            int PositionStart;
+            int PositionTarget;
+            int ItemHeight;
+            int ItemWidth;
+    };
 };

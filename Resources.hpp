@@ -24,21 +24,24 @@
 #include "Element.hpp"
 #include "Font.hpp"
 
-namespace Resources
+namespace Scale
 {
-    void Init();
+    namespace Resources
+    {
+        void Init();
 
-    void Allocate();
-    void Deallocate();
+        void Allocate();
+        void Deallocate();
 
-    extern FT_Library FreeType;
+        extern FT_Library FreeType;
 
-    extern OpenGL::Texture* RoundCornerTopLeft;
-    extern OpenGL::Texture* RoundCornerTopRight;
-    extern OpenGL::Texture* RoundCornerBottomLeft;
-    extern OpenGL::Texture* RoundCornerBottomRight;
+        extern OpenGL::Texture* RoundCornerTopLeft;
+        extern OpenGL::Texture* RoundCornerTopRight;
+        extern OpenGL::Texture* RoundCornerBottomLeft;
+        extern OpenGL::Texture* RoundCornerBottomRight;
 
-    extern Font* FontSmall;
-    extern Font* FontNormal;
-    extern Font* FontBig;
+        extern Font* FontSmall;
+        extern Font* FontNormal;
+        extern Font* FontBig;
+    };
 };

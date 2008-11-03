@@ -16,93 +16,95 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdarg.h>
 #include "png.h"
 
 #include "Graphics.hpp"
 #include "Image.hpp"
 
-Image::Image(Element* Owner, std::string Path):
-    Element::Element(Owner),
-    NeedAlpha(true)
+namespace Scale
 {
-    Filename = Path;
+    Image::Image(Element* Owner, std::string Path):
+        Element::Element(Owner),
+        NeedAlpha(true)
+    {
+        Filename = Path;
 
-    SizeFromFile(Path, &Width, &Height);
-}
+        SizeFromFile(Path, &Width, &Height);
+    }
 
-Image::~Image()
-{
-}
+    Image::~Image()
+    {
+    }
 
-void Image::SizeFromFile(std::string FileName, int* Width, int* Height)
-{
-    png_structp PngPtr;
-    png_infop InfoPtr;
+    void Image::SizeFromFile(std::string FileName, int* Width, int* Height)
+    {
+        png_structp PngPtr;
+        png_infop InfoPtr;
 
-	char Header[8];
+        char Header[8];
 
-	FILE *File = fopen(FileName.c_str(), "rb");
-	if (!File)
-	{
-		printf("File %s could not be opened for reading\n", FileName.c_str());
-		return;
-	}
+        FILE *File = fopen(FileName.c_str(), "rb");
+        if (!File)
+        {
+            printf("File %s could not be opened for reading\n", FileName.c_str());
+            return;
+        }
 
-	fread(Header, 1, 8, File);
+        fread(Header, 1, 8, File);
 
-	if (png_sig_cmp((png_byte*)Header, 0, 8))
-		printf("File %s is not recognized as a PNG file\n", FileName.c_str());
+        if (png_sig_cmp((png_byte*)Header, 0, 8))
+            printf("File %s is not recognized as a PNG file\n", FileName.c_str());
 
-	PngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
-	if(!PngPtr)
-	{
-		printf("png_create_read_struct failed on file: %s\n", FileName.c_str());
-		return;
-	}
+        PngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+        if(!PngPtr)
+        {
+            printf("png_create_read_struct failed on file: %s\n", FileName.c_str());
+            return;
+        }
 
-	InfoPtr = png_create_info_struct(PngPtr);
-	if(!InfoPtr)
-	{
-		printf("png_create_info_struct failed on file: %s\n", FileName.c_str());
-		return;
-	}
+        InfoPtr = png_create_info_struct(PngPtr);
+        if(!InfoPtr)
+        {
+            printf("png_create_info_struct failed on file: %s\n", FileName.c_str());
+            return;
+        }
 
-	if(setjmp(png_jmpbuf(PngPtr)))
-	{
-		printf("Error during init_io\n");
-		return;
-	}
+        if(setjmp(png_jmpbuf(PngPtr)))
+        {
+            printf("Error during init_io\n");
+            return;
+        }
 
-	png_init_io(PngPtr, File);
-	png_set_sig_bytes(PngPtr, 8);
+        png_init_io(PngPtr, File);
+        png_set_sig_bytes(PngPtr, 8);
 
-    png_read_info(PngPtr, InfoPtr);
+        png_read_info(PngPtr, InfoPtr);
 
-	*Width = InfoPtr->width;
-	*Height = InfoPtr->height;
+        *Width = InfoPtr->width;
+        *Height = InfoPtr->height;
 
-    png_destroy_read_struct(&PngPtr, &InfoPtr, 0);
+        png_destroy_read_struct(&PngPtr, &InfoPtr, 0);
 
-    fclose(File);
-}
+        fclose(File);
+    }
 
-void Image::Allocate()
-{
-    Element::Allocate();
+    void Image::Allocate()
+    {
+        Element::Allocate();
 
-    Texture = new OpenGL::Texture();
-    Texture->Load(Filename.c_str());
-}
+        Texture = new OpenGL::Texture();
+        Texture->Load(Filename.c_str());
+    }
 
-void Image::Deallocate()
-{
-    Element::Deallocate();
+    void Image::Deallocate()
+    {
+        Element::Deallocate();
 
-    delete Texture;
-}
+        delete Texture;
+    }
 
-void Image::Draw(int X, int Y, unsigned char Alpha)
-{
-    Graphics::Texture(Texture, X, Y, Alpha);
-}
+    void Image::Draw(int X, int Y, unsigned char Alpha)
+    {
+        Graphics::Texture(Texture, X, Y, Alpha);
+    }
+};

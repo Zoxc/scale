@@ -19,29 +19,22 @@
 #include "Graphics.hpp"
 #include "Solid.hpp"
 
-Solid::Solid(Element* AOwner) :
-    Element::Element(AOwner),
-    R(0),
-    G(0),
-    B(0)
+namespace Scale
 {
-}
+    Solid::Solid(Element* AOwner) :
+        Element::Element(AOwner),
+        R(0),
+        G(0),
+        B(0)
+    {
+    }
 
-Solid::~Solid()
-{
-}
+    Solid::~Solid()
+    {
+    }
 
-void Solid::Allocate()
-{
-    Element::Allocate();
-}
-
-void Solid::Deallocate()
-{
-    Element::Deallocate();
-}
-
-void Solid::Draw(int X, int Y, unsigned char Alpha)
-{
-    Graphics::Rect(X, Y, Width, Height, R, G, B, Alpha);
-}
+    void Solid::Draw(int X, int Y, unsigned char Alpha)
+    {
+        Graphics::Rect(X, Y, Width, Height, R, G, B, Alpha);
+    }
+};

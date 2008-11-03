@@ -21,21 +21,24 @@
 
 #include "Element.hpp"
 
-class Image:
-    public Element
+namespace Scale
 {
-    public:
-        Image(Element* Owner, std::string Path);
-        virtual ~Image();
+    class Image:
+        public Element
+    {
+        public:
+            Image(Element* Owner, std::string Path);
+            virtual ~Image();
 
-        std::string Filename;
-        bool NeedAlpha;
+            std::string Filename;
+            bool NeedAlpha;
 
-        static void SizeFromFile(std::string FileName, int* Width, int* Height);
+            static void SizeFromFile(std::string FileName, int* Width, int* Height);
 
-        void Allocate();
-        void Deallocate();
-        void Draw(int X, int Y, unsigned char Alpha);
+            void Allocate();
+            void Deallocate();
+            void Draw(int X, int Y, unsigned char Alpha);
 
-        OpenGL::Texture* Texture;
+            OpenGL::Texture* Texture;
+    };
 };

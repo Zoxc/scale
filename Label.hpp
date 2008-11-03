@@ -21,20 +21,23 @@
 #include "Resources.hpp"
 #include "Element.hpp"
 
-const unsigned int ColorBlack = 0;
-const unsigned int ColorWhite = 0xFFFFFFFF;
-
-class Label:
-    public Element
+namespace Scale
 {
-    public:
-        Label(Element* Owner, std::string ACaption, Font* AFont, unsigned int AColor);
-        virtual ~Label();
+    const unsigned int ColorBlack = 0;
+    const unsigned int ColorWhite = 0xFFFFFFFF;
 
-        void Draw(int X, int Y, unsigned char Alpha);
+    class Label:
+        public Element
+    {
+        public:
+            Label(Element* Owner, std::string ACaption, Font* AFont, unsigned int AColor);
+            virtual ~Label();
 
-        Font* LabelFont;
-        unsigned int Color;
+            void Draw(int X, int Y, unsigned char Alpha);
 
-        std::string Caption;
+            Font* LabelFont;
+            unsigned int Color;
+
+            std::string Caption;
+    };
 };

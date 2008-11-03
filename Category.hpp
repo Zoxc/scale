@@ -21,24 +21,27 @@
 #include "Element.hpp"
 #include "CategoryBackground.hpp"
 
-class Category:
-    public Element
+namespace Scale
 {
-    public:
-        Category(Element* AOwner);
-        virtual ~Category();
+    class Category:
+        public Element
+    {
+        public:
+            Category(Element* AOwner);
+            virtual ~Category();
 
-        void Allocate();
-        void Deallocate();
-        void MouseDown(int X, int Y, bool Hovered);
-        void Draw(int X, int Y, unsigned char Alpha);
-        void Activate();
-        void Deactivate();
-        void Animate(int Delta);
+            void Allocate();
+            void Deallocate();
+            void MouseDown(int X, int Y, bool Hovered);
+            void Draw(int X, int Y, unsigned char Alpha);
+            void Activate();
+            void Deactivate();
+            void Animate(int Delta);
 
-        int TargetAlpha;
-        int Alpha;
+            int TargetAlpha;
+            int Alpha;
 
-        CategoryBackground* Show;
-        Element* DoFocus;
+            CategoryBackground* Show;
+            Element* DoFocus;
+    };
 };

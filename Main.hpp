@@ -29,6 +29,8 @@
 #include "Category.hpp"
 #include "CategoryBackground.hpp"
 
+using namespace Scale;
+
 struct AppInfo
 {
     char* Name;
@@ -43,7 +45,6 @@ struct CatInfo
     Category* button;
 };
 
-extern std::vector<AppInfo*> Running;
 extern std::vector<CatInfo*> Categories;
 extern Application Menu;
 extern Window* Tabs;

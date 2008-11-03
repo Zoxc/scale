@@ -77,6 +77,8 @@
 		<Unit filename="Resources.hpp" />
 		<Unit filename="Solid.cpp" />
 		<Unit filename="Solid.hpp" />
+		<Unit filename="Switcher.cpp" />
+		<Unit filename="Switcher.hpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

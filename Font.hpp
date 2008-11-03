@@ -19,39 +19,42 @@
 #pragma once
 #include <string>
 
-class Font
+namespace Scale
 {
-    public:
-        Font(const char* Filename, int PointHeight);
-        ~Font();
+    class Font
+    {
+        public:
+            Font(const char* Filename, int PointHeight);
+            ~Font();
 
-        void Allocate();
-        void Deallocate();
+            void Allocate();
+            void Deallocate();
 
-        void Print(std::string& Text, unsigned int Color, int X, int Y, unsigned char Alpha);
-        void Size(std::string& Text, int& Width, int& Height);
+            void Print(std::string& Text, unsigned int Color, int X, int Y, unsigned char Alpha);
+            void Size(std::string& Text, int& Width, int& Height);
 
-        int PixelHeight;
-        int PointHeight;
+            int PixelHeight;
+            int PointHeight;
 
-    private:
-        void Measure();
+        private:
+            void Measure();
 
-        OpenGL::Texture* Bitmap;
+            OpenGL::Texture* Bitmap;
 
-        FT_Face FontFace;
+            FT_Face FontFace;
 
-        const char* _Filename;
+            const char* _Filename;
 
-        struct Glyph
-        {
-            GLfloat Cords[8];
+            struct Glyph
+            {
+                GLfloat Cords[8];
 
-            int Width;
-            int Height;
-            int Advance;
-            int Top;
-        };
+                int Width;
+                int Height;
+                int Advance;
+                int Top;
+            };
 
-        Glyph Glyphs[256];
+            Glyph Glyphs[256];
+    };
 };

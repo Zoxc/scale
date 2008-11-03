@@ -23,71 +23,74 @@
 #include "Options.hpp"
 #include "Element.hpp"
 
-typedef void (*KeyEvent)(ElementKey Key);
-#ifdef FRAME_EVENT
-typedef void (*FrameEvent)();
-#endif
-
-class Application:
-    public WindowScreen
+namespace Scale
 {
-    public:
-        Application();
-        virtual ~Application();
+    typedef void (*KeyEvent)(ElementKey Key);
+    #ifdef FRAME_EVENT
+    typedef void (*FrameEvent)();
+    #endif
+
+    class Application:
+        public WindowScreen
+    {
+        public:
+            Application();
+            virtual ~Application();
 
 
-        void Allocate();
-        void Deallocate();
+            void Allocate();
+            void Deallocate();
 
-        void MouseUp(int X, int Y, bool Hovered);
-        void MouseMove(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, bool Hovered);
+            void MouseUp(int X, int Y, bool Hovered);
+            void MouseMove(int X, int Y, bool Hovered);
+            void MouseDown(int X, int Y, bool Hovered);
 
-        void KeyDown(ElementKey Key);
-        void KeyUp(ElementKey Key);
+            void KeyDown(ElementKey Key);
+            void KeyUp(ElementKey Key);
 
-        void Stop();
-        void Run();
+            void Stop();
+            void Run();
 
-        Element* GetTrapped();
+            Element* GetTrapped();
 
-        #ifdef FRAME_EVENT
-        FrameEvent EventFrame;
-        #endif
+            #ifdef FRAME_EVENT
+            FrameEvent EventFrame;
+            #endif
 
-        KeyEvent EventKeyDown;
+            KeyEvent EventKeyDown;
 
-        std::string Title;
+            std::string Title;
 
-    private:
-        EGLDisplay Display;
-        EGLConfig Config;
-        EGLSurface Surface;
-        EGLContext Context;
-        EGLNativeWindowType Handle;
+        private:
+            EGLDisplay Display;
+            EGLConfig Config;
+            EGLSurface Surface;
+            EGLContext Context;
+            EGLNativeWindowType Handle;
 
-        #ifdef WIN32
-        HWND hWnd;
-        HDC hDC;
-        static LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-        #endif
+            #ifdef WIN32
+            HWND hWnd;
+            HDC hDC;
+            static LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+            #endif
 
-        std::list<Element*> Animations;
+            std::list<Element*> Animations;
 
-        std::list<Element*>::iterator Animation;
-        std::list<Element*>::iterator Child;
-        std::list<Element*>::reverse_iterator ChildBack;
+            std::list<Element*>::iterator Animation;
+            std::list<Element*>::iterator Child;
+            std::list<Element*>::reverse_iterator ChildBack;
 
-        int CapturedX;
-        int CapturedY;
+            int CapturedX;
+            int CapturedY;
 
-        void MouseDown(int X, int Y);
-        void MouseUp(int X, int Y);
-        void MouseMove(int X, int Y);
+            void MouseDown(int X, int Y);
+            void MouseUp(int X, int Y);
+            void MouseMove(int X, int Y);
 
-        void Capture(Element* Owner);
-        void Release();
-        void Redraw();
-        void Start(Element* Owner);
-        void Stop(Element* Owner);
+            void Capture(Element* Owner);
+            void Release();
+            void Redraw();
+            void Start(Element* Owner);
+            void Stop(Element* Owner);
+    };
 };

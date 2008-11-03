@@ -19,10 +19,13 @@
 #pragma once
 #include "OpenGL/OpenGL.Texture.hpp"
 
-namespace Graphics
+namespace Scale
 {
-    void AlphaTexture(OpenGL::Texture* Tex, int X, int Y, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha);
-    void Texture(OpenGL::Texture* Tex, int X, int Y, unsigned char Alpha);
-    void Rect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha);
-    void RoundRect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha);
+    namespace Graphics
+    {
+        void AlphaTexture(OpenGL::Texture* Tex, int X, int Y, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha);
+        void Texture(OpenGL::Texture* Tex, int X, int Y, unsigned char Alpha);
+        void Rect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha);
+        void RoundRect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha);
+    };
 };

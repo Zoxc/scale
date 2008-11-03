@@ -31,129 +31,132 @@
 #include <list>
 #include <map>
 
-class Element;
-class Window;
-
-typedef int ElementKey;
-
-typedef void (*ElementNotifyEvent)(Element* Owner);
-typedef void (*ElementKeyEvent)(Element* Owner, ElementKey Key);
-
-typedef std::pair<ElementKey, Element*> ElementLink;
-typedef std::map<ElementKey, Element*> ElementLinks;
-
-#define ElementUp VK_UP
-#define ElementDown VK_DOWN
-#define ElementLeft VK_LEFT
-#define ElementRight VK_RIGHT
-#define ElementGo VK_RETURN
-
-class Element
+namespace Scale
 {
-    public:
-        Element(Element* Owner);
-        virtual ~Element();
+    class Element;
+    class Window;
 
-        virtual void Allocate();
-        virtual void Deallocate();
-        virtual void KeyDown(ElementKey Key);
-        virtual void KeyUp(ElementKey Key);
-        virtual void Animate(int Delta);
-        virtual void MouseEnter();
-        virtual void MouseLeave();
-        virtual void MouseUp(int X, int Y, bool Hovered);
-        virtual void MouseMove(int X, int Y, bool Hovered);
-        virtual void MouseDown(int X, int Y, bool Hovered);
-        virtual void Activate();
-        virtual void Deactivate();
-        virtual void Show();
-        virtual void Hide();
-        virtual void Draw(int X, int Y, unsigned char Alpha);
+    typedef int ElementKey;
 
-        int Left;
-        int Top;
-        int Width;
-        int Height;
-        int Frame;
+    typedef void (*ElementNotifyEvent)(Element* Owner);
+    typedef void (*ElementKeyEvent)(Element* Owner, ElementKey Key);
 
-        void* Tag;
+    typedef std::pair<ElementKey, Element*> ElementLink;
+    typedef std::map<ElementKey, Element*> ElementLinks;
 
-        Element* Owner;
-        Window* Root;
+    #define ElementUp VK_UP
+    #define ElementDown VK_DOWN
+    #define ElementLeft VK_LEFT
+    #define ElementRight VK_RIGHT
+    #define ElementGo VK_RETURN
 
-        std::list<Element*>* Children;
-        ElementLinks* Links;
+    class Element
+    {
+        public:
+            Element(Element* Owner);
+            virtual ~Element();
 
-        bool Animated;
-        bool Visible;
-        bool Hovered;
-        //bool Down;
+            virtual void Allocate();
+            virtual void Deallocate();
+            virtual void KeyDown(ElementKey Key);
+            virtual void KeyUp(ElementKey Key);
+            virtual void Animate(int Delta);
+            virtual void MouseEnter();
+            virtual void MouseLeave();
+            virtual void MouseUp(int X, int Y, bool Hovered);
+            virtual void MouseMove(int X, int Y, bool Hovered);
+            virtual void MouseDown(int X, int Y, bool Hovered);
+            virtual void Activate();
+            virtual void Deactivate();
+            virtual void Show();
+            virtual void Hide();
+            virtual void Draw(int X, int Y, unsigned char Alpha);
 
-        unsigned char AlphaBlend;
+            int Left;
+            int Top;
+            int Width;
+            int Height;
+            int Frame;
 
-        void ToFront();
-        void ToBack();
+            void* Tag;
 
-        void Link(ElementKey Key, Element* Link);
-        void SelectElement(Element* NewSelection);
-        void SetOwner(Element* NewOwner);
-        bool Inside(int X, int Y);
+            Element* Owner;
+            Window* Root;
 
-        // Calls to Root
-        void Redraw();
-        void Start();
-        void Stop();
-        void Capture();
-        void Release();
+            std::list<Element*>* Children;
+            ElementLinks* Links;
 
-        // Called by Root
-        void DrawChildren(int X, int Y, unsigned char Alpha);
-        void _MouseLeave();
+            bool Animated;
+            bool Visible;
+            bool Hovered;
+            //bool Down;
+
+            unsigned char AlphaBlend;
+
+            void ToFront();
+            void ToBack();
+
+            void Link(ElementKey Key, Element* Link);
+            void SelectElement(Element* NewSelection);
+            void SetOwner(Element* NewOwner);
+            bool Inside(int X, int Y);
+
+            // Calls to Root
+            void Redraw();
+            void Start();
+            void Stop();
+            void Capture();
+            void Release();
+
+            // Called by Root
+            void DrawChildren(int X, int Y, unsigned char Alpha);
+            void _MouseLeave();
+    };
+
+    void Focus(Element* NewFocus);
+    int GetTicks();
+
+    class Window:
+        public Element
+    {
+        public:
+            Window(Element* Owner);
+            virtual ~Window();
+
+            Element* Focused;
+
+            void KillFocus();
+            void Focus(Element* NewFocus);
+
+            void MouseDown(int X, int Y, bool Hovered);
+            void KeyDown(ElementKey Key);
+            void KeyUp(ElementKey Key);
+    };
+
+    class WindowScreen:
+        public Window
+    {
+        public:
+            WindowScreen(Element* Owner);
+            virtual ~WindowScreen();
+
+            Element* Captured;
+
+            OpenGL::Program* Shader;
+            GLuint ModeUniform;
+            GLuint TextureUniform;
+            GLuint ColorUniform;
+
+            bool Running;
+            bool Terminated;
+            bool DoRedraw;
+
+            virtual void Capture(Element* Owner) = 0;
+            virtual void Release() = 0;
+            virtual void Start(Element* Owner) = 0;
+            virtual void Stop(Element* Owner) = 0;
+    };
+
+    extern WindowScreen* Screen;
+    extern GLubyte TextureCoordinate[];
 };
-
-void Focus(Element* NewFocus);
-int GetTicks();
-
-class Window:
-    public Element
-{
-    public:
-        Window(Element* Owner);
-        virtual ~Window();
-
-        Element* Focused;
-
-        void KillFocus();
-        void Focus(Element* NewFocus);
-
-        void MouseDown(int X, int Y, bool Hovered);
-        void KeyDown(ElementKey Key);
-        void KeyUp(ElementKey Key);
-};
-
-class WindowScreen:
-    public Window
-{
-    public:
-        WindowScreen(Element* Owner);
-        virtual ~WindowScreen();
-
-        Element* Captured;
-
-        OpenGL::Program* Shader;
-        GLuint ModeUniform;
-        GLuint TextureUniform;
-        GLuint ColorUniform;
-
-        bool Running;
-        bool Terminated;
-        bool DoRedraw;
-
-        virtual void Capture(Element* Owner) = 0;
-        virtual void Release() = 0;
-        virtual void Start(Element* Owner) = 0;
-        virtual void Stop(Element* Owner) = 0;
-};
-
-extern WindowScreen* Screen;
-extern GLubyte TextureCoordinate[];

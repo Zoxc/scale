@@ -20,56 +20,59 @@
 
 #include "Resources.hpp"
 
-namespace Resources
+namespace Scale
 {
-    FT_Library FreeType;
+    namespace Resources
+    {
+        FT_Library FreeType;
 
-    OpenGL::Texture* RoundCornerTopLeft;
-    OpenGL::Texture* RoundCornerTopRight;
-    OpenGL::Texture* RoundCornerBottomLeft;
-    OpenGL::Texture* RoundCornerBottomRight;
+        OpenGL::Texture* RoundCornerTopLeft;
+        OpenGL::Texture* RoundCornerTopRight;
+        OpenGL::Texture* RoundCornerBottomLeft;
+        OpenGL::Texture* RoundCornerBottomRight;
 
-    Font* FontSmall;
-    Font* FontNormal;
-    Font* FontBig;
+        Font* FontSmall;
+        Font* FontNormal;
+        Font* FontBig;
+
+        void Init()
+        {
+            FT_Init_FreeType(&FreeType);
+
+            RoundCornerTopLeft = new OpenGL::Texture();
+            RoundCornerTopRight = new OpenGL::Texture();
+            RoundCornerBottomLeft = new OpenGL::Texture();
+            RoundCornerBottomRight = new OpenGL::Texture();
+
+            FontSmall = new Font("resources/FreeSans.ttf", 16); // 19pt
+            FontNormal = new Font("resources/FreeSans.ttf", 18); // 22pt
+            FontBig = new Font("resources/FreeSans.ttf", 20); // 24pt
+        }
+
+        void Allocate()
+        {
+            FT_Init_FreeType(&FreeType);
+
+            RoundCornerTopLeft->Load("resources/border_tl.png");
+            RoundCornerTopRight->Load("resources/border_tr.png");
+            RoundCornerBottomLeft->Load("resources/border_bl.png");
+            RoundCornerBottomRight->Load("resources/border_br.png");
+
+            FontSmall->Allocate();
+            FontNormal->Allocate();
+            FontBig->Allocate();
+        }
+
+        void Deallocate()
+        {
+            delete RoundCornerTopLeft;
+            delete RoundCornerTopRight;
+            delete RoundCornerBottomLeft;
+            delete RoundCornerBottomRight;
+
+            delete FontSmall;
+            delete FontNormal;
+            delete FontBig;
+        }
+    };
 };
-
-void Resources::Init()
-{
-    FT_Init_FreeType(&FreeType);
-
-    RoundCornerTopLeft = new OpenGL::Texture();
-    RoundCornerTopRight = new OpenGL::Texture();
-    RoundCornerBottomLeft = new OpenGL::Texture();
-    RoundCornerBottomRight = new OpenGL::Texture();
-
-    FontSmall = new Font("resources/FreeSans.ttf", 16); // 19pt
-    FontNormal = new Font("resources/FreeSans.ttf", 18); // 22pt
-    FontBig = new Font("resources/FreeSans.ttf", 20); // 24pt
-}
-
-void Resources::Allocate()
-{
-    FT_Init_FreeType(&FreeType);
-
-    RoundCornerTopLeft->Load("resources/border_tl.png");
-    RoundCornerTopRight->Load("resources/border_tr.png");
-    RoundCornerBottomLeft->Load("resources/border_bl.png");
-    RoundCornerBottomRight->Load("resources/border_br.png");
-
-    FontSmall->Allocate();
-    FontNormal->Allocate();
-    FontBig->Allocate();
-}
-
-void Resources::Deallocate()
-{
-    delete RoundCornerTopLeft;
-    delete RoundCornerTopRight;
-    delete RoundCornerBottomLeft;
-    delete RoundCornerBottomRight;
-
-    delete FontSmall;
-    delete FontNormal;
-    delete FontBig;
-}

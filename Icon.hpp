@@ -20,26 +20,29 @@
 
 #include "Button.hpp"
 
-class Icon:
-    public Button
+namespace Scale
 {
-    public:
-        Icon(Element* Owner);
-        virtual ~Icon();
+    class Icon:
+        public Button
+    {
+        public:
+            Icon(Element* Owner);
+            virtual ~Icon();
 
-        void Click();
+            void Click();
 
-        void MouseUp(int X, int Y, bool Hovered);
-        void MouseDown(int X, int Y, bool Hovered);
+            void MouseUp(int X, int Y, bool Hovered);
+            void MouseDown(int X, int Y, bool Hovered);
 
-        void MouseEnter();
-        void MouseLeave();
+            void MouseEnter();
+            void MouseLeave();
 
-        void Draw(int X, int Y, unsigned char Alpha);
+            void Draw(int X, int Y, unsigned char Alpha);
 
-        void Activate();
-        void Deactivate();
+            void Activate();
+            void Deactivate();
 
-        bool Down;
-        bool Focused;
+            bool Down;
+            bool Focused;
+    };
 };

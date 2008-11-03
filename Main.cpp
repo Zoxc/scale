@@ -20,8 +20,8 @@
 #include "Main.hpp"
 #include "Resources.hpp"
 #include "List.hpp"
+#include "Switcher.hpp"
 
-std::vector<AppInfo*> Running;
 std::vector<CatInfo*> Categories;
 Application Menu;
 Window* Tabs;
@@ -111,21 +111,6 @@ int main()
 {
     Resources::Init();
 
-    AppInfo* App = new AppInfo();
-    App->Name = "Package Manager";
-    App->IconPath = "resources/icons/installer.png";
-    Running.push_back(App);
-
-    App = new AppInfo();
-    App->Name = "Filesystem";
-    App->IconPath = "resources/icons/folder.png";
-    Running.push_back(App);
-
-    App = new AppInfo();
-    App->Name = "Internet Relay Chat";
-    App->IconPath = "resources/icons/irc.png";
-    Running.push_back(App);
-
     CatInfo* Cat = new CatInfo();
     Cat->Name = "Games";
     Cat->IconPath = "games.png";
@@ -152,14 +137,6 @@ int main()
     TaskList->Width = Menu.Width;
     TaskList->Height = Menu.Height;
 
-    Label Welcome(TaskList, "Welcome Zoxc, the time is 5:32 pm", Resources::FontSmall, ColorBlack);
-    Welcome.Left = 15;
-    Welcome.Top = 15;
-
-    Label RunningLabel(TaskList, "You are currently running:", Resources::FontSmall, ColorBlack);
-    RunningLabel.Left = 15;
-    RunningLabel.Top = 55;
-
     // Power Button
     PowerButton Power(TaskList);
     Power.Left = 686;
@@ -167,66 +144,10 @@ int main()
     Power.Width = 107;
     Power.Height = 45;
 
-    Element Applications(TaskList);
-    Applications.Left = 15;
-    Applications.Top = 92;
-    Applications.Width = 800;
-    Applications.Height = 52 * Running.size();
-/*
-    Applications.Hide();
-
-    Image Sample(TaskList, "resources/sample.png");
-    Sample.Left = (800 - Sample.Width) >> 1;
-    Sample.Top = 92;
-
-    Image Sample1(TaskList, "resources/samples.png");
-    Sample1.Left = Sample.Left - Sample1.Width - 20;
-    Sample1.Top = Sample.Top + Sample.Height - Sample1.Height;
-    Sample1.AlphaBlend = 128;
-
-    Image Sample2(TaskList, "resources/samples.png");
-    Sample2.Left = Sample.Left + Sample.Width + 20;
-    Sample2.Top = Sample.Top + Sample.Height - Sample2.Height;
-    Sample2.AlphaBlend = 128;
-
-    Image* AppIcon = new Image(TaskList, "resources/icons/other.png");
-    Label* AppLabel = new Label(TaskList, "Demostration Menu", Resources::FontNormal, ColorBlack);
-
-    AppIcon->Left = (800 - (AppIcon->Width + AppLabel->Width + 8)) >> 1;
-    AppIcon->Top = Sample.Top + Sample.Height + 10;
-
-    AppLabel->Left = AppIcon->Left + AppIcon->Width + 8;
-    AppLabel->Top = Sample.Top + Sample.Height + 10 + ((AppIcon->Height - AppLabel->Height) >> 1);
-
-    Image ArrowR(TaskList, "resources/arrowr.png");
-    ArrowR.Left = AppLabel->Left + AppLabel->Width + 10;
-    ArrowR.Top = AppLabel->Top;
-    ArrowR.AlphaBlend = 128;
-
-    Image ArrowL(TaskList, "resources/arrowl.png");
-    ArrowL.Left = AppIcon->Left - 10 - ArrowL.Width;
-    ArrowL.Top = AppLabel->Top;
-    ArrowL.AlphaBlend = 128;
-*/
-
-    for(size_t i = 0; i < Running.size(); i++)
-    {
-        Running[i]->button = new Icon(&Applications);
-        Running[i]->button->Left = 0;
-        Running[i]->button->Top = 52 * i;
-        Running[i]->button->Height = 52;
-
-
-        Image* AppIcon = new Image(Running[i]->button, Running[i]->IconPath);
-        AppIcon->Left = 5;
-        AppIcon->Top = 2;
-
-        Label* AppLabel = new Label(Running[i]->button, Running[i]->Name, Resources::FontNormal, ColorBlack);
-        AppLabel->Left = 5 + 48 + 8;
-        AppLabel->Top = 12;
-
-        Running[i]->button->Width = AppLabel->Width + 5 + 8 + AppIcon->Width + 7;
-    }
+    Switcher Tasks(TaskList);
+    Tasks.Width = 800;
+    Tasks.Top = 53;
+    Tasks.Height = TaskList->Height - Tasks.Top - 66;
 
     Tabs = new Window(&Menu);
     Tabs->Height = 66;
@@ -316,28 +237,6 @@ int main()
     }
 
     Tabs->ToFront();
-
-    // Add Links
-    for(size_t i = 0; i < Running.size(); i++)
-    {
-        Running[i]->button->Link(ElementRight, &Power);
-
-        if(i > 0)
-            Running[i]->button->Link(ElementUp, Running[i-1]->button);
-        else
-            Running[i]->button->Link(ElementUp, Running[Running.size()-1]->button);
-
-        if(i < Running.size() - 1)
-            Running[i]->button->Link(ElementDown, Running[i+1]->button);
-        else
-            Running[i]->button->Link(ElementDown, Running[0]->button);
-    }
-
-    if(Running.size() > 0)
-    {
-        Power.Link(ElementLeft, Running[0]->button);
-        Focus(Running[0]->button);
-    }
 
     Focus(TaskList);
 
