@@ -248,10 +248,20 @@ int main()
     Menu.EventFrame = &OnFrame;
     #endif
 
+    Solid Splash(&Menu);
+    Splash.Width = Menu.Width;
+    Splash.Height = Menu.Height;
+    //Splash.AlphaBlend = 128;
+
+    Image SplashImg(&Splash, "resources/logo.png");
+    SplashImg.Left = (Menu.Width - SplashImg.Width) >> 1;
+    SplashImg.Top = (Menu.Height - SplashImg.Height) >> 1;
+
     Menu.Title = "Scale Demo";
     Menu.EventKeyDown = &KeyDown;
 
     Menu.Allocate();
+    Menu.AlphaBlend = 128;
 
     Resources::Allocate();
 

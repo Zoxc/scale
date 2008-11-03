@@ -19,7 +19,7 @@
 #pragma once
 
 /* Frame Event will make Application call EventFrame whenever a frame is drawn */
-#define FRAME_EVENT
+//#define FRAME_EVENT
 
 /* No frame limit will make the Application not wait for event, but try to print as many frames as possible. Note: doesn't work on the AMD Emulator */
 //#define NO_FRAME_LIMIT
