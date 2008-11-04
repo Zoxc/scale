@@ -251,7 +251,7 @@ int main()
     Solid Splash(&Menu);
     Splash.Width = Menu.Width;
     Splash.Height = Menu.Height;
-    //Splash.AlphaBlend = 128;
+    Splash.AlphaBlend = 128;
 
     Image SplashImg(&Splash, "resources/logo.png");
     SplashImg.Left = (Menu.Width - SplashImg.Width) >> 1;

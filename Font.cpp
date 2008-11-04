@@ -39,7 +39,8 @@ namespace Scale
     {
         Width = 0;
         Height = 0;
-/*
+
+        #ifndef X11
         for(unsigned int i = 0; i < Text.length(); i++)
         {
             if(i == Text.length()-1)
@@ -48,12 +49,14 @@ namespace Scale
                 Width += Glyphs[(unsigned char)Text[i]].Advance;
 
             Height = std::max(Height, Glyphs[(unsigned char)Text[i]].Height);
-        }*/
+        }
+        #endif
     }
 
     void Font::Print(std::string& Text, unsigned int Color, int X, int Y, unsigned char Alpha)
     {
-     /*   int Position = X;
+        #ifndef X11
+        int Position = X;
 
         glBindTexture(GL_TEXTURE_2D, Bitmap->Handle);
         glUniform1i(Screen->ModeUniform, 2);
@@ -77,12 +80,14 @@ namespace Scale
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
             Position += Char->Advance;
-        }*/
+        }
+        #endif
     }
 
     void Font::Measure()
     {
-     /*   FT_New_Face(Resources::FreeType, _Filename, 0, &FontFace);
+        #ifndef X11
+        FT_New_Face(Resources::FreeType, _Filename, 0, &FontFace);
         FT_Set_Char_Size(FontFace, 0, PointHeight * 64, 96, 96);
 
         PixelHeight = FontFace->height >> 6;
@@ -105,12 +110,14 @@ namespace Scale
             Glyphs[i].Width = FontFace->glyph->metrics.width >> 6;
             Glyphs[i].Height = FontFace->glyph->metrics.height >> 6;
             Glyphs[i].Advance = FontFace->glyph->advance.x >> 6;
-        }*/
+        }
+        #endif
     }
 
     void Font::Allocate()
     {
-       /* if(FontFace == 0)
+        #ifndef X11
+        if(FontFace == 0)
         {
             FT_New_Face(Resources::FreeType, _Filename, 0, &FontFace);
             FT_Set_Char_Size(FontFace, 0, PointHeight * 64, 96, 96);
@@ -192,11 +199,14 @@ namespace Scale
 
         FT_Done_Face(FontFace);
 
-        FontFace = 0;*/
+        FontFace = 0;
+        #endif
     }
 
     void Font::Deallocate()
     {
-        //delete Bitmap;
+        #ifndef X11
+        delete Bitmap;
+        #endif
     }
 };

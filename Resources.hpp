@@ -31,7 +31,9 @@ namespace Scale
         void Allocate();
         void Deallocate();
 
-        //extern FT_Library FreeType;
+        #ifndef X11
+        extern FT_Library FreeType;
+        #endif
 
         extern OpenGL::Texture* RoundCornerTopLeft;
         extern OpenGL::Texture* RoundCornerTopRight;

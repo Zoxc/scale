@@ -24,7 +24,9 @@ namespace Scale
 {
     namespace Resources
     {
-        //FT_Library FreeType;
+        #ifndef X11
+        FT_Library FreeType;
+        #endif
 
         OpenGL::Texture* RoundCornerTopLeft;
         OpenGL::Texture* RoundCornerTopRight;
@@ -37,7 +39,9 @@ namespace Scale
 
         void Init()
         {
-            //FT_Init_FreeType(&FreeType);
+            #ifndef X11
+            FT_Init_FreeType(&FreeType);
+            #endif
 
             RoundCornerTopLeft = new OpenGL::Texture();
             RoundCornerTopRight = new OpenGL::Texture();

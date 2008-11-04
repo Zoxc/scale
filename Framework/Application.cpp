@@ -433,7 +433,7 @@ namespace Scale
         while(Running)
         {
             #ifdef WIN32
-            while(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
+            while(PeekMessage(&msg, eglHandle, 0, 0, PM_REMOVE))
             {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
@@ -502,8 +502,6 @@ namespace Scale
                 #endif
             #endif
         }
-
-        std::cout << "Destroying context...\n";
 
         Deallocate();
     }

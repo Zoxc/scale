@@ -19,8 +19,10 @@
 #pragma once
 #include <string>
 
-//#include "ft2build.h"
-//#include FT_FREETYPE_H
+#ifndef X11
+#include "ft2build.h"
+#include FT_FREETYPE_H
+#endif
 
 namespace Scale
 {
@@ -44,7 +46,9 @@ namespace Scale
 
             OpenGL::Texture* Bitmap;
 
-            //FT_Face FontFace;
+            #ifndef X11
+            FT_Face FontFace;
+            #endif
 
             const char* _Filename;
 
