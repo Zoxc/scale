@@ -18,8 +18,6 @@
 
 #pragma once
 #include <string>
-#include "ft2build.h"
-#include FT_FREETYPE_H
 
 #include "Element.hpp"
 #include "Font.hpp"
@@ -33,7 +31,7 @@ namespace Scale
         void Allocate();
         void Deallocate();
 
-        extern FT_Library FreeType;
+        //extern FT_Library FreeType;
 
         extern OpenGL::Texture* RoundCornerTopLeft;
         extern OpenGL::Texture* RoundCornerTopRight;

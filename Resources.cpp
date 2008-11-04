@@ -24,7 +24,7 @@ namespace Scale
 {
     namespace Resources
     {
-        FT_Library FreeType;
+        //FT_Library FreeType;
 
         OpenGL::Texture* RoundCornerTopLeft;
         OpenGL::Texture* RoundCornerTopRight;
@@ -37,7 +37,7 @@ namespace Scale
 
         void Init()
         {
-            FT_Init_FreeType(&FreeType);
+            //FT_Init_FreeType(&FreeType);
 
             RoundCornerTopLeft = new OpenGL::Texture();
             RoundCornerTopRight = new OpenGL::Texture();
@@ -51,8 +51,6 @@ namespace Scale
 
         void Allocate()
         {
-            FT_Init_FreeType(&FreeType);
-
             RoundCornerTopLeft->Load("resources/border_tl.png");
             RoundCornerTopRight->Load("resources/border_tr.png");
             RoundCornerBottomLeft->Load("resources/border_bl.png");

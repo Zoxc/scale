@@ -7,9 +7,9 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\Scale" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="bin\" />
-				<Option object_output="obj\Debug\" />
+				<Option output="bin/Scale" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/" />
+				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -17,9 +17,9 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Scale" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="bin\" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Scale" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -36,7 +36,6 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Linker>
-			<Add option="-llibEGL" />
 			<Add library="libpng" />
 			<Add library="freetype" />
 			<Add library="libEGL" />
@@ -48,19 +47,19 @@
 		<Unit filename="CategoryBackground.hpp" />
 		<Unit filename="Font.cpp" />
 		<Unit filename="Font.hpp" />
-		<Unit filename="Framework\Application.cpp" />
-		<Unit filename="Framework\Application.hpp" />
-		<Unit filename="Framework\Button.cpp" />
-		<Unit filename="Framework\Button.hpp" />
-		<Unit filename="Framework\Element.cpp" />
-		<Unit filename="Framework\Element.hpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Program.cpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Program.hpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Shader.cpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Shader.hpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Texture.cpp" />
-		<Unit filename="Framework\OpenGL\OpenGL.Texture.hpp" />
-		<Unit filename="Framework\Options.hpp" />
+		<Unit filename="Framework/Application.cpp" />
+		<Unit filename="Framework/Application.hpp" />
+		<Unit filename="Framework/Button.cpp" />
+		<Unit filename="Framework/Button.hpp" />
+		<Unit filename="Framework/Element.cpp" />
+		<Unit filename="Framework/Element.hpp" />
+		<Unit filename="Framework/OpenGL/OpenGL.Program.cpp" />
+		<Unit filename="Framework/OpenGL/OpenGL.Program.hpp" />
+		<Unit filename="Framework/OpenGL/OpenGL.Shader.cpp" />
+		<Unit filename="Framework/OpenGL/OpenGL.Shader.hpp" />
+		<Unit filename="Framework/OpenGL/OpenGL.Texture.cpp" />
+		<Unit filename="Framework/OpenGL/OpenGL.Texture.hpp" />
+		<Unit filename="Framework/Options.hpp" />
 		<Unit filename="Graphics.cpp" />
 		<Unit filename="Graphics.hpp" />
 		<Unit filename="Icon.cpp" />

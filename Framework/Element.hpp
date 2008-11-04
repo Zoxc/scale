@@ -24,6 +24,11 @@
     #include "windows.h"
 #endif
 
+#ifdef X11
+    #include "X11/Xlib.h"
+    #include "X11/Xutil.h"
+#endif
+
 #include "OpenGL/OpenGL.Texture.hpp"
 #include "OpenGL/OpenGL.Shader.hpp"
 #include "OpenGL/OpenGL.Program.hpp"
@@ -44,11 +49,21 @@ namespace Scale
     typedef std::pair<ElementKey, Element*> ElementLink;
     typedef std::map<ElementKey, Element*> ElementLinks;
 
-    #define ElementUp VK_UP
-    #define ElementDown VK_DOWN
-    #define ElementLeft VK_LEFT
-    #define ElementRight VK_RIGHT
-    #define ElementGo VK_RETURN
+    #ifdef WIN32
+        #define ElementUp VK_UP
+        #define ElementDown VK_DOWN
+        #define ElementLeft VK_LEFT
+        #define ElementRight VK_RIGHT
+        #define ElementGo VK_RETURN
+    #endif
+
+    #ifdef X11
+        #define ElementUp 0
+        #define ElementDown 1
+        #define ElementLeft 2
+        #define ElementRight 3
+        #define ElementGo 4
+    #endif
 
     class Element
     {

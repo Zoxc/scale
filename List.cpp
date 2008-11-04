@@ -180,7 +180,7 @@ namespace Scale
     void List::MouseMove(int X, int Y, bool Hovered)
     {
         if(Mode == 1)
-            if(abs(X - DownX) > 15)
+           // if(abs(X - DownX) > 15)
                 Mode = 2;
 
         if(Mode > 1)

@@ -16,15 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
+
 #include "Application.hpp"
 
 namespace Scale
 {
     Application::Application():
         WindowScreen(0),
-        EventKeyDown(0),
-        Handle(0)
+        EventKeyDown(0)
     {
+        #ifdef X11
+            x11Window = 0;
+            x11Display = 0;
+            x11Colormap = 0;
+        #endif
+
         if(Screen != 0)
             return;
 
@@ -67,20 +74,62 @@ namespace Scale
             RECT	sRect;
             SetRect(&sRect, 0, 0, Width, Height);
             AdjustWindowRectEx(&sRect, WS_CAPTION | WS_SYSMENU, false, 0);
-            Handle = CreateWindow("WindowHandle", Title.c_str(), WS_VISIBLE | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, Width + GetSystemMetrics(SM_CXFIXEDFRAME) * 2, Height + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYFIXEDFRAME) * 2, 0, 0, 0, 0);
+            eglHandle = CreateWindow("WindowHandle", Title.c_str(), WS_VISIBLE | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, Width + GetSystemMetrics(SM_CXFIXEDFRAME) * 2, Height + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYFIXEDFRAME) * 2, 0, 0, 0, 0);
 
-            hDC = GetDC(Handle);
+            hDC = GetDC(eglHandle);
             if (!hDC)
                 throw "Failed to create the device context";
 
-            Display = eglGetDisplay(hDC);
+            eglDisplay = eglGetDisplay(hDC);
         #endif
 
-        if(Display == EGL_NO_DISPLAY)
-             Display = eglGetDisplay((EGLNativeDisplayType) EGL_DEFAULT_DISPLAY);
+        #ifdef X11
+            ::Window sRootWindow;
+            XSetWindowAttributes sWA;
+            unsigned int ui32Mask;
+            int i32Depth;
+
+            // Initializes the display and screen
+            x11Display = XOpenDisplay( 0 );
+
+            if (!x11Display)
+                throw "Error: Unable to open X display";
+
+            x11Screen = XDefaultScreen( x11Display );
+
+            // Gets the window parameters
+            sRootWindow = RootWindow(x11Display, x11Screen);
+            i32Depth = DefaultDepth(x11Display, x11Screen);
+            x11Visual = new XVisualInfo;
+            XMatchVisualInfo( x11Display, x11Screen, i32Depth, TrueColor, x11Visual);
+
+            if (!x11Visual)
+                throw "Error: Unable to acquire visual";
+
+            x11Colormap = XCreateColormap( x11Display, sRootWindow, x11Visual->visual, AllocNone );
+            sWA.colormap = x11Colormap;
+
+            // Add to these for handling other events
+            sWA.event_mask = StructureNotifyMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask;
+            ui32Mask = CWBackPixel | CWBorderPixel | CWEventMask | CWColormap;
+
+            // Creates the X11 window
+            x11Window = XCreateWindow( x11Display, RootWindow(x11Display, x11Screen), 0, 0, Width, Height,
+                                         0, CopyFromParent, InputOutput, CopyFromParent, ui32Mask, &sWA);
+
+            XMapWindow(x11Display, x11Window);
+            XFlush(x11Display);
+
+            eglHandle = (EGLNativeWindowType)x11Window;
+
+            eglDisplay = eglGetDisplay((EGLNativeDisplayType)x11Display);
+        #endif
+
+        if(eglDisplay == EGL_NO_DISPLAY)
+             eglDisplay = eglGetDisplay((EGLNativeDisplayType) EGL_DEFAULT_DISPLAY);
 
         EGLint iMajorVersion, iMinorVersion;
-        if (!eglInitialize(Display, &iMajorVersion, &iMinorVersion))
+        if (!eglInitialize(eglDisplay, &iMajorVersion, &iMinorVersion))
             throw "eglInitialize() failed.";
 
         const EGLint pi32ConfigAttribs[] =
@@ -94,22 +143,24 @@ namespace Scale
         };
 
         int iConfigs;
-        if (!eglChooseConfig(Display, pi32ConfigAttribs, &Config, 1, &iConfigs) || (iConfigs != 1))
+        if (!eglChooseConfig(eglDisplay, pi32ConfigAttribs, &eglConfig, 1, &iConfigs) || (iConfigs != 1))
             throw "eglChooseConfig() failed.";
 
-        Surface = eglCreateWindowSurface(Display, Config, Handle, NULL);
+        eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, eglHandle, NULL);
 
-        if(Surface == EGL_NO_SURFACE)
+        if(eglSurface == EGL_NO_SURFACE)
         {
-            eglGetError(); // Clear error
-            Surface = eglCreateWindowSurface(Display, Config, NULL, NULL);
+            eglGetError();
+            eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, NULL, NULL);
         }
 
-        eglBindAPI(EGL_OPENGL_ES_API);
-        EGLint ai32ContextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
-        Context = eglCreateContext(Display, Config, NULL, ai32ContextAttribs);
+        //eglBindAPI(EGL_OPENGL_ES_API);
 
-        eglMakeCurrent(Display, Surface, Surface, Context);
+        EGLint ai32ContextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+
+        eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, ai32ContextAttribs);
+
+        eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -175,7 +226,9 @@ namespace Scale
         Element::Deallocate();
 
         delete Shader;
-        delete Handle;
+
+        eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT) ;
+        eglTerminate(eglDisplay);
     }
 
     void Application::Capture(Element* Owner)
@@ -373,15 +426,39 @@ namespace Scale
         Running = true;
         DoRedraw = true;
 
-        MSG msg;
+        #ifdef WIN32
+            MSG msg;
+        #endif
 
         while(Running)
         {
+            #ifdef WIN32
             while(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
             {
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
+            #endif
+
+            #ifdef X11
+                int i32NumMessages = XPending( x11Display );
+                for( int i = 0; i < i32NumMessages; i++ )
+                {
+                    XEvent	event;
+                    XNextEvent( x11Display, &event );
+
+                    switch( event.type )
+                    {
+                        // Exit on mouse click
+                        case ButtonPress:
+                            Running = false;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            #endif
 
             if(!Running)
                 break;
@@ -411,18 +488,22 @@ namespace Scale
                     EventFrame();
                 #endif
 
-                eglSwapBuffers(Display, Surface);
+                eglSwapBuffers(eglDisplay, eglSurface);
 
                 DoRedraw = false;
             }
 
-            #ifndef NO_FRAME_LIMIT
-            if(Animations.size() == 0)
-                WaitMessage();
+            #ifdef WIN32
+                #ifndef NO_FRAME_LIMIT
+                if(Animations.size() == 0)
+                    WaitMessage();
 
-            Sleep(1);
+                Sleep(1);
+                #endif
             #endif
         }
+
+        std::cout << "Destroying context...\n";
 
         Deallocate();
     }

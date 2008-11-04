@@ -24,7 +24,7 @@
 
 std::vector<CatInfo*> Categories;
 Application Menu;
-Window* Tabs;
+Scale::Window* Tabs;
 Element* TaskList;
 
 #ifdef FRAME_EVENT
@@ -133,7 +133,7 @@ int main()
 
     Image Wallpaper(&Menu, "resources/back.png");
 
-    TaskList = new Window(&Menu);
+    TaskList = new Scale::Window(&Menu);
     TaskList->Width = Menu.Width;
     TaskList->Height = Menu.Height;
 
@@ -149,7 +149,7 @@ int main()
     Tasks.Top = 53;
     Tasks.Height = TaskList->Height - Tasks.Top - 66;
 
-    Tabs = new Window(&Menu);
+    Tabs = new Scale::Window(&Menu);
     Tabs->Height = 66;
     Tabs->Top = 480 - Tabs->Height;
     Tabs->Width = 800;
@@ -247,7 +247,7 @@ int main()
 
     Menu.EventFrame = &OnFrame;
     #endif
-
+/*
     Solid Splash(&Menu);
     Splash.Width = Menu.Width;
     Splash.Height = Menu.Height;
@@ -256,18 +256,18 @@ int main()
     Image SplashImg(&Splash, "resources/logo.png");
     SplashImg.Left = (Menu.Width - SplashImg.Width) >> 1;
     SplashImg.Top = (Menu.Height - SplashImg.Height) >> 1;
-
+*/
     Menu.Title = "Scale Demo";
     Menu.EventKeyDown = &KeyDown;
 
     Menu.Allocate();
-    Menu.AlphaBlend = 128;
 
     Resources::Allocate();
 
     Menu.Run();
 
     Resources::Deallocate();
+
 
     return 0;
 }

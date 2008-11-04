@@ -62,16 +62,23 @@ namespace Scale
             std::string Title;
 
         private:
-            EGLDisplay Display;
-            EGLConfig Config;
-            EGLSurface Surface;
-            EGLContext Context;
-            EGLNativeWindowType Handle;
+            EGLDisplay eglDisplay;
+            EGLConfig eglConfig;
+            EGLSurface eglSurface;
+            EGLContext eglContext;
+            EGLNativeWindowType eglHandle;
 
             #ifdef WIN32
-            HWND hWnd;
-            HDC hDC;
-            static LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+                HDC hDC;
+                static LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+            #endif
+
+            #ifdef X11
+                ::Window x11Window;
+                Display* x11Display;
+                long x11Screen;
+                XVisualInfo* x11Visual;
+                Colormap x11Colormap;
             #endif
 
             std::list<Element*> Animations;

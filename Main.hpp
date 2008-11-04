@@ -47,7 +47,7 @@ struct CatInfo
 
 extern std::vector<CatInfo*> Categories;
 extern Application Menu;
-extern Window* Tabs;
+extern Scale::Window* Tabs;
 extern Element* TaskList;
 
 class PowerButton:

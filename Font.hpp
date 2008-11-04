@@ -19,6 +19,9 @@
 #pragma once
 #include <string>
 
+//#include "ft2build.h"
+//#include FT_FREETYPE_H
+
 namespace Scale
 {
     class Font
@@ -41,7 +44,7 @@ namespace Scale
 
             OpenGL::Texture* Bitmap;
 
-            FT_Face FontFace;
+            //FT_Face FontFace;
 
             const char* _Filename;
 
