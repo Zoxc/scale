@@ -79,6 +79,7 @@ namespace Scale
                 long x11Screen;
                 XVisualInfo* x11Visual;
                 Colormap x11Colormap;
+                static Bool WaitForMapNotify(Display *d, XEvent *e, char *arg);
             #endif
 
             std::list<Element*> Animations;
