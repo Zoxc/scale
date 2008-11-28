@@ -240,6 +240,7 @@ namespace Scale
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT) ;
         eglTerminate(eglDisplay);
 
+        #ifdef X11
         if(x11Visual)
             XDestroyWindow(x11Display, x11Window);
 
@@ -251,6 +252,7 @@ namespace Scale
 
         if(x11Visual)
             XFree((char*)x11Visual);
+        #endif
     }
 
     void Application::Capture(Element* Owner)
