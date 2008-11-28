@@ -30,13 +30,21 @@ namespace Scale
         Focused(0),
         Icons(IconAbove),
         Captions(true),
+        OnItemAllocate(0),
+        OnItemImage(0),
+        OnItemString(0),
+        OnItemFree(0),
         IconSpacing(4),
         Columns(4),
         Rows(3),
         FocusedIndex(-1),
+        Items(0),
+        Count(0),
+        ItemData(sizeof(ListItem)),
         Position(0),
         Min(0),
         Mode(0),
+        Allocated(false),
         Released(true),
         Animated(false)
     {
@@ -150,13 +158,13 @@ namespace Scale
         {
             Root->Focus(this);
 
-            unsigned int Column = (X - Position) / ItemWidth;
-            unsigned int Row = Y / ItemHeight;
-            unsigned int Index = Column * Rows + Row;
+            int Column = (X - Position) / ItemWidth;
+            int Row = Y / ItemHeight;
+            int Index = Column * Rows + Row;
 
-            if(Index < Items.size())
+            if(Index < Count)
             {
-                ListItem* NewFocus = Items[Index];
+                ListItem* NewFocus = GetItem(Index);
 
                 if(NewFocus != Focused)
                 {
@@ -225,47 +233,87 @@ namespace Scale
             case ElementRight:
                 NewIndex += Rows;
 
-                if(NewIndex + 1 > (int)Items.size())
-                    NewIndex = Items.size() - 1;
+                if(NewIndex + 1 > (int)Count)
+                    NewIndex = Count - 1;
                 break;
 
         }
 
-        if(NewIndex < (int)Items.size() && NewIndex != FocusedIndex)
+        if(NewIndex < (int)Count && NewIndex != FocusedIndex)
         {
             FocusedIndex = NewIndex;
-            Focused = Items[FocusedIndex];
+            Focused = GetItem(FocusedIndex);
             TargetFocused();
             Redraw();
         }
     }
 
-    void List::Add(std::string Icon, std::string Caption)
+    void List::SetItemData(int Size)
     {
-        ListItem* New = new ListItem();
-        New->Icon = Icon;
-        New->Caption = Caption;
+        ItemData = sizeof(ListItem) + Size;
+    }
 
-        Items.push_back(New);
+    void List::SetCount(int NewCount)
+    {
+        if(NewCount == Count || NewCount < 0)
+            return;
+
+        if(Count > NewCount)
+        {
+            for (int i = NewCount; i < Count; i++)
+            {
+                ListItem* Item = GetItem(i);
+
+                if(Allocated)
+                    OnItemFree(this, Item);
+            }
+        }
+
+        if(Items != 0)
+            Items = (char*)realloc(Items, NewCount * ItemData);
+        else
+            Items = (char*)malloc(NewCount * ItemData);
+
+        if(Count < NewCount)
+        {
+            for (int i = Count; i < NewCount; i++)
+            {
+                ListItem* Item = GetItem(i);
+
+                if(Allocated)
+                    OnItemAllocate(this, Item);
+            }
+        }
+
+        Count = NewCount;
     }
 
     void List::Allocate()
     {
         Element::Allocate();
 
-        if(FocusedIndex == -1 && Items.size() > 0)
+        Allocated = true;
+
+        for (int i = 0; i < Count; i++)
+        {
+            ListItem* Item = GetItem(i);
+
+            OnItemAllocate(this, Item);
+        }
+
+        if(FocusedIndex == -1 && Count > 0)
         {
             FocusedIndex = 0;
-            Focused = Items[0];
+            Focused = GetItem(0);
         }
 
         ItemHeight = Height / Rows;
         ItemWidth = Width / Columns;
 
-        if(Items.size() % Rows > 0)
-            Min = Items.size() / Rows + 1;
+        if(Count % Rows > 0)
+            Min = Count / Rows + 1;
         else
-            Min = Items.size() / Rows;
+            Min = Count / Rows;
 
         Min = (Min * ItemWidth - Width);
 
@@ -280,71 +328,70 @@ namespace Scale
         const int IconSize = 64;
         const int FontSize = 19;
 
-        for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
+        _IconLeft = ItemWidth - IconSize >> 1;
+        _IconTop = ItemHeight - IconSize - IconSpacing - FontSize >> 1;
+
+        for (int i = 0; i < Count; i++)
         {
-            if(Captions)
-            {
-                (*Item)->CaptionTexture = new OpenGL::Texture();
+            ListItem* Item = GetItem(i);
 
-                Resources::FontSmall->Size((*Item)->Caption, (*Item)->CaptionTexture->Width, (*Item)->CaptionTexture->Height);
-            }
+            const char* Caption = OnItemString(this, Item);
 
-            if(Icons != IconNone)
-            {
-                (*Item)->IconTexture = new OpenGL::Texture();
+            int FontWidth = 0;
+            int FontHeight = 0;
 
-                (*Item)->IconTexture->Load(std::string("resources/icons_large/" + (*Item)->Icon).c_str());
-            }
+            if(Caption != 0)
+                Resources::FontSmall->Size(Caption, &FontWidth, &FontHeight);
 
             int X = ItemWidth * ItemX;
             int Y = ItemHeight * ItemY;
 
-            (*Item)->X = X;
-            (*Item)->Y = Y;
+            Item->X = X;
+            Item->Y = Y;
 
             if(Captions == false)
             {
-                (*Item)->IconX = X + (ItemWidth - IconSize >> 1);
-                (*Item)->IconY = Y + (ItemHeight - IconSize >> 1);
+                Item->IconX = X + (ItemWidth - IconSize >> 1);
+                Item->IconY = Y + (ItemHeight - IconSize >> 1);
             }
             else
                 switch(Icons)
                 {
                     case IconNone:
-                        (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionTexture->Width >> 1);
-                        (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionTexture->Height >> 1);
+                        Item->CaptionX = X + (ItemWidth - FontWidth >> 1);
+                        Item->CaptionY = Y + (ItemHeight - FontHeight >> 1);
                         break;
 
                     case IconLeft:
-                        (*Item)->IconX = X + (ItemWidth - IconSize - IconSpacing - (*Item)->CaptionTexture->Width >> 1);
-                        (*Item)->IconY = Y + (ItemHeight - IconSize >> 1);
+                        Item->IconX = X + (ItemWidth - IconSize - IconSpacing - FontWidth >> 1);
+                        Item->IconY = Y + (ItemHeight - IconSize >> 1);
 
-                        (*Item)->CaptionX = (*Item)->IconX + IconSize + IconSpacing;
-                        (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionTexture->Width >> 1);
+                        Item->CaptionX = Item->IconX + IconSize + IconSpacing;
+                        Item->CaptionY = Y + (ItemHeight - FontWidth >> 1);
                         break;
 
                     case IconRight:
-                        (*Item)->CaptionX = X + (ItemWidth - IconSize - IconSpacing - (*Item)->CaptionTexture->Width >> 1);
-                        (*Item)->CaptionY = Y + (ItemHeight - (*Item)->CaptionTexture->Height >> 1);
+                        Item->CaptionX = X + (ItemWidth - IconSize - IconSpacing - FontWidth >> 1);
+                        Item->CaptionY = Y + (ItemHeight - FontHeight >> 1);
 
-                        (*Item)->IconX = (*Item)->CaptionX + (*Item)->CaptionTexture->Width + IconSpacing;
-                        (*Item)->IconY = Y + (ItemHeight - IconSize >> 1);
+                        Item->IconX = Item->CaptionX + FontWidth + IconSpacing;
+                        Item->IconY = Y + (ItemHeight - IconSize >> 1);
                         break;
 
                     case IconAbove:
-                        (*Item)->IconX = X + (ItemWidth - IconSize >> 1);
-                        (*Item)->IconY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
+                        Item->IconX = X + (ItemWidth - IconSize >> 1);
+                        Item->IconY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
 
-                        (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionTexture->Width >> 1);
-                        (*Item)->CaptionY = (*Item)->IconY + IconSize + IconSpacing;
+                        Item->CaptionX = X + (ItemWidth - FontWidth >> 1);
+                        Item->CaptionY = Item->IconY + IconSize + IconSpacing;
                         break;
 
                     case IconBelow:
-                        (*Item)->CaptionX = X + (ItemWidth - (*Item)->CaptionTexture->Width >> 1);
-                        (*Item)->CaptionY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
+                        Item->CaptionX = X + (ItemWidth - FontWidth >> 1);
+                        Item->CaptionY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
 
-                        (*Item)->IconX = X + (ItemWidth - IconSize >> 1);
-                        (*Item)->IconY = (*Item)->CaptionY + FontSize + IconSpacing;
+                        Item->IconX = X + (ItemWidth - IconSize >> 1);
+                        Item->IconY = Item->CaptionY + FontSize + IconSpacing;
                         break;
                 }
 
@@ -362,14 +409,13 @@ namespace Scale
     {
         Element::Deallocate();
 
+        Allocated = false;
 
-        for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
+        for (int i = 0; i < Count; i++)
         {
-            if(Captions)
-                delete (*Item)->CaptionTexture;
+            ListItem* Item = GetItem(i);
 
-            if(Icons != IconNone && (*Item)->IconTexture != 0)
-                delete (*Item)->IconTexture;
+            OnItemFree(this, Item);
         }
     }
 
@@ -377,19 +423,53 @@ namespace Scale
     {
         X += Position;
 
-        for (std::vector<ListItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
-        {
-            if(Focused == *Item)
-                Graphics::RoundRect(X + (*Item)->X, Y + (*Item)->Y, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
+        int ClientItemLeft = X;
+        int ClientItemTop = Y;
+        int Row = 0;
 
-            if((Icons != IconNone) && ((*Item)->IconTexture != 0))
-                Graphics::Texture((*Item)->IconTexture, X + (*Item)->IconX, Y + (*Item)->IconY, Alpha);
+        for (int i = 0; i < Count; i++)
+        {
+            if(ClientItemLeft < -ItemWidth)
+                goto Continue;
+
+            ListItem* Item = GetItem(i);
+
+            if(Focused == Item)
+                Graphics::RoundRect(ClientItemLeft, ClientItemTop, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
+
+            if(Icons != IconNone)
+            {
+                OpenGL::Texture* Icon = OnItemImage(this, Item);
+
+                if(Icon != 0)
+                    Graphics::Texture(Icon, ClientItemLeft + _IconLeft, ClientItemTop + _IconTop, Alpha);
+            }
 
             if(Captions)
             {
-                Resources::FontSmall->Print((*Item)->Caption, ColorWhite, X + (*Item)->CaptionX + 1, Y + (*Item)->CaptionY + 1, Alpha / 3);
-                Resources::FontSmall->Print((*Item)->Caption, ColorBlack, X + (*Item)->CaptionX, Y + (*Item)->CaptionY, Alpha);
+                const char* Caption = OnItemString(this, Item);
+
+                if(Caption != 0)
+                {
+                    Resources::FontSmall->Print(Caption, ColorWhite, X + Item->CaptionX + 1, Y + Item->CaptionY + 1, Alpha / 3);
+                    Resources::FontSmall->Print(Caption, ColorBlack, X + Item->CaptionX, Y + Item->CaptionY, Alpha);
+                }
             }
+
+            Continue:
+                Row++;
+                ClientItemTop += ItemHeight;
+
+                if(Row >= Rows)
+                {
+                    Row = 0;
+                    ClientItemTop = Y;
+
+                    ClientItemLeft += ItemWidth;
+
+                    if(ClientItemLeft > Width)
+                        break;
+                }
         }
     }
 };

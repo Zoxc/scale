@@ -35,25 +35,27 @@ namespace Scale
     {
     }
 
-    void Font::Size(std::string& Text, int& Width, int& Height)
+    void Font::Size(const char* Text, int* Width, int* Height)
     {
-        Width = 0;
-        Height = 0;
+        *Width = 0;
+        *Height = 0;
 
         #ifndef X11
-        for(unsigned int i = 0; i < Text.length(); i++)
+        while(*Text != 0)
         {
-            if(i == Text.length()-1)
-                Width += Glyphs[(unsigned char)Text[i]].Width;
+            if(Text[1] == 0)
+                *Width += Glyphs[(unsigned char)*Text].Width;
             else
-                Width += Glyphs[(unsigned char)Text[i]].Advance;
+                *Width += Glyphs[(unsigned char)*Text].Advance;
 
-            Height = std::max(Height, Glyphs[(unsigned char)Text[i]].Height);
+            *Height = std::max(*Height, Glyphs[(unsigned char)*Text].Height);
+
+            Text++;
         }
         #endif
     }
 
-    void Font::Print(std::string& Text, unsigned int Color, int X, int Y, unsigned char Alpha)
+    void Font::Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha)
     {
         #ifndef X11
         int Position = X;
@@ -63,9 +65,9 @@ namespace Scale
         glUniform1i(Screen->TextureUniform, 0);
         glUniform4f(Screen->ColorUniform, reinterpret_cast<unsigned char*>(&Color)[0] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[1] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[2] / 255.0f, Alpha / 255.0f);
 
-        for(unsigned int i = 0; i < Text.length(); i++)
+        while(*Text != 0)
         {
-            Glyph* Char = &Glyphs[(unsigned char)Text[i]];
+            Glyph* Char = &Glyphs[(unsigned char)*Text];
 
             GLshort Positions[] = {
                 Position, Y + Char->Height - Char->Top,
@@ -80,6 +82,7 @@ namespace Scale
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
             Position += Char->Advance;
+            Text++;
         }
         #endif
     }

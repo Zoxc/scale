@@ -35,8 +35,8 @@ namespace Scale
             void Allocate();
             void Deallocate();
 
-            void Print(std::string& Text, unsigned int Color, int X, int Y, unsigned char Alpha);
-            void Size(std::string& Text, int& Width, int& Height);
+            void Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha);
+            void Size(const char* Text, int* Width, int* Height);
 
             int PixelHeight;
             int PointHeight;

@@ -24,14 +24,10 @@
 
 namespace Scale
 {
+    class List;
+
     struct ListItem
     {
-        std::string Caption;
-        std::string Icon;
-
-        OpenGL::Texture* IconTexture;
-        OpenGL::Texture* CaptionTexture;
-
         unsigned short X;
         unsigned short Y;
         unsigned short CaptionX;
@@ -49,6 +45,11 @@ namespace Scale
         IconBelow
     };
 
+    typedef void (*ListItemAllocate)(List* Owner, ListItem* Item);
+    typedef OpenGL::Texture* (*ListItemImage)(List* Owner, ListItem* Item);
+    typedef const char* (*ListItemString)(List* Owner, ListItem* Item);
+    typedef void (*ListItemFree)(List* Owner, ListItem* Item);
+
     class List:
         public Element
     {
@@ -65,14 +66,22 @@ namespace Scale
             void MouseDown(int X, int Y, bool Hovered);
             void Animate(int Delta);
 
-            void Add(std::string Icon, std::string Caption);
-
-            std::vector<ListItem*> Items;
+            inline ListItem* GetItem(int Index);
+            inline int GetItemIndex(ListItem* Item);
+            inline void* GetItemData(ListItem* Item);
 
             ListItem* Focused;
 
             IconPlacement Icons;
             bool Captions;
+
+            ListItemAllocate OnItemAllocate;
+            ListItemImage OnItemImage;
+            ListItemString OnItemString;
+            ListItemFree OnItemFree;
+
+            void SetCount(int NewCount);
+            void SetItemData(int Size);
 
             int IconSpacing;
             int Columns;
@@ -80,6 +89,12 @@ namespace Scale
 
         private:
             int FocusedIndex;
+            char* Items;
+            int Count;
+            int ItemData;
+
+            int _IconLeft;
+            int _IconTop;
 
             int Position;
             int Min;
@@ -91,6 +106,7 @@ namespace Scale
             unsigned char Mode;
             int MoveOffset;
 
+            bool Allocated;
             bool Released;
             bool Animated;
             int Step;
@@ -100,4 +116,19 @@ namespace Scale
             int ItemHeight;
             int ItemWidth;
     };
+
+    inline ListItem* List::GetItem(int Index)
+    {
+        return (ListItem*)(Items + Index * ItemData);
+    }
+
+    inline int List::GetItemIndex(ListItem* Item)
+    {
+        return ((unsigned int)Item - (unsigned int)Items) / ItemData;
+    }
+
+    inline void* List::GetItemData(ListItem* Item)
+    {
+        return (void*)((char*)Item + sizeof(ListItem));
+    }
 };

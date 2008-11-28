@@ -107,6 +107,48 @@ void OnFrame()
 }
 #endif
 
+struct ListItemData
+{
+    OpenGL::Texture* Texture;
+};
+
+void ItemAllocate(List* Owner, ListItem* Item)
+{
+    ListItemData* Data = (ListItemData*)Owner->GetItemData(Item);
+
+    Data->Texture = 0;
+}
+
+OpenGL::Texture* ItemImage(List* Owner, ListItem* Item)
+{
+    ListItemData* Data = (ListItemData*)Owner->GetItemData(Item);
+
+    if(Data->Texture == 0)
+    {
+        Data->Texture = new OpenGL::Texture();
+        Data->Texture->Load("resources/icons_large/installer.png");
+    }
+
+    return Data->Texture;
+}
+
+int Test;
+char Buffer[1024];
+
+const char* ItemString(List* Owner, ListItem* Item)
+{
+    sprintf((char*)&Buffer, "Package %d", Owner->GetItemIndex(Item) + 1);
+    return (char*)&Buffer;
+}
+
+void ItemFree(List* Owner, ListItem* Item)
+{
+    ListItemData* Data = (ListItemData*)Owner->GetItemData(Item);
+
+    if(Data->Texture != 0)
+        delete Data->Texture;
+}
+
 int main()
 {
     Resources::Init();
@@ -162,6 +204,8 @@ int main()
     const int CategorySpacing = 8;
     int CategoryWidth = 800 / Categories.size();
 
+    srand((unsigned)time(0));
+
     for(size_t i = 0; i < Categories.size(); i++)
     {
         Categories[i]->button = new Category(Tabs);
@@ -177,12 +221,22 @@ int main()
         Categories[i]->button->Show->Hide();
 
         List* ListView = new List(Categories[i]->button->Show);
+
+        ListView->SetItemData(sizeof(void*));
+
         ListView->Top = 64;
         ListView->Height = 480 -ListView->Top - Tabs->Height;
         ListView->Width = 800;
 
         Categories[i]->button->DoFocus = ListView;
 
+        ListView->OnItemAllocate = ItemAllocate;
+        ListView->OnItemImage = ItemImage;
+        ListView->OnItemString = ItemString;
+        ListView->OnItemFree = ItemFree;
+
+        ListView->SetCount(rand()%40);
+/*
         ListView->Add("game-folder.png", "Emulators");
         ListView->Add("calendar.png", "Calendar");
         ListView->Add("media.png", "MPlayer");
@@ -214,7 +268,7 @@ int main()
         ListView->Add("web-browser.png", "Web Browser");
         ListView->Add("internet-group-chat.png", "Internet Relay Chat");
         //ListView->Add("calculator.png", "Calculator");
-
+*/
         Image* Header = new Image(Categories[i]->button->Show, "resources/header.png");
         Header->AlphaBlend = 230;
 

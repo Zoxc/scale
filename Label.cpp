@@ -27,7 +27,7 @@ namespace Scale
     {
         Caption = ACaption;
 
-        LabelFont->Size(ACaption, Width, Height);
+        LabelFont->Size(ACaption.c_str(), &Width, &Height);
     }
 
     Label::~Label()
@@ -39,15 +39,15 @@ namespace Scale
     {
         if(Color == ColorBlack)
         {
-            LabelFont->Print(Caption, ColorWhite, X + 1, Y + 1, Alpha / 3);
-            LabelFont->Print(Caption, ColorBlack, X, Y, Alpha);
+            LabelFont->Print(Caption.c_str(), ColorWhite, X + 1, Y + 1, Alpha / 3);
+            LabelFont->Print(Caption.c_str(), ColorBlack, X, Y, Alpha);
         }
         else if(Color == ColorWhite)
         {
-            LabelFont->Print(Caption, ColorBlack, X + 2, Y + 2, Alpha / 2);
-            LabelFont->Print(Caption, ColorWhite, X, Y, Alpha);
+            LabelFont->Print(Caption.c_str(), ColorBlack, X + 2, Y + 2, Alpha / 2);
+            LabelFont->Print(Caption.c_str(), ColorWhite, X, Y, Alpha);
         }
         else
-            LabelFont->Print(Caption, Color, X, Y, Alpha);
+            LabelFont->Print(Caption.c_str(), Color, X, Y, Alpha);
     }
 };
