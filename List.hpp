@@ -30,19 +30,7 @@ namespace Scale
     {
         unsigned short X;
         unsigned short Y;
-        unsigned short CaptionX;
-        unsigned short CaptionY;
-        unsigned short IconX;
-        unsigned short IconY;
-    };
-
-    enum IconPlacement
-    {
-        IconNone,
-        IconLeft,
-        IconRight,
-        IconAbove,
-        IconBelow
+        unsigned char CaptionLeft;
     };
 
     typedef void (*ListItemAllocate)(List* Owner, ListItem* Item);
@@ -72,14 +60,12 @@ namespace Scale
 
             ListItem* Focused;
 
-            IconPlacement Icons;
-            bool Captions;
-
             ListItemAllocate OnItemAllocate;
             ListItemImage OnItemImage;
             ListItemString OnItemString;
             ListItemFree OnItemFree;
 
+            void SetFocused(ListItem* Item);
             void SetCount(int NewCount);
             void SetItemData(int Size);
 
@@ -95,6 +81,7 @@ namespace Scale
 
             int _IconLeft;
             int _IconTop;
+            int _CaptionTop;
 
             int Position;
             int Min;

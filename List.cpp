@@ -28,8 +28,6 @@ namespace Scale
     List::List(Element* Owner):
         Element::Element(Owner),
         Focused(0),
-        Icons(IconAbove),
-        Captions(true),
         OnItemAllocate(0),
         OnItemImage(0),
         OnItemString(0),
@@ -248,6 +246,20 @@ namespace Scale
         }
     }
 
+    void List::SetFocused(ListItem* Item)
+    {
+        if(Item == 0)
+            return;
+
+        if(Focused != Item)
+        {
+            FocusedIndex = GetItemIndex(Item);
+            Focused = Item;
+
+            Redraw();
+        }
+    }
+
     void List::SetItemData(int Size)
     {
         ItemData = sizeof(ListItem) + Size;
@@ -330,6 +342,7 @@ namespace Scale
 
         _IconLeft = ItemWidth - IconSize >> 1;
         _IconTop = ItemHeight - IconSize - IconSpacing - FontSize >> 1;
+        _CaptionTop = _IconTop + IconSize + IconSpacing;
 
         for (int i = 0; i < Count; i++)
         {
@@ -343,57 +356,10 @@ namespace Scale
             if(Caption != 0)
                 Resources::FontSmall->Size(Caption, &FontWidth, &FontHeight);
 
-            int X = ItemWidth * ItemX;
-            int Y = ItemHeight * ItemY;
+            Item->X = ItemWidth * ItemX;
+            Item->Y = ItemHeight * ItemY;
 
-            Item->X = X;
-            Item->Y = Y;
-
-            if(Captions == false)
-            {
-                Item->IconX = X + (ItemWidth - IconSize >> 1);
-                Item->IconY = Y + (ItemHeight - IconSize >> 1);
-            }
-            else
-                switch(Icons)
-                {
-                    case IconNone:
-                        Item->CaptionX = X + (ItemWidth - FontWidth >> 1);
-                        Item->CaptionY = Y + (ItemHeight - FontHeight >> 1);
-                        break;
-
-                    case IconLeft:
-                        Item->IconX = X + (ItemWidth - IconSize - IconSpacing - FontWidth >> 1);
-                        Item->IconY = Y + (ItemHeight - IconSize >> 1);
-
-                        Item->CaptionX = Item->IconX + IconSize + IconSpacing;
-                        Item->CaptionY = Y + (ItemHeight - FontWidth >> 1);
-                        break;
-
-                    case IconRight:
-                        Item->CaptionX = X + (ItemWidth - IconSize - IconSpacing - FontWidth >> 1);
-                        Item->CaptionY = Y + (ItemHeight - FontHeight >> 1);
-
-                        Item->IconX = Item->CaptionX + FontWidth + IconSpacing;
-                        Item->IconY = Y + (ItemHeight - IconSize >> 1);
-                        break;
-
-                    case IconAbove:
-                        Item->IconX = X + (ItemWidth - IconSize >> 1);
-                        Item->IconY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
-
-                        Item->CaptionX = X + (ItemWidth - FontWidth >> 1);
-                        Item->CaptionY = Item->IconY + IconSize + IconSpacing;
-                        break;
-
-                    case IconBelow:
-                        Item->CaptionX = X + (ItemWidth - FontWidth >> 1);
-                        Item->CaptionY = Y + (ItemHeight - IconSize - IconSpacing - FontSize >> 1);
-
-                        Item->IconX = X + (ItemWidth - IconSize >> 1);
-                        Item->IconY = Item->CaptionY + FontSize + IconSpacing;
-                        break;
-                }
+            Item->CaptionLeft = ItemWidth - FontWidth >> 1;
 
             ItemY++;
 
@@ -421,9 +387,7 @@ namespace Scale
 
     void List::Draw(int X, int Y, unsigned char Alpha)
     {
-        X += Position;
-
-        int ClientItemLeft = X;
+        int ClientItemLeft = X + Position;
         int ClientItemTop = Y;
         int Row = 0;
 
@@ -437,24 +401,14 @@ namespace Scale
             if(Focused == Item)
                 Graphics::RoundRect(ClientItemLeft, ClientItemTop, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
 
-            if(Icons != IconNone)
-            {
-                OpenGL::Texture* Icon = OnItemImage(this, Item);
+            OpenGL::Texture* Icon = OnItemImage(this, Item);
 
-                if(Icon != 0)
-                    Graphics::Texture(Icon, ClientItemLeft + _IconLeft, ClientItemTop + _IconTop, Alpha);
-            }
+            Graphics::Texture(Icon, ClientItemLeft + _IconLeft, ClientItemTop + _IconTop, Alpha);
 
-            if(Captions)
-            {
-                const char* Caption = OnItemString(this, Item);
+            const char* Caption = OnItemString(this, Item);
 
-                if(Caption != 0)
-                {
-                    Resources::FontSmall->Print(Caption, ColorWhite, X + Item->CaptionX + 1, Y + Item->CaptionY + 1, Alpha / 3);
-                    Resources::FontSmall->Print(Caption, ColorBlack, X + Item->CaptionX, Y + Item->CaptionY, Alpha);
-                }
-            }
+            Resources::FontSmall->Print(Caption, ColorWhite, ClientItemLeft + Item->CaptionLeft + 1, ClientItemTop + _CaptionTop + 1, Alpha / 3);
+            Resources::FontSmall->Print(Caption, ColorBlack, ClientItemLeft + Item->CaptionLeft, ClientItemTop + _CaptionTop, Alpha);
 
             Continue:
                 Row++;
