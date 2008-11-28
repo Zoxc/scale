@@ -52,6 +52,13 @@ namespace Scale
         Screen = 0;
     }
 
+    #ifdef X11
+        Bool Application::WaitForMapNotify( Display *d, XEvent *e, char *arg )
+        {
+            return (e->type == MapNotify) && (e->xmap.window == (::Window)arg);
+        }
+    #endif
+
     void Application::Allocate()
     {
         #ifdef WIN32
@@ -84,40 +91,52 @@ namespace Scale
         #endif
 
         #ifdef X11
-            ::Window sRootWindow;
             XSetWindowAttributes sWA;
             unsigned int ui32Mask;
             int i32Depth;
 
             // Initializes the display and screen
-            x11Display = XOpenDisplay( 0 );
+            x11Display = XOpenDisplay(0);
 
             if (!x11Display)
                 throw "Error: Unable to open X display";
 
-            x11Screen = XDefaultScreen( x11Display );
+            x11Screen = XDefaultScreen(x11Display);
 
             // Gets the window parameters
-            sRootWindow = RootWindow(x11Display, x11Screen);
             i32Depth = DefaultDepth(x11Display, x11Screen);
             x11Visual = new XVisualInfo;
-            XMatchVisualInfo( x11Display, x11Screen, i32Depth, TrueColor, x11Visual);
+            XMatchVisualInfo(x11Display, x11Screen, i32Depth, TrueColor, x11Visual);
 
             if (!x11Visual)
                 throw "Error: Unable to acquire visual";
 
-            x11Colormap = XCreateColormap( x11Display, sRootWindow, x11Visual->visual, AllocNone );
-            sWA.colormap = x11Colormap;
+            x11Colormap = XCreateColormap(x11Display, RootWindow(x11Display, x11Screen), x11Visual->visual, AllocNone);
 
-            // Add to these for handling other events
+            sWA.colormap = x11Colormap;
+            sWA.background_pixel = 0xFFFFFFFF;
+            sWA.border_pixel = 0;
             sWA.event_mask = StructureNotifyMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask;
+
             ui32Mask = CWBackPixel | CWBorderPixel | CWEventMask | CWColormap;
 
             // Creates the X11 window
-            x11Window = XCreateWindow( x11Display, RootWindow(x11Display, x11Screen), 0, 0, Width, Height,
+            x11Window = XCreateWindow(x11Display, RootWindow(x11Display, x11Screen), 0, 0, Width, Height,
                                          0, CopyFromParent, InputOutput, CopyFromParent, ui32Mask, &sWA);
 
+            XSetStandardProperties(x11Display, x11Window, Title.c_str(), Title.c_str(), None, 0, 0, 0);
+
             XMapWindow(x11Display, x11Window);
+
+            XEvent event;
+
+            XIfEvent(x11Display, &event, WaitForMapNotify, (char*)x11Window);
+
+            Atom wmDelete = XInternAtom(x11Display, "WM_DELETE_WINDOW", True);
+            XSetWMProtocols(x11Display, x11Window, &wmDelete, 1);
+
+            XSetWMColormapWindows(x11Display, x11Window, &x11Window, 1 );
+
             XFlush(x11Display);
 
             eglHandle = (EGLNativeWindowType)x11Window;
@@ -126,21 +145,14 @@ namespace Scale
         #endif
 
         if(eglDisplay == EGL_NO_DISPLAY)
-             eglDisplay = eglGetDisplay((EGLNativeDisplayType) EGL_DEFAULT_DISPLAY);
+             eglDisplay = eglGetDisplay((EGLNativeDisplayType)EGL_DEFAULT_DISPLAY);
 
         EGLint iMajorVersion, iMinorVersion;
+
         if (!eglInitialize(eglDisplay, &iMajorVersion, &iMinorVersion))
             throw "eglInitialize() failed.";
 
-        const EGLint pi32ConfigAttribs[] =
-        {
-            EGL_LEVEL,				0,
-            EGL_SURFACE_TYPE,		EGL_WINDOW_BIT,
-            EGL_RENDERABLE_TYPE,	EGL_OPENGL_ES2_BIT,
-            EGL_NATIVE_RENDERABLE,	EGL_FALSE,
-            EGL_DEPTH_SIZE,			EGL_DONT_CARE,
-            EGL_NONE
-        };
+        const EGLint pi32ConfigAttribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE,EGL_OPENGL_ES2_BIT, EGL_NONE};
 
         int iConfigs;
         if (!eglChooseConfig(eglDisplay, pi32ConfigAttribs, &eglConfig, 1, &iConfigs) || (iConfigs != 1))
@@ -154,9 +166,7 @@ namespace Scale
             eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, NULL, NULL);
         }
 
-        //eglBindAPI(EGL_OPENGL_ES_API);
-
-        EGLint ai32ContextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+        EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
 
         eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 
@@ -229,6 +239,18 @@ namespace Scale
 
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT) ;
         eglTerminate(eglDisplay);
+
+        if(x11Visual)
+            XDestroyWindow(x11Display, x11Window);
+
+        if(x11Colormap)
+            XFreeColormap(x11Display, x11Colormap);
+
+        //if (x11Display)
+        //    XCloseDisplay(x11Display);
+
+        if(x11Visual)
+            XFree((char*)x11Visual);
     }
 
     void Application::Capture(Element* Owner)
@@ -451,13 +473,15 @@ namespace Scale
                     {
                         // Exit on mouse click
                         case ButtonPress:
-                            Running = false;
+                        //  Running = false;
                             break;
 
                         default:
                             break;
                     }
                 }
+
+                DoRedraw = true;
             #endif
 
             if(!Running)
