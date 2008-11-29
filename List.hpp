@@ -21,6 +21,9 @@
 #include <vector>
 
 #include "Element.hpp"
+#include "Resources.hpp"
+#include "Graphics.hpp"
+#include "Label.hpp"
 
 namespace Scale
 {
@@ -30,7 +33,13 @@ namespace Scale
     {
         unsigned short X;
         unsigned short Y;
-        unsigned char CaptionLeft;
+
+        unsigned char CaptionX;
+        unsigned char CaptionY;
+        unsigned char IconX;
+        unsigned char IconY;
+
+        void* Data;
     };
 
     typedef void (*ListItemAllocate)(List* Owner, ListItem* Item);
@@ -42,6 +51,29 @@ namespace Scale
         public Element
     {
         public:
+            enum IconPlacement
+            {
+                IconNone,
+                IconLeft,
+                IconRight,
+                IconAbove,
+                IconBelow
+            };
+
+            enum ScrollDirection
+            {
+                Vertical,
+                Horizontal
+            };
+
+            struct DrawExtensionOptions
+            {
+                bool Enable;
+                int Start;
+                int End;
+            };
+
+
             List(Element* Owner);
             virtual ~List();
 
@@ -54,11 +86,10 @@ namespace Scale
             void MouseDown(int X, int Y, bool Hovered);
             void Animate(int Delta);
 
-            inline ListItem* GetItem(int Index);
             inline int GetItemIndex(ListItem* Item);
-            inline void* GetItemData(ListItem* Item);
 
             ListItem* Focused;
+            ListItem* Items;
 
             ListItemAllocate OnItemAllocate;
             ListItemImage OnItemImage;
@@ -67,7 +98,13 @@ namespace Scale
 
             void SetFocused(ListItem* Item);
             void SetCount(int NewCount);
-            void SetItemData(int Size);
+
+            DrawExtensionOptions DrawExtension;
+
+            IconPlacement Icons;
+            bool Captions;
+            bool RightToLeft;
+            ScrollDirection Direction;
 
             int IconSpacing;
             int Columns;
@@ -75,21 +112,18 @@ namespace Scale
 
         private:
             int FocusedIndex;
-            char* Items;
             int Count;
-            int ItemData;
-
-            int _IconLeft;
-            int _IconTop;
-            int _CaptionTop;
 
             int Position;
             int Min;
 
-            void Target(int X);
+            void Target(int NewTarget);
             void TargetFocused();
 
-            int DownX;
+            inline void SetupItem(ListItem* Item, int ItemX, int ItemY);
+            inline void DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha);
+
+            int TargetDown;
             unsigned char Mode;
             int MoveOffset;
 
@@ -104,18 +138,95 @@ namespace Scale
             int ItemWidth;
     };
 
-    inline ListItem* List::GetItem(int Index)
-    {
-        return (ListItem*)(Items + Index * ItemData);
-    }
-
     inline int List::GetItemIndex(ListItem* Item)
     {
-        return ((unsigned int)Item - (unsigned int)Items) / ItemData;
+        return ((unsigned int)Item - (unsigned int)Items) / sizeof(ListItem);
     }
 
-    inline void* List::GetItemData(ListItem* Item)
+    inline void List::SetupItem(ListItem* Item, int ItemX, int ItemY)
     {
-        return (void*)((char*)Item + sizeof(ListItem));
+        const int IconSize = 64;
+        const int FontSize = 19;
+
+        int FontWidth = 0;
+        int FontHeight = 0;
+
+        if(Captions)
+        {
+            const char* Caption = OnItemString(this, Item);
+
+            if(Caption != 0)
+                Resources::FontSmall->Size(Caption, &FontWidth, &FontHeight);
+        }
+
+        Item->X = ItemWidth * ItemX;
+        Item->Y = ItemHeight * ItemY;
+
+        if(Captions == false)
+        {
+            Item->IconX = ItemWidth - IconSize >> 1;
+            Item->IconY = ItemHeight - IconSize >> 1;
+        }
+        else
+            switch(Icons)
+            {
+                case IconNone:
+                    Item->CaptionX = ItemWidth - FontWidth >> 1;
+                    Item->CaptionY = ItemHeight - FontHeight >> 1;
+                    break;
+
+                case IconLeft:
+                    Item->IconX = ItemWidth - IconSize - IconSpacing - FontWidth >> 1;
+                    Item->IconY = ItemHeight - IconSize >> 1;
+
+                    Item->CaptionX = Item->IconX + IconSize + IconSpacing;
+                    Item->CaptionY = ItemHeight - FontHeight >> 1;
+                    break;
+
+                case IconRight:
+                    Item->CaptionX = ItemWidth - IconSize - IconSpacing - FontWidth >> 1;
+                    Item->CaptionY = ItemHeight - FontHeight >> 1;
+
+                    Item->IconX = Item->CaptionX + FontWidth + IconSpacing;
+                    Item->IconY = ItemHeight - IconSize >> 1;
+                    break;
+
+                case IconAbove:
+                    Item->IconX = ItemWidth - IconSize >> 1;
+                    Item->IconY = ItemHeight - IconSize - IconSpacing - FontSize >> 1;
+
+                    Item->CaptionX = ItemWidth - FontWidth >> 1;
+                    Item->CaptionY = Item->IconY + IconSize + IconSpacing;
+                    break;
+
+                case IconBelow:
+                    Item->CaptionX = ItemWidth - FontWidth >> 1;
+                    Item->CaptionY = ItemHeight - IconSize - IconSpacing - FontSize >> 1;
+
+                    Item->IconX = ItemWidth - IconSize >> 1;
+                    Item->IconY = Item->CaptionY + FontSize + IconSpacing;
+                    break;
+            }
+    }
+
+    inline void List::DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha)
+    {
+        if(Focused == Item)
+            Graphics::RoundRect(X, Y, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
+
+        if(Icons != IconNone)
+        {
+            OpenGL::Texture* Icon = OnItemImage(this, Item);
+
+            Graphics::Texture(Icon, X + Item->IconX, Y + Item->IconY, Alpha);
+        }
+
+        if(Captions)
+        {
+            const char* Caption = OnItemString(this, Item);
+
+            Resources::FontSmall->Print(Caption, ColorWhite, X + Item->CaptionX + 1, Y + Item->CaptionY + 1, Alpha / 3);
+            Resources::FontSmall->Print(Caption, ColorBlack, X + Item->CaptionX, Y + Item->CaptionY, Alpha);
+        }
     }
 };

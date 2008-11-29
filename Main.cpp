@@ -114,39 +114,49 @@ struct ListItemData
 
 void ItemAllocate(List* Owner, ListItem* Item)
 {
-    ListItemData* Data = (ListItemData*)Owner->GetItemData(Item);
-
-    Data->Texture = 0;
+    Item->Data = 0;
 }
 
 OpenGL::Texture* ItemImage(List* Owner, ListItem* Item)
 {
-    ListItemData* Data = (ListItemData*)Owner->GetItemData(Item);
-
-    if(Data->Texture == 0)
+    if(Item->Data == 0)
     {
-        Data->Texture = new OpenGL::Texture();
-        Data->Texture->Load("resources/icons_large/installer.png");
+        OpenGL::Texture* Texture = new OpenGL::Texture();
+        Texture->Load("resources/icons_large/web-browser.png");
+
+        Item->Data = (void*)Texture;
     }
 
-    return Data->Texture;
+    return (OpenGL::Texture*)Item->Data;
 }
 
 int Test;
 char Buffer[1024];
+char BufferInverse[1024];
 
 const char* ItemString(List* Owner, ListItem* Item)
 {
-    sprintf((char*)&Buffer, "Package %d", Owner->GetItemIndex(Item) + 1);
-    return (char*)&Buffer;
+    sprintf((char*)&Buffer, "Item %d", Owner->GetItemIndex(Item) + 1);
+
+    if(Owner->RightToLeft)
+    {
+        int Length = strlen((char*)&Buffer);
+
+        BufferInverse[Length] = 0;
+
+        for(int i = 0; i < Length; i++)
+            BufferInverse[Length - 1 - i] = Buffer[i];
+
+        return (char*)&BufferInverse;
+    }
+    else
+        return (char*)&Buffer;
 }
 
 void ItemFree(List* Owner, ListItem* Item)
 {
-    ListItemData* Data = (ListItemData*)Owner->GetItemData(Item);
-
-    if(Data->Texture != 0)
-        delete Data->Texture;
+    if(Item->Data != 0)
+        delete (OpenGL::Texture*)Item->Data;
 }
 
 int main()
@@ -185,12 +195,12 @@ int main()
     Power.Top = 5;
     Power.Width = 107;
     Power.Height = 45;
-
+/*
     Switcher Tasks(TaskList);
     Tasks.Width = 800;
     Tasks.Top = 53;
     Tasks.Height = TaskList->Height - Tasks.Top - 66;
-
+*/
     Tabs = new Scale::Window(&Menu);
     Tabs->Height = 66;
     Tabs->Top = 480 - Tabs->Height;
@@ -222,11 +232,38 @@ int main()
 
         List* ListView = new List(Categories[i]->button->Show);
 
-        ListView->SetItemData(sizeof(void*));
+        switch(i)
+        {
+            case 0:
+                ListView->Icons = List::IconLeft;
+                ListView->Direction = List::Horizontal;
+                break;
+
+            case 1:
+                ListView->Icons = List::IconAbove;
+                ListView->Direction = List::Vertical;
+                break;
+
+            case 2:
+                ListView->Icons = List::IconRight;
+                ListView->Direction = List::Horizontal;
+                ListView->RightToLeft = true;
+                break;
+
+            case 3:
+                ListView->Icons = List::IconBelow;
+                ListView->Direction = List::Vertical;
+                ListView->RightToLeft = true;
+                break;
+
+        }
 
         ListView->Top = 64;
         ListView->Height = 480 -ListView->Top - Tabs->Height;
         ListView->Width = 800;
+
+        ListView->DrawExtension.Start = ListView->Top;
+        ListView->DrawExtension.End = 480 - ListView->Top - ListView->Height;
 
         Categories[i]->button->DoFocus = ListView;
 

@@ -19,26 +19,26 @@
 #include <math.h>
 
 #include "List.hpp"
-#include "Label.hpp"
-#include "Resources.hpp"
-#include "Graphics.hpp"
 
 namespace Scale
 {
     List::List(Element* Owner):
         Element::Element(Owner),
         Focused(0),
+        Items(0),
         OnItemAllocate(0),
         OnItemImage(0),
         OnItemString(0),
         OnItemFree(0),
-        IconSpacing(4),
+        Icons(IconAbove),
+        Captions(true),
+        RightToLeft(false),
+        Direction(Vertical),
+        IconSpacing(10),
         Columns(4),
         Rows(3),
         FocusedIndex(-1),
-        Items(0),
         Count(0),
-        ItemData(sizeof(ListItem)),
         Position(0),
         Min(0),
         Mode(0),
@@ -46,6 +46,9 @@ namespace Scale
         Released(true),
         Animated(false)
     {
+        DrawExtension.Enable = true;
+        DrawExtension.Start = 0;
+        DrawExtension.End = 0;
     }
 
     List::~List()
@@ -54,7 +57,7 @@ namespace Scale
 
     const float Limit = 300;
 
-    void List::Target(int X)
+    void List::Target(int NewTarget)
     {
         Released = false;
 
@@ -68,7 +71,7 @@ namespace Scale
 
         Step = 0;
 
-        PositionTarget = X;
+        PositionTarget = NewTarget;
 
         // Smooth bounds
         /*
@@ -156,28 +159,56 @@ namespace Scale
         {
             Root->Focus(this);
 
-            int Column = (X - Position) / ItemWidth;
-            int Row = Y / ItemHeight;
-            int Index = Column * Rows + Row;
-
-            if(Index < Count)
+            if(Direction == Horizontal)
             {
-                ListItem* NewFocus = GetItem(Index);
+                int Column = (X - Position) / ItemWidth;
+                int Row = Y / ItemHeight;
+                int Index = Column * Rows + Row;
 
-                if(NewFocus != Focused)
+                if(Index < Count)
                 {
-                    FocusedIndex = Index;
-                    Focused = NewFocus;
-                    Redraw();
+                    ListItem* NewFocus = &Items[Index];
+
+                    if(NewFocus != Focused)
+                    {
+                        FocusedIndex = Index;
+                        Focused = NewFocus;
+                        Redraw();
+                    }
                 }
+
+                Capture();
+
+                Mode = 1;
+                TargetDown = X;
+                MoveOffset = X - Position;
+                Target(X - MoveOffset);
             }
+            else
+            {
+                int Column = X / ItemWidth;
+                int Row = (Y - Position) / ItemHeight;
+                int Index = Row * Columns + Column;
 
-            Capture();
+                if(Index < Count)
+                {
+                    ListItem* NewFocus = &Items[Index];
 
-            Mode = 1;
-            DownX = X;
-            MoveOffset = X - Position;
-            Target(X - MoveOffset);
+                    if(NewFocus != Focused)
+                    {
+                        FocusedIndex = Index;
+                        Focused = NewFocus;
+                        Redraw();
+                    }
+                }
+
+                Capture();
+
+                Mode = 1;
+                TargetDown = Y;
+                MoveOffset = Y - Position;
+                Target(Y - MoveOffset);
+            }
         }
 
         Element::MouseDown(X, Y, Hovered);
@@ -186,24 +217,43 @@ namespace Scale
     void List::MouseMove(int X, int Y, bool Hovered)
     {
         if(Mode == 1)
-           // if(abs(X - DownX) > 15)
+           // if(abs(X - TargetDown) > 15)
                 Mode = 2;
 
         if(Mode > 1)
-            Target(X - MoveOffset);
+        {
+            if(Direction == Horizontal)
+                Target(X - MoveOffset);
+            else
+                Target(Y - MoveOffset);
+        }
 
         Element::MouseMove(X, Y, Hovered);
     }
 
     void List::TargetFocused()
     {
-        if(-Position > Focused->X)
+        if(Direction == Horizontal)
         {
-            Target(-Focused->X);
+            if(-Position > Focused->X)
+            {
+                Target(-Focused->X);
+            }
+            else if(Width < Focused->X + ItemWidth + Position)
+            {
+                Target(-Focused->X + Width - ItemWidth);
+            }
         }
-        else if(Width < Focused->X + ItemWidth + Position)
+        else
         {
-            Target(-Focused->X + Width - ItemWidth);
+            if(-Position > Focused->Y)
+            {
+                Target(-Focused->Y);
+            }
+            else if(Height < Focused->Y + ItemHeight + Position)
+            {
+                Target(-Focused->Y + Height - ItemHeight);
+            }
         }
     }
 
@@ -211,36 +261,73 @@ namespace Scale
     {
         int NewIndex = FocusedIndex;
 
-        switch((int)Key)
+        if(Direction == Horizontal)
         {
-            case ElementUp:
-                if(FocusedIndex % Rows != 0)
-                    NewIndex--;
-                break;
+            switch((int)Key)
+            {
+                case ElementUp:
+                    if(FocusedIndex % Rows != 0)
+                        NewIndex--;
+                    break;
 
-            case ElementDown:
-                if(FocusedIndex % Rows != Rows - 1)
-                    NewIndex++;
-                break;
+                case ElementDown:
+                    if(FocusedIndex % Rows != Rows - 1)
+                        NewIndex++;
+                    break;
 
-            case ElementLeft:
-                if(FocusedIndex > Rows - 1)
-                    NewIndex -= Rows;
-                break;
+                case ElementLeft:
+                    if(FocusedIndex > Rows - 1)
+                        NewIndex -= Rows;
+                    break;
 
-            case ElementRight:
-                NewIndex += Rows;
+                case ElementRight:
+                    if(NewIndex / Rows != (Count - 1) / Rows)
+                    {
+                        NewIndex += Rows;
 
-                if(NewIndex + 1 > (int)Count)
-                    NewIndex = Count - 1;
-                break;
+                        if(NewIndex + 1 > (int)Count)
+                            NewIndex = Count - 1;
+                    }
+                    break;
 
+            }
+        }
+        else
+        {
+            switch((int)Key)
+            {
+                case ElementUp:
+                    if(FocusedIndex > Columns - 1)
+                        NewIndex -= Columns;
+                    break;
+
+                case ElementDown:
+                    if(NewIndex / Columns != (Count - 1) / Columns)
+                    {
+                        NewIndex += Columns;
+
+                        if(NewIndex + 1 > (int)Count)
+                            NewIndex = Count - 1;
+                    }
+                    break;
+
+                case ElementLeft:
+                    if(FocusedIndex % Columns != 0)
+                        NewIndex--;
+                    break;
+
+                case ElementRight:
+                    if(FocusedIndex % Columns != Columns - 1)
+                        NewIndex++;
+                    break;
+
+            }
         }
 
         if(NewIndex < (int)Count && NewIndex != FocusedIndex)
         {
             FocusedIndex = NewIndex;
-            Focused = GetItem(FocusedIndex);
+            Focused = &Items[FocusedIndex];
             TargetFocused();
             Redraw();
         }
@@ -256,13 +343,10 @@ namespace Scale
             FocusedIndex = GetItemIndex(Item);
             Focused = Item;
 
+            TargetFocused();
+
             Redraw();
         }
-    }
-
-    void List::SetItemData(int Size)
-    {
-        ItemData = sizeof(ListItem) + Size;
     }
 
     void List::SetCount(int NewCount)
@@ -274,7 +358,7 @@ namespace Scale
         {
             for (int i = NewCount; i < Count; i++)
             {
-                ListItem* Item = GetItem(i);
+                ListItem* Item = &Items[i];
 
                 if(Allocated)
                     OnItemFree(this, Item);
@@ -282,15 +366,15 @@ namespace Scale
         }
 
         if(Items != 0)
-            Items = (char*)realloc(Items, NewCount * ItemData);
+            Items = (ListItem*)realloc(Items, NewCount * sizeof(ListItem));
         else
-            Items = (char*)malloc(NewCount * ItemData);
+            Items = (ListItem*)malloc(NewCount * sizeof(ListItem));
 
         if(Count < NewCount)
         {
             for (int i = Count; i < NewCount; i++)
             {
-                ListItem* Item = GetItem(i);
+                ListItem* Item = &Items[i];
 
                 if(Allocated)
                     OnItemAllocate(this, Item);
@@ -308,7 +392,7 @@ namespace Scale
 
         for (int i = 0; i < Count; i++)
         {
-            ListItem* Item = GetItem(i);
+            ListItem* Item = &Items[i];
 
             OnItemAllocate(this, Item);
         }
@@ -316,58 +400,72 @@ namespace Scale
         if(FocusedIndex == -1 && Count > 0)
         {
             FocusedIndex = 0;
-            Focused = GetItem(0);
+            Focused = &Items[0];
         }
 
         ItemHeight = Height / Rows;
         ItemWidth = Width / Columns;
 
-        if(Count % Rows > 0)
-            Min = Count / Rows + 1;
-        else
-            Min = Count / Rows;
-
-        Min = (Min * ItemWidth - Width);
-
-        if(Min < 0)
-            Min = 0;
-        else
-            Min *= -1;
-
-        int ItemX = 0;
-        int ItemY = 0;
-
-        const int IconSize = 64;
-        const int FontSize = 19;
-
-        _IconLeft = ItemWidth - IconSize >> 1;
-        _IconTop = ItemHeight - IconSize - IconSpacing - FontSize >> 1;
-        _CaptionTop = _IconTop + IconSize + IconSpacing;
-
-        for (int i = 0; i < Count; i++)
+        if(Direction == Horizontal)
         {
-            ListItem* Item = GetItem(i);
+            if(Count % Rows > 0)
+                Min = Count / Rows + 1;
+            else
+                Min = Count / Rows;
 
-            const char* Caption = OnItemString(this, Item);
+            Min = (Min * ItemWidth - Width);
 
-            int FontWidth = 0;
-            int FontHeight = 0;
+            if(Min < 0)
+                Min = 0;
+            else
+                Min *= -1;
 
-            if(Caption != 0)
-                Resources::FontSmall->Size(Caption, &FontWidth, &FontHeight);
+            int ItemX = 0;
+            int ItemY = 0;
 
-            Item->X = ItemWidth * ItemX;
-            Item->Y = ItemHeight * ItemY;
-
-            Item->CaptionLeft = ItemWidth - FontWidth >> 1;
-
-            ItemY++;
-
-            if(ItemY == Rows)
+            for (int i = 0; i < Count; i++)
             {
-                ItemY = 0;
-                ItemX++;
+                SetupItem(&Items[i], ItemX, ItemY);
+
+                ItemY++;
+
+                if(ItemY == Rows)
+                {
+                    ItemY = 0;
+                    ItemX++;
+                }
             }
+        }
+        else
+        {
+            if(Count % Columns > 0)
+                Min = Count / Columns + 1;
+            else
+                Min = Count / Columns;
+
+            Min = (Min * ItemHeight - Height);
+
+            if(Min < 0)
+                Min = 0;
+            else
+                Min *= -1;
+
+            int ItemX = 0;
+            int ItemY = 0;
+
+            for (int i = 0; i < Count; i++)
+            {
+                SetupItem(&Items[i], ItemX, ItemY);
+
+                ItemX++;
+
+                if(ItemX == Columns)
+                {
+                    ItemX = 0;
+                    ItemY++;
+                }
+            }
+
         }
     }
 
@@ -379,7 +477,7 @@ namespace Scale
 
         for (int i = 0; i < Count; i++)
         {
-            ListItem* Item = GetItem(i);
+            ListItem* Item = &Items[i];
 
             OnItemFree(this, Item);
         }
@@ -387,43 +485,62 @@ namespace Scale
 
     void List::Draw(int X, int Y, unsigned char Alpha)
     {
-        int ClientItemLeft = X + Position;
-        int ClientItemTop = Y;
-        int Row = 0;
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(X, Screen->Height - Y - Height - DrawExtension.End, Width, Height + DrawExtension.Start + DrawExtension.End);
 
-        for (int i = 0; i < Count; i++)
+        if(Direction == Horizontal)
         {
-            if(ClientItemLeft < -ItemWidth)
-                goto Continue;
+            int ItemLeft = X + Position;
+            int ItemTop = Y;
+            int Row = 0;
 
-            ListItem* Item = GetItem(i);
+            for (int i = 0; i < Count; i++)
+            {
+                if(ItemLeft > X - ItemWidth - DrawExtension.Start)
+                    DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
 
-            if(Focused == Item)
-                Graphics::RoundRect(ClientItemLeft, ClientItemTop, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
-
-            OpenGL::Texture* Icon = OnItemImage(this, Item);
-
-            Graphics::Texture(Icon, ClientItemLeft + _IconLeft, ClientItemTop + _IconTop, Alpha);
-
-            const char* Caption = OnItemString(this, Item);
-
-            Resources::FontSmall->Print(Caption, ColorWhite, ClientItemLeft + Item->CaptionLeft + 1, ClientItemTop + _CaptionTop + 1, Alpha / 3);
-            Resources::FontSmall->Print(Caption, ColorBlack, ClientItemLeft + Item->CaptionLeft, ClientItemTop + _CaptionTop, Alpha);
-
-            Continue:
                 Row++;
-                ClientItemTop += ItemHeight;
+                ItemTop += ItemHeight;
 
                 if(Row >= Rows)
                 {
                     Row = 0;
-                    ClientItemTop = Y;
+                    ItemTop = Y;
 
-                    ClientItemLeft += ItemWidth;
+                    ItemLeft += ItemWidth;
 
-                    if(ClientItemLeft > Width)
+                    if(ItemLeft > X + Width + DrawExtension.End)
                         break;
                 }
+            }
         }
+        else
+        {
+            int ItemLeft = X;
+            int ItemTop = Y + Position;
+            int Column = 0;
+
+            for (int i = 0; i < Count; i++)
+            {
+                if(ItemTop > Y - ItemHeight - DrawExtension.Start)
+                    DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
+
+                Column++;
+                ItemLeft += ItemWidth;
+
+                if(Column >= Columns)
+                {
+                    Column = 0;
+
+                    ItemLeft = X;
+
+                    ItemTop += ItemHeight;
+
+                    if(ItemTop > Y + Height + DrawExtension.End)
+                        break;
+                }
+            }
+        }
+        glDisable(GL_SCISSOR_TEST);
     }
 };
