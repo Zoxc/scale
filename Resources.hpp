@@ -31,7 +31,7 @@ namespace Scale
         void Allocate();
         void Deallocate();
 
-        #ifndef X11
+        #ifndef NO_FREETYPE
         extern FT_Library FreeType;
         #endif
 

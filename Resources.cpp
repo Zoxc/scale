@@ -24,7 +24,7 @@ namespace Scale
 {
     namespace Resources
     {
-        #ifndef X11
+        #ifndef NO_FREETYPE
         FT_Library FreeType;
         #endif
 
@@ -39,7 +39,7 @@ namespace Scale
 
         void Init()
         {
-            #ifndef X11
+            #ifndef NO_FREETYPE
             FT_Init_FreeType(&FreeType);
             #endif
 

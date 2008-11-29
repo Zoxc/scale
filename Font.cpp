@@ -40,7 +40,7 @@ namespace Scale
         *Width = 0;
         *Height = 0;
 
-        #ifndef X11
+        #ifndef NO_FREETYPE
         while(*Text != 0)
         {
             if(Text[1] == 0)
@@ -57,7 +57,7 @@ namespace Scale
 
     void Font::Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha)
     {
-        #ifndef X11
+        #ifndef NO_FREETYPE
         int Position = X;
 
         glBindTexture(GL_TEXTURE_2D, Bitmap->Handle);
@@ -89,7 +89,7 @@ namespace Scale
 
     void Font::Measure()
     {
-        #ifndef X11
+        #ifndef NO_FREETYPE
         FT_New_Face(Resources::FreeType, _Filename, 0, &FontFace);
         FT_Set_Char_Size(FontFace, 0, PointHeight * 64, 96, 96);
 
@@ -119,7 +119,7 @@ namespace Scale
 
     void Font::Allocate()
     {
-        #ifndef X11
+        #ifndef NO_FREETYPE
         if(FontFace == 0)
         {
             FT_New_Face(Resources::FreeType, _Filename, 0, &FontFace);
@@ -208,7 +208,7 @@ namespace Scale
 
     void Font::Deallocate()
     {
-        #ifndef X11
+        #ifndef NO_FREETYPE
         delete Bitmap;
         #endif
     }
