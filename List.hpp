@@ -24,6 +24,7 @@
 #include "Resources.hpp"
 #include "Graphics.hpp"
 #include "Label.hpp"
+#include "Scroller.hpp"
 
 namespace Scale
 {
@@ -31,9 +32,6 @@ namespace Scale
 
     struct ListItem
     {
-        unsigned short X;
-        unsigned short Y;
-
         unsigned char CaptionX;
         unsigned char CaptionY;
         unsigned char IconX;
@@ -42,7 +40,7 @@ namespace Scale
         void* Data;
     };
 
-    typedef void (*ListItemAllocate)(List* Owner, ListItem* Item);
+    typedef void (*ListItemCreate)(List* Owner, ListItem* Item);
     typedef OpenGL::Texture* (*ListItemImage)(List* Owner, ListItem* Item);
     typedef const char* (*ListItemString)(List* Owner, ListItem* Item);
     typedef void (*ListItemFree)(List* Owner, ListItem* Item);
@@ -73,7 +71,6 @@ namespace Scale
                 int End;
             };
 
-
             List(Element* Owner);
             virtual ~List();
 
@@ -86,12 +83,15 @@ namespace Scale
             void MouseDown(int X, int Y, bool Hovered);
             void Animate(int Delta);
 
+            void Target(int NewTarget);
+            void TargetFocused();
+
             inline int GetItemIndex(ListItem* Item);
 
             ListItem* Focused;
             ListItem* Items;
 
-            ListItemAllocate OnItemAllocate;
+            ListItemCreate OnItemCreate;
             ListItemImage OnItemImage;
             ListItemString OnItemString;
             ListItemFree OnItemFree;
@@ -106,21 +106,21 @@ namespace Scale
             bool RightToLeft;
             ScrollDirection Direction;
 
-            int IconSpacing;
-            int Columns;
-            int Rows;
-
-        private:
-            int FocusedIndex;
-            int Count;
+            Scroller* Scrollbar;
 
             int Position;
             int Min;
+            int Max;
 
-            void Target(int NewTarget);
-            void TargetFocused();
+            int IconSpacing;
+            int Columns;
+            int Rows;
+            int Count;
 
-            inline void SetupItem(ListItem* Item, int ItemX, int ItemY);
+        private:
+            int FocusedIndex;
+
+            inline void SetupItem(ListItem* Item);
             inline void DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha);
 
             int TargetDown;
@@ -143,10 +143,10 @@ namespace Scale
         return ((unsigned int)Item - (unsigned int)Items) / sizeof(ListItem);
     }
 
-    inline void List::SetupItem(ListItem* Item, int ItemX, int ItemY)
+    inline void List::SetupItem(ListItem* Item)
     {
         const int IconSize = 64;
-        const int FontSize = 19;
+        const int FontSize = 17;
 
         int FontWidth = 0;
         int FontHeight = 0;
@@ -158,9 +158,6 @@ namespace Scale
             if(Caption != 0)
                 Resources::FontSmall->Size(Caption, &FontWidth, &FontHeight);
         }
-
-        Item->X = ItemWidth * ItemX;
-        Item->Y = ItemHeight * ItemY;
 
         if(Captions == false)
         {

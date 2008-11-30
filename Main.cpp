@@ -122,7 +122,7 @@ OpenGL::Texture* ItemImage(List* Owner, ListItem* Item)
     if(Item->Data == 0)
     {
         OpenGL::Texture* Texture = new OpenGL::Texture();
-        Texture->Load("resources/icons_large/web-browser.png");
+        Texture->Load("resources/icons_large/application.png");
 
         Item->Data = (void*)Texture;
     }
@@ -237,75 +237,58 @@ int main()
             case 0:
                 ListView->Icons = List::IconLeft;
                 ListView->Direction = List::Horizontal;
+                ListView->SetCount(42);
                 break;
 
             case 1:
-                ListView->Icons = List::IconAbove;
-                ListView->Direction = List::Vertical;
-                break;
-
-            case 2:
                 ListView->Icons = List::IconRight;
                 ListView->Direction = List::Horizontal;
                 ListView->RightToLeft = true;
+                ListView->SetCount(32);
+                break;
+
+            case 2:
+                ListView->Icons = List::IconAbove;
+                ListView->Direction = List::Vertical;
+                ListView->SetCount(22);
                 break;
 
             case 3:
-                ListView->Icons = List::IconBelow;
+                ListView->Icons = List::IconAbove;
                 ListView->Direction = List::Vertical;
                 ListView->RightToLeft = true;
+                ListView->SetCount(52);
                 break;
 
         }
 
-        ListView->Top = 64;
+        ListView->Top = 52;
         ListView->Height = 480 -ListView->Top - Tabs->Height;
-        ListView->Width = 800;
+        ListView->Width = Screen->Width - 35;
+
+        ListView->Scrollbar = new Scroller(Categories[i]->button->Show);
+        ListView->Scrollbar->Height = ListView->Height;
+        ListView->Scrollbar->Top = ListView->Top;
+        ListView->Scrollbar->Width = Screen->Width - ListView->Width;
+
+        if(i & 1 > 0)
+        {
+            ListView->Left = ListView->Scrollbar->Width;
+            ListView->Scrollbar->Left = 0;
+        }
+        else
+            ListView->Scrollbar->Left = ListView->Width;
 
         ListView->DrawExtension.Start = ListView->Top;
         ListView->DrawExtension.End = 480 - ListView->Top - ListView->Height;
 
         Categories[i]->button->DoFocus = ListView;
 
-        ListView->OnItemAllocate = ItemAllocate;
+        ListView->OnItemCreate = ItemAllocate;
         ListView->OnItemImage = ItemImage;
         ListView->OnItemString = ItemString;
         ListView->OnItemFree = ItemFree;
 
-        ListView->SetCount(rand()%40);
-/*
-        ListView->Add("game-folder.png", "Emulators");
-        ListView->Add("calendar.png", "Calendar");
-        ListView->Add("media.png", "MPlayer");
-
-        ListView->Add("installer.png", "Package Manager");
-        ListView->Add("games.png", "Poker");
-        ListView->Add("terminal.png", "Terminal");
-
-        ListView->Add("editor.png", "Editor");
-        ListView->Add("other.png", "This thing is too lon...");
-        ListView->Add("file-manager.png", "File Manager");
-
-        ListView->Add("web-browser.png", "Web Browser");
-        ListView->Add("internet-group-chat.png", "Internet Relay Chat");
-        ListView->Add("calculator.png", "Calculator");
-
-        ListView->Add("game-folder.png", "Emulators");
-        ListView->Add("calendar.png", "Calendar");
-        ListView->Add("media.png", "MPlayer");
-
-        ListView->Add("installer.png", "Package Manager");
-        ListView->Add("games.png", "Poker");
-        ListView->Add("terminal.png", "Terminal");
-
-        ListView->Add("game-folder.png", "Emulators");
-        ListView->Add("calendar.png", "Calendar");
-        //ListView->Add("media.png", "MPlayer");
-
-        ListView->Add("web-browser.png", "Web Browser");
-        ListView->Add("internet-group-chat.png", "Internet Relay Chat");
-        //ListView->Add("calculator.png", "Calculator");
-*/
         Image* Header = new Image(Categories[i]->button->Show, "resources/header.png");
         Header->AlphaBlend = 230;
 

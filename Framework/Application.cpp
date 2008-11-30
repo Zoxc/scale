@@ -457,11 +457,11 @@ namespace Scale
         while(Running)
         {
             #ifdef WIN32
-            while(PeekMessage(&msg, eglHandle, 0, 0, PM_REMOVE))
-            {
-                TranslateMessage(&msg);
-                DispatchMessage(&msg);
-            }
+                while(PeekMessage(&msg, eglHandle, 0, 0, PM_REMOVE))
+                {
+                    TranslateMessage(&msg);
+                    DispatchMessage(&msg);
+                }
             #endif
 
             #ifdef X11
@@ -471,7 +471,7 @@ namespace Scale
                     XEvent	event;
                     XNextEvent( x11Display, &event );
 
-                    switch( event.type )
+                    switch(event.type)
                     {
                         // Exit on mouse click
                         case ButtonPress:

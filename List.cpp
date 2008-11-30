@@ -26,7 +26,7 @@ namespace Scale
         Element::Element(Owner),
         Focused(0),
         Items(0),
-        OnItemAllocate(0),
+        OnItemCreate(0),
         OnItemImage(0),
         OnItemString(0),
         OnItemFree(0),
@@ -34,13 +34,14 @@ namespace Scale
         Captions(true),
         RightToLeft(false),
         Direction(Vertical),
+        Position(0),
+        Min(0),
+        Max(0),
         IconSpacing(10),
         Columns(4),
         Rows(3),
-        FocusedIndex(-1),
         Count(0),
-        Position(0),
-        Min(0),
+        FocusedIndex(-1),
         Mode(0),
         Allocated(false),
         Released(true),
@@ -118,14 +119,28 @@ namespace Scale
         else
             NewPosition = PositionStart + (int)floor(Velocity * sin(Step / 200.f * M_PI_2));
 
-        if(NewPosition < Min)
-            NewPosition = Min;
-        else if(NewPosition > 0)
+        if(NewPosition > Max)
+            NewPosition = Max;
+        else if(NewPosition < 0)
             NewPosition = 0;
 
         if(Position != NewPosition)
         {
             Position = NewPosition;
+
+            if(Scrollbar != 0)
+            {
+                Scrollbar->Position = Position;
+                Scrollbar->Max = Max;
+
+                if(Direction == Horizontal)
+                    Scrollbar->Size = Width;
+                else
+                    Scrollbar->Size = Height;
+
+                Scrollbar->Redraw();
+            }
+
             Redraw();
         }
     }
@@ -161,7 +176,13 @@ namespace Scale
 
             if(Direction == Horizontal)
             {
-                int Column = (X - Position) / ItemWidth;
+                int Column;
+
+                if(RightToLeft)
+                    Column = -((X - Position) / ItemWidth - Columns + 1);
+                else
+                    Column = (X + Position) / ItemWidth;
+
                 int Row = Y / ItemHeight;
                 int Index = Column * Rows + Row;
 
@@ -181,13 +202,23 @@ namespace Scale
 
                 Mode = 1;
                 TargetDown = X;
-                MoveOffset = X - Position;
-                Target(X - MoveOffset);
+                Target(Position);
+
+                if(RightToLeft)
+                    MoveOffset = X - Position;
+                else
+                    MoveOffset = X + Position;
             }
             else
             {
-                int Column = X / ItemWidth;
-                int Row = (Y - Position) / ItemHeight;
+                int Column;
+
+                if(RightToLeft)
+                    Column = Columns - 1 - X / ItemWidth;
+                else
+                    Column = X / ItemWidth;
+
+                int Row = (Y + Position) / ItemHeight;
                 int Index = Row * Columns + Column;
 
                 if(Index < Count)
@@ -206,8 +237,8 @@ namespace Scale
 
                 Mode = 1;
                 TargetDown = Y;
-                MoveOffset = Y - Position;
-                Target(Y - MoveOffset);
+                MoveOffset = Y + Position;
+                Target(Position);
             }
         }
 
@@ -223,9 +254,14 @@ namespace Scale
         if(Mode > 1)
         {
             if(Direction == Horizontal)
-                Target(X - MoveOffset);
+            {
+                if(RightToLeft)
+                    Target(X - MoveOffset);
+                else
+                    Target(MoveOffset - X);
+            }
             else
-                Target(Y - MoveOffset);
+                Target(MoveOffset - Y);
         }
 
         Element::MouseMove(X, Y, Hovered);
@@ -233,26 +269,35 @@ namespace Scale
 
     void List::TargetFocused()
     {
+        int Index = GetItemIndex(Focused);
+
         if(Direction == Horizontal)
         {
-            if(-Position > Focused->X)
+            int X;
+
+            //if(RightToLeft)
+            //    X = (Rows - Index / Rows) * ItemWidth;
+            //else
+                X = (Index / Rows) * ItemWidth;
+
+            if(Position > X)
             {
-                Target(-Focused->X);
+                Target(X);
             }
-            else if(Width < Focused->X + ItemWidth + Position)
+            else if(Position + Width < X + ItemWidth)
             {
-                Target(-Focused->X + Width - ItemWidth);
+                Target(X - Width + ItemWidth);
             }
         }
         else
         {
-            if(-Position > Focused->Y)
+            int Y = (Index / Columns) * ItemHeight;
+
+            if(Position > Y)
+                Target(Y);
+            else if(Position + Height < Y + ItemHeight)
             {
-                Target(-Focused->Y);
-            }
-            else if(Height < Focused->Y + ItemHeight + Position)
-            {
-                Target(-Focused->Y + Height - ItemHeight);
+                Target(Y - Height + ItemHeight);
             }
         }
     }
@@ -276,17 +321,38 @@ namespace Scale
                     break;
 
                 case ElementLeft:
-                    if(FocusedIndex > Rows - 1)
-                        NewIndex -= Rows;
+                    if(RightToLeft)
+                    {
+                        if(NewIndex / Rows != (Count - 1) / Rows)
+                        {
+                            NewIndex += Rows;
+
+                            if(NewIndex + 1 > (int)Count)
+                                NewIndex = Count - 1;
+                        }
+                    }
+                    else
+                    {
+                        if(FocusedIndex > Rows - 1)
+                            NewIndex -= Rows;
+                    }
                     break;
 
                 case ElementRight:
-                    if(NewIndex / Rows != (Count - 1) / Rows)
+                    if(RightToLeft)
                     {
-                        NewIndex += Rows;
+                       if(FocusedIndex > Rows - 1)
+                            NewIndex -= Rows;
+                    }
+                    else
+                    {
+                        if(NewIndex / Rows != (Count - 1) / Rows)
+                        {
+                            NewIndex += Rows;
 
-                        if(NewIndex + 1 > (int)Count)
-                            NewIndex = Count - 1;
+                            if(NewIndex + 1 > (int)Count)
+                                NewIndex = Count - 1;
+                        }
                     }
                     break;
 
@@ -312,15 +378,30 @@ namespace Scale
                     break;
 
                 case ElementLeft:
-                    if(FocusedIndex % Columns != 0)
-                        NewIndex--;
+                    if(RightToLeft)
+                    {
+                        if(FocusedIndex % Columns != Columns - 1)
+                            NewIndex++;
+                    }
+                    else
+                    {
+                        if(FocusedIndex % Columns != 0)
+                            NewIndex--;
+                    }
                     break;
 
                 case ElementRight:
-                    if(FocusedIndex % Columns != Columns - 1)
-                        NewIndex++;
+                    if(RightToLeft)
+                    {
+                        if(FocusedIndex % Columns != 0)
+                            NewIndex--;
+                    }
+                    else
+                    {
+                        if(FocusedIndex % Columns != Columns - 1)
+                            NewIndex++;
+                    }
                     break;
-
             }
         }
 
@@ -377,9 +458,12 @@ namespace Scale
                 ListItem* Item = &Items[i];
 
                 if(Allocated)
-                    OnItemAllocate(this, Item);
+                    OnItemCreate(this, Item);
             }
         }
+
+        if(Allocated)
+            Redraw();
 
         Count = NewCount;
     }
@@ -394,7 +478,7 @@ namespace Scale
         {
             ListItem* Item = &Items[i];
 
-            OnItemAllocate(this, Item);
+            OnItemCreate(this, Item);
         }
 
         if(FocusedIndex == -1 && Count > 0)
@@ -409,64 +493,48 @@ namespace Scale
         if(Direction == Horizontal)
         {
             if(Count % Rows > 0)
-                Min = Count / Rows + 1;
+                Max = Count / Rows + 1;
             else
-                Min = Count / Rows;
+                Max = Count / Rows;
 
-            Min = (Min * ItemWidth - Width);
+            Max = (Max * ItemWidth - Width);
 
-            if(Min < 0)
-                Min = 0;
-            else
-                Min *= -1;
+            if(Max < 0)
+                Max = 0;
 
-            int ItemX = 0;
-            int ItemY = 0;
-
-            for (int i = 0; i < Count; i++)
-            {
-                SetupItem(&Items[i], ItemX, ItemY);
-
-                ItemY++;
-
-                if(ItemY == Rows)
-                {
-                    ItemY = 0;
-                    ItemX++;
-                }
-            }
+            if(Position > Max)
+                Position = Max;
         }
         else
         {
             if(Count % Columns > 0)
-                Min = Count / Columns + 1;
+                Max = Count / Columns + 1;
             else
-                Min = Count / Columns;
+                Max = Count / Columns;
 
-            Min = (Min * ItemHeight - Height);
+            Max = (Max * ItemHeight - Height);
 
-            if(Min < 0)
-                Min = 0;
-            else
-                Min *= -1;
+            if(Max < 0)
+                Max = 0;
 
-            int ItemX = 0;
-            int ItemY = 0;
-
-            for (int i = 0; i < Count; i++)
-            {
-                SetupItem(&Items[i], ItemX, ItemY);
-
-                ItemX++;
-
-                if(ItemX == Columns)
-                {
-                    ItemX = 0;
-                    ItemY++;
-                }
-            }
-
+            if(Position > Max)
+                Position = Max;
         }
+
+
+        if(Scrollbar != 0)
+        {
+            Scrollbar->Position = Position;
+            Scrollbar->Max = Max;
+
+            if(Direction == Horizontal)
+                Scrollbar->Size = Width;
+            else
+                Scrollbar->Size = Height;
+        }
+
+        for (int i = 0; i < Count; i++)
+            SetupItem(&Items[i]);
     }
 
     void List::Deallocate()
@@ -486,58 +554,121 @@ namespace Scale
     void List::Draw(int X, int Y, unsigned char Alpha)
     {
         glEnable(GL_SCISSOR_TEST);
-        glScissor(X, Screen->Height - Y - Height - DrawExtension.End, Width, Height + DrawExtension.Start + DrawExtension.End);
 
         if(Direction == Horizontal)
         {
-            int ItemLeft = X + Position;
-            int ItemTop = Y;
-            int Row = 0;
+            glScissor(X - DrawExtension.Start, Screen->Height - Y - Height, Width + DrawExtension.Start + DrawExtension.End, Height);
 
-            for (int i = 0; i < Count; i++)
+            if(RightToLeft)
             {
-                if(ItemLeft > X - ItemWidth - DrawExtension.Start)
-                    DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
+                int ItemLeft = X + Width - ItemWidth + Position;
+                int ItemTop = Y;
+                int Row = 0;
 
-                Row++;
-                ItemTop += ItemHeight;
-
-                if(Row >= Rows)
+                for (int i = 0; i < Count; i++)
                 {
-                    Row = 0;
-                    ItemTop = Y;
+                    //if(ItemLeft > X - ItemWidth - DrawExtension.Start)
+                        DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
 
-                    ItemLeft += ItemWidth;
+                    Row++;
+                    ItemTop += ItemHeight;
 
-                    if(ItemLeft > X + Width + DrawExtension.End)
-                        break;
+                    if(Row >= Rows)
+                    {
+                        Row = 0;
+                        ItemTop = Y;
+
+                        ItemLeft -= ItemWidth;
+
+                        //if(ItemLeft > X + Width + DrawExtension.End)
+                        //    break;
+                    }
+                }
+
+            }
+            else
+            {
+                int ItemLeft = X - Position;
+                int ItemTop = Y;
+                int Row = 0;
+
+                for (int i = 0; i < Count; i++)
+                {
+                    if(ItemLeft > X - ItemWidth - DrawExtension.Start)
+                        DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
+
+                    Row++;
+                    ItemTop += ItemHeight;
+
+                    if(Row >= Rows)
+                    {
+                        Row = 0;
+                        ItemTop = Y;
+
+                        ItemLeft += ItemWidth;
+
+                        if(ItemLeft > X + Width + DrawExtension.End)
+                            break;
+                    }
                 }
             }
         }
         else
         {
-            int ItemLeft = X;
-            int ItemTop = Y + Position;
-            int Column = 0;
+            glScissor(X, Screen->Height - Y - Height - DrawExtension.End, Width, Height + DrawExtension.Start + DrawExtension.End);
 
-            for (int i = 0; i < Count; i++)
+            if(RightToLeft)
             {
-                if(ItemTop > Y - ItemHeight - DrawExtension.Start)
-                    DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
+                int ItemLeft = X + Width - ItemWidth;
+                int ItemTop = Y - Position;
+                int Column = Columns;
 
-                Column++;
-                ItemLeft += ItemWidth;
-
-                if(Column >= Columns)
+                for (int i = 0; i < Count; i++)
                 {
-                    Column = 0;
+                    if(ItemTop > Y - ItemHeight - DrawExtension.Start)
+                        DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
 
-                    ItemLeft = X;
+                    Column--;
+                    ItemLeft -= ItemWidth;
 
-                    ItemTop += ItemHeight;
+                    if(Column == 0)
+                    {
+                        Column = Columns;
 
-                    if(ItemTop > Y + Height + DrawExtension.End)
-                        break;
+                        ItemLeft = X + Width - ItemWidth;
+
+                        ItemTop += ItemHeight;
+
+                        if(ItemTop > Y + Height + DrawExtension.End)
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                int ItemLeft = X;
+                int ItemTop = Y - Position;
+                int Column = 0;
+
+                for (int i = 0; i < Count; i++)
+                {
+                    if(ItemTop > Y - ItemHeight - DrawExtension.Start)
+                        DrawItem(&Items[i], ItemLeft, ItemTop, Alpha);
+
+                    Column++;
+                    ItemLeft += ItemWidth;
+
+                    if(Column >= Columns)
+                    {
+                        Column = 0;
+
+                        ItemLeft = X;
+
+                        ItemTop += ItemHeight;
+
+                        if(ItemTop > Y + Height + DrawExtension.End)
+                            break;
+                    }
                 }
             }
         }

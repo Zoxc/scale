@@ -75,6 +75,8 @@
 		<Unit filename="Main.hpp" />
 		<Unit filename="Resources.cpp" />
 		<Unit filename="Resources.hpp" />
+		<Unit filename="Scroller.cpp" />
+		<Unit filename="Scroller.hpp" />
 		<Unit filename="Solid.cpp" />
 		<Unit filename="Solid.hpp" />
 		<Unit filename="Switcher.cpp" />
