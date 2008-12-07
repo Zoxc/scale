@@ -27,7 +27,7 @@ namespace Scale
     {
         Caption = ACaption;
 
-        LabelFont->Size(ACaption.c_str(), &Width, &Height);
+        Width = LabelFont->Size(ACaption.c_str(), &Height);
     }
 
     Label::~Label()

@@ -482,8 +482,6 @@ namespace Scale
                             break;
                     }
                 }
-
-                DoRedraw = true;
             #endif
 
             if(!Running)

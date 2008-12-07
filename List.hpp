@@ -14,6 +14,9 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Known bugs:
+        - Position to item index doesn't work right on horizontal right to left mode.
 */
 
 #pragma once
@@ -21,10 +24,11 @@
 #include <vector>
 
 #include "Element.hpp"
-#include "Resources.hpp"
 #include "Graphics.hpp"
 #include "Label.hpp"
 #include "Scroller.hpp"
+
+#define RightToLeftEnabled
 
 namespace Scale
 {
@@ -32,18 +36,17 @@ namespace Scale
 
     struct ListItem
     {
-        unsigned char CaptionX;
-        unsigned char CaptionY;
-        unsigned char IconX;
-        unsigned char IconY;
-
         void* Data;
+        const char* Caption;
+        OpenGL::Texture* Icon;
+
+        // Coordinates
+        unsigned char CoordCaption;
+        unsigned char CoordIcon;
     };
 
-    typedef void (*ListItemCreate)(List* Owner, ListItem* Item);
-    typedef OpenGL::Texture* (*ListItemImage)(List* Owner, ListItem* Item);
-    typedef const char* (*ListItemString)(List* Owner, ListItem* Item);
-    typedef void (*ListItemFree)(List* Owner, ListItem* Item);
+    typedef void (*ListKeyDown)(List* Owner, ElementKey Key);
+    typedef void (*ListItemEvent)(List* Owner, ListItem* Item);
 
     class List:
         public Element
@@ -91,10 +94,13 @@ namespace Scale
             ListItem* Focused;
             ListItem* Items;
 
-            ListItemCreate OnItemCreate;
-            ListItemImage OnItemImage;
-            ListItemString OnItemString;
-            ListItemFree OnItemFree;
+            ListKeyDown OnKeyDown;
+
+            ListItemEvent OnItemCreate;
+            ListItemEvent OnItemFree;
+
+            ListItemEvent OnItemAllocate;
+            ListItemEvent OnItemDeallocate;
 
             void SetFocused(ListItem* Item);
             void SetCount(int NewCount);
@@ -103,10 +109,20 @@ namespace Scale
 
             IconPlacement Icons;
             bool Captions;
-            bool RightToLeft;
+
+            #ifdef RightToLeftEnabled
+                bool RightToLeft;
+            #endif
+
+            void SetMessage(const char* NewMessage);
+
+            void Refresh();
+
             ScrollDirection Direction;
 
-            Scroller* Scrollbar;
+            Font* ItemFont;
+
+            void* Tag;
 
             int Position;
             int Min;
@@ -118,10 +134,20 @@ namespace Scale
             int Count;
 
         private:
-            int FocusedIndex;
+            std::string Message;
 
-            inline void SetupItem(ListItem* Item);
+            int FocusedIndex;
             inline void DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha);
+
+            void AttachScrollbar();
+            void DeattachScrollbar();
+
+            void CalculateMax();
+
+            Scroller* Scrollbar;
+
+            unsigned char CaptionY;
+            unsigned char IconY;
 
             int TargetDown;
             unsigned char Mode;
@@ -136,74 +162,14 @@ namespace Scale
             int PositionTarget;
             int ItemHeight;
             int ItemWidth;
+
+            int MessageTop;
+            int MessageLeft;
     };
 
     inline int List::GetItemIndex(ListItem* Item)
     {
         return ((unsigned int)Item - (unsigned int)Items) / sizeof(ListItem);
-    }
-
-    inline void List::SetupItem(ListItem* Item)
-    {
-        const int IconSize = 64;
-        const int FontSize = 17;
-
-        int FontWidth = 0;
-        int FontHeight = 0;
-
-        if(Captions)
-        {
-            const char* Caption = OnItemString(this, Item);
-
-            if(Caption != 0)
-                Resources::FontSmall->Size(Caption, &FontWidth, &FontHeight);
-        }
-
-        if(Captions == false)
-        {
-            Item->IconX = ItemWidth - IconSize >> 1;
-            Item->IconY = ItemHeight - IconSize >> 1;
-        }
-        else
-            switch(Icons)
-            {
-                case IconNone:
-                    Item->CaptionX = ItemWidth - FontWidth >> 1;
-                    Item->CaptionY = ItemHeight - FontHeight >> 1;
-                    break;
-
-                case IconLeft:
-                    Item->IconX = ItemWidth - IconSize - IconSpacing - FontWidth >> 1;
-                    Item->IconY = ItemHeight - IconSize >> 1;
-
-                    Item->CaptionX = Item->IconX + IconSize + IconSpacing;
-                    Item->CaptionY = ItemHeight - FontHeight >> 1;
-                    break;
-
-                case IconRight:
-                    Item->CaptionX = ItemWidth - IconSize - IconSpacing - FontWidth >> 1;
-                    Item->CaptionY = ItemHeight - FontHeight >> 1;
-
-                    Item->IconX = Item->CaptionX + FontWidth + IconSpacing;
-                    Item->IconY = ItemHeight - IconSize >> 1;
-                    break;
-
-                case IconAbove:
-                    Item->IconX = ItemWidth - IconSize >> 1;
-                    Item->IconY = ItemHeight - IconSize - IconSpacing - FontSize >> 1;
-
-                    Item->CaptionX = ItemWidth - FontWidth >> 1;
-                    Item->CaptionY = Item->IconY + IconSize + IconSpacing;
-                    break;
-
-                case IconBelow:
-                    Item->CaptionX = ItemWidth - FontWidth >> 1;
-                    Item->CaptionY = ItemHeight - IconSize - IconSpacing - FontSize >> 1;
-
-                    Item->IconX = ItemWidth - IconSize >> 1;
-                    Item->IconY = Item->CaptionY + FontSize + IconSpacing;
-                    break;
-            }
     }
 
     inline void List::DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha)
@@ -212,18 +178,12 @@ namespace Scale
             Graphics::RoundRect(X, Y, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
 
         if(Icons != IconNone)
-        {
-            OpenGL::Texture* Icon = OnItemImage(this, Item);
-
-            Graphics::Texture(Icon, X + Item->IconX, Y + Item->IconY, Alpha);
-        }
+            Graphics::Texture(Item->Icon, X + Item->CoordIcon, Y + IconY, Alpha);
 
         if(Captions)
         {
-            const char* Caption = OnItemString(this, Item);
-
-            Resources::FontSmall->Print(Caption, ColorWhite, X + Item->CaptionX + 1, Y + Item->CaptionY + 1, Alpha / 3);
-            Resources::FontSmall->Print(Caption, ColorBlack, X + Item->CaptionX, Y + Item->CaptionY, Alpha);
+            ItemFont->Print(Item->Caption, ColorWhite, X + Item->CoordCaption + 1, Y + CaptionY + 1, Alpha / 3);
+            ItemFont->Print(Item->Caption, ColorBlack, X + Item->CoordCaption, Y + CaptionY, Alpha);
         }
     }
 };

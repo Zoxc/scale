@@ -20,6 +20,7 @@
 #include "Main.hpp"
 #include "Resources.hpp"
 #include "List.hpp"
+#include "ListSearch.hpp"
 #include "Switcher.hpp"
 
 std::vector<CatInfo*> Categories;
@@ -107,61 +108,27 @@ void OnFrame()
 }
 #endif
 
-struct ListItemData
-{
-    OpenGL::Texture* Texture;
-};
+OpenGL::Texture* SharedIcon;
 
-void ItemAllocate(List* Owner, ListItem* Item)
+OpenGL::Texture* ItemImage(ListSearch* Owner, int Index)
 {
-    Item->Data = 0;
+    return SharedIcon;
 }
 
-OpenGL::Texture* ItemImage(List* Owner, ListItem* Item)
-{
-    if(Item->Data == 0)
-    {
-        OpenGL::Texture* Texture = new OpenGL::Texture();
-        Texture->Load("resources/icons_large/application.png");
-
-        Item->Data = (void*)Texture;
-    }
-
-    return (OpenGL::Texture*)Item->Data;
-}
-
-int Test;
 char Buffer[1024];
-char BufferInverse[1024];
 
-const char* ItemString(List* Owner, ListItem* Item)
+const char* ItemString(ListSearch* Owner, int Index)
 {
-    sprintf((char*)&Buffer, "Item %d", Owner->GetItemIndex(Item) + 1);
+    sprintf(Buffer, "Item %d", Index + 1);
 
-    if(Owner->RightToLeft)
-    {
-        int Length = strlen((char*)&Buffer);
-
-        BufferInverse[Length] = 0;
-
-        for(int i = 0; i < Length; i++)
-            BufferInverse[Length - 1 - i] = Buffer[i];
-
-        return (char*)&BufferInverse;
-    }
-    else
-        return (char*)&Buffer;
-}
-
-void ItemFree(List* Owner, ListItem* Item)
-{
-    if(Item->Data != 0)
-        delete (OpenGL::Texture*)Item->Data;
+    return Buffer;
 }
 
 int main()
 {
     Resources::Init();
+
+    std::cout << "hi\n";
 
     CatInfo* Cat = new CatInfo();
     Cat->Name = "Games";
@@ -232,62 +199,56 @@ int main()
 
         List* ListView = new List(Categories[i]->button->Show);
 
+        ListSearch* Search = new ListSearch(ListView);
+
+        Search->OnImage = ItemImage;
+        Search->OnString = ItemString;
+
         switch(i)
         {
             case 0:
                 ListView->Icons = List::IconLeft;
                 ListView->Direction = List::Horizontal;
-                ListView->SetCount(42);
+                Search->SetCount(44);
                 break;
 
             case 1:
                 ListView->Icons = List::IconRight;
                 ListView->Direction = List::Horizontal;
                 ListView->RightToLeft = true;
-                ListView->SetCount(32);
+                //Search->SetCount(32);
                 break;
 
             case 2:
                 ListView->Icons = List::IconAbove;
                 ListView->Direction = List::Vertical;
-                ListView->SetCount(22);
+                //Search->SetCount(44);
                 break;
 
             case 3:
-                ListView->Icons = List::IconAbove;
+                ListView->Icons = List::IconBelow;
                 ListView->Direction = List::Vertical;
                 ListView->RightToLeft = true;
-                ListView->SetCount(52);
+                //Search->SetCount(54);
                 break;
 
         }
 
+        Search->Search = "2";
+        Search->Filter();
+
         ListView->Top = 52;
         ListView->Height = 480 -ListView->Top - Tabs->Height;
-        ListView->Width = Screen->Width - 35;
+        ListView->Width = Screen->Width;
 
-        ListView->Scrollbar = new Scroller(Categories[i]->button->Show);
-        ListView->Scrollbar->Height = ListView->Height;
-        ListView->Scrollbar->Top = ListView->Top;
-        ListView->Scrollbar->Width = Screen->Width - ListView->Width;
+        ListView->ItemFont = Resources::FontSmallAdv;
 
-        if(i & 1 > 0)
-        {
-            ListView->Left = ListView->Scrollbar->Width;
-            ListView->Scrollbar->Left = 0;
-        }
-        else
-            ListView->Scrollbar->Left = ListView->Width;
+        ListView->SetMessage("Could not find any results for: '\x0Btesting\x0B'. Please search for something else.");
 
         ListView->DrawExtension.Start = ListView->Top;
         ListView->DrawExtension.End = 480 - ListView->Top - ListView->Height;
 
         Categories[i]->button->DoFocus = ListView;
-
-        ListView->OnItemCreate = ItemAllocate;
-        ListView->OnItemImage = ItemImage;
-        ListView->OnItemString = ItemString;
-        ListView->OnItemFree = ItemFree;
 
         Image* Header = new Image(Categories[i]->button->Show, "resources/header.png");
         Header->AlphaBlend = 230;
@@ -338,7 +299,12 @@ int main()
 
     Resources::Allocate();
 
+    SharedIcon = new OpenGL::Texture();
+    SharedIcon->Load("resources/icons_large/application.png");
+
     Menu.Run();
+
+    delete SharedIcon;
 
     Resources::Deallocate();
 

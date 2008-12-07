@@ -29,29 +29,18 @@ namespace Scale
     class Font
     {
         public:
-            Font(const char* Filename, int PointHeight);
-            ~Font();
+            Font(const char* Filename, int APointHeight);
+            virtual ~Font();
 
-            void Allocate();
-            void Deallocate();
+            virtual void Allocate();
+            virtual void Deallocate();
 
-            void Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha);
-            void Size(const char* Text, int* Width, int* Height);
+            virtual void Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha);
+            virtual int Size(const char* Text, int* Height);
 
-            int PixelHeight;
             int PointHeight;
 
-        private:
-            void Measure();
-
-            OpenGL::Texture* Bitmap;
-
-            #ifndef NO_FREETYPE
-            FT_Face FontFace;
-            #endif
-
-            const char* _Filename;
-
+        protected:
             struct Glyph
             {
                 GLfloat Cords[8];
@@ -62,6 +51,42 @@ namespace Scale
                 int Top;
             };
 
-            Glyph Glyphs[256];
+            struct FontData
+            {
+                OpenGL::Texture* Bitmap;
+
+                #ifndef NO_FREETYPE
+                FT_Face FontFace;
+                #endif
+
+                const char* Filename;
+
+                Glyph Glyphs[256];
+            };
+
+            FontData Normal;
+
+            static void Allocate(int PointHeight, FontData* Data);
+            static void Measure(int PointHeight, FontData* Data);
+
+
     };
+
+    class AdvancedFont:
+        public Font
+    {
+        public:
+            AdvancedFont(const char* FilenameNormal, const char* FilenameBold, int PointHeight);
+            virtual ~AdvancedFont();
+
+            virtual void Allocate();
+            virtual void Deallocate();
+
+            virtual void Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha);
+            virtual int Size(const char* Text, int* Height);
+
+        protected:
+            FontData Bold;
+    };
+
 };

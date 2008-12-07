@@ -33,6 +33,8 @@ namespace Scale
         OpenGL::Texture* RoundCornerBottomLeft;
         OpenGL::Texture* RoundCornerBottomRight;
 
+        AdvancedFont* FontSmallAdv;
+
         Font* FontSmall;
         Font* FontNormal;
         Font* FontBig;
@@ -48,6 +50,8 @@ namespace Scale
             RoundCornerBottomLeft = new OpenGL::Texture();
             RoundCornerBottomRight = new OpenGL::Texture();
 
+            FontSmallAdv = new AdvancedFont("resources/FreeSans.ttf", "resources/FreeSansBold.ttf", 16); // 19pt
+
             FontSmall = new Font("resources/FreeSans.ttf", 16); // 19pt
             FontNormal = new Font("resources/FreeSans.ttf", 18); // 22pt
             FontBig = new Font("resources/FreeSans.ttf", 20); // 24pt
@@ -60,6 +64,8 @@ namespace Scale
             RoundCornerBottomLeft->Load("resources/border_bl.png");
             RoundCornerBottomRight->Load("resources/border_br.png");
 
+            FontSmallAdv->Allocate();
+
             FontSmall->Allocate();
             FontNormal->Allocate();
             FontBig->Allocate();
@@ -71,6 +77,8 @@ namespace Scale
             delete RoundCornerTopRight;
             delete RoundCornerBottomLeft;
             delete RoundCornerBottomRight;
+
+            delete FontSmallAdv;
 
             delete FontSmall;
             delete FontNormal;

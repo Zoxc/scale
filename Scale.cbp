@@ -71,6 +71,8 @@
 		<Unit filename="Label.hpp" />
 		<Unit filename="List.cpp" />
 		<Unit filename="List.hpp" />
+		<Unit filename="ListSearch.cpp" />
+		<Unit filename="ListSearch.hpp" />
 		<Unit filename="Main.cpp" />
 		<Unit filename="Main.hpp" />
 		<Unit filename="Resources.cpp" />

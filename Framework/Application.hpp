@@ -37,7 +37,6 @@ namespace Scale
             Application();
             virtual ~Application();
 
-
             void Allocate();
             void Deallocate();
 

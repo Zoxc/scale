@@ -40,6 +40,8 @@ namespace Scale
         extern OpenGL::Texture* RoundCornerBottomLeft;
         extern OpenGL::Texture* RoundCornerBottomRight;
 
+        extern AdvancedFont* FontSmallAdv;
+
         extern Font* FontSmall;
         extern Font* FontNormal;
         extern Font* FontBig;
