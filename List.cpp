@@ -560,8 +560,8 @@ namespace Scale
         #ifdef DEBUG
         if(OnItemDeallocate != 0)
         #endif
-        for (int i = 0; i < Count; i++)
-            OnItemDeallocate(this, &Items[i]);
+            for (int i = 0; i < Count; i++)
+                OnItemDeallocate(this, &Items[i]);
     }
 
     void List::SetMessage(const char* NewMessage)
@@ -611,6 +611,7 @@ namespace Scale
         #endif
 
         delete Scrollbar;
+
         Scrollbar = 0;
     }
 
@@ -779,6 +780,9 @@ namespace Scale
 
     void List::Draw(int X, int Y, unsigned char Alpha)
     {
+        glUniform1i(Screen->EffectUniform, 1);
+        glUniform2f(Screen->EffectOptionsUniform, Screen->Height - Y - Height, Height);//(GLfloat)(Screen->Height - Y) / Screen->Height, Height);
+
         if(Message != "")
         {
             ItemFont->Print(Message.c_str(), ColorWhite, X + MessageLeft + 1, Y + MessageTop + 1, Alpha / 3);

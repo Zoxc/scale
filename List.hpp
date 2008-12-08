@@ -169,7 +169,7 @@ namespace Scale
 
     inline int List::GetItemIndex(ListItem* Item)
     {
-        return ((unsigned int)Item - (unsigned int)Items) / sizeof(ListItem);
+        return ((size_t)Item - (size_t)Items) / sizeof(ListItem);
     }
 
     inline void List::DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha)

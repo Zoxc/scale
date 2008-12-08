@@ -158,7 +158,10 @@ namespace Scale
             Element* Captured;
 
             OpenGL::Program* Shader;
+
             GLuint ModeUniform;
+            GLuint EffectUniform;
+            GLuint EffectOptionsUniform;
             GLuint TextureUniform;
             GLuint ColorUniform;
 

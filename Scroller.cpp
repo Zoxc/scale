@@ -16,36 +16,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-#include "Element.hpp"
+#include "Graphics.hpp"
+#include "Scroller.hpp"
 
 namespace Scale
 {
-    class Solid:
-        public Element
+    Scroller::Scroller(Element* AOwner) :
+        Element::Element(AOwner)
     {
-        public:
-            Solid(Element* AOwner);
-            virtual ~Solid();
+    }
 
-            int Step;
-            int Position;
-            int Max;
+    Scroller::~Scroller()
+    {
+    }
 
-            Solid* Test;
+    void Scroller::Draw(int X, int Y, unsigned char Alpha)
+    {
+        Graphics::Rect(X, Y, Width, Height, 0, 0, 0, Alpha / 9);
 
-            bool Up;
+        int RSize = Size * Height / (Size + Max);
 
-            void Fade();
-            void MouseDown(int X, int Y, bool Hovered);
-            void MouseUp(int X, int Y, bool Hovered);
-            void Animate(int Delta);
+        if(RSize < 20)
+            RSize = 20;
 
-            unsigned char R;
-            unsigned char G;
-            unsigned char B;
+        int RY = (Height - RSize) * Position / Max;
 
-            void Draw(int X, int Y, unsigned char Alpha);
-    };
+        Graphics::RoundRect(X, Y + RY, Width, RSize, 0, 0, 0, Alpha / 3);
+    }
 };

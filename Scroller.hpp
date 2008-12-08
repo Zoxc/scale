@@ -22,29 +22,16 @@
 
 namespace Scale
 {
-    class Solid:
+    class Scroller:
         public Element
     {
         public:
-            Solid(Element* AOwner);
-            virtual ~Solid();
+            Scroller(Element* AOwner);
+            virtual ~Scroller();
 
-            int Step;
             int Position;
             int Max;
-
-            Solid* Test;
-
-            bool Up;
-
-            void Fade();
-            void MouseDown(int X, int Y, bool Hovered);
-            void MouseUp(int X, int Y, bool Hovered);
-            void Animate(int Delta);
-
-            unsigned char R;
-            unsigned char G;
-            unsigned char B;
+            int Size;
 
             void Draw(int X, int Y, unsigned char Alpha);
     };

@@ -188,19 +188,29 @@ namespace Scale
             uniform sampler2D Texture;\
             uniform vec4 Color;\
             uniform int Mode;\
+            uniform int Effect;\
+            uniform vec2 EffectOptions;\
+            float Temp;\
             void main (void)\
             {\
                 if(Mode == 1)\
                 {\
-                gl_FragColor = texture2D(Texture, VCord);\
-                gl_FragColor.a = gl_FragColor.a * Color.a;\
+                    gl_FragColor = texture2D(Texture, VCord);\
+                    gl_FragColor.a *= Color.a;\
                 }\
                 else if(Mode == 0)\
                     gl_FragColor = Color;\
                 else\
                 {\
                     gl_FragColor = Color;\
-                    gl_FragColor.a = texture2D(Texture, VCord).a * Color.a;\
+                    gl_FragColor.a *= texture2D(Texture, VCord).a;\
+                }\
+                \
+                if(Effect == 1)\
+                {\
+                    Temp = (gl_FragCoord.y - EffectOptions.x) / EffectOptions.y ;\
+                    if(Temp < 1.0)\
+                        gl_FragColor.a *= Temp;\
                 }\
             }";
 
@@ -228,6 +238,8 @@ namespace Scale
 
         TextureUniform = glGetUniformLocation(Shader->Handle, "Texture");
         ModeUniform = glGetUniformLocation(Shader->Handle, "Mode");
+        EffectUniform = glGetUniformLocation(Shader->Handle, "Effect");
+        EffectOptionsUniform = glGetUniformLocation(Shader->Handle, "EffectOptions");
         ColorUniform = glGetUniformLocation(Shader->Handle, "Color");
     }
 
@@ -504,6 +516,8 @@ namespace Scale
 
             if(DoRedraw)
             {
+                glClear(GL_COLOR_BUFFER_BIT);
+
                 for (Child = Children->begin(); Child != Children->end(); Child++)
                     (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
 

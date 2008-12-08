@@ -282,12 +282,21 @@ int main()
 
     Menu.EventFrame = &OnFrame;
     #endif
-/*
+
+    Solid Splash2(&Menu);
+    Splash2.Width = Menu.Width;
+    Splash2.Height = Menu.Height;
+    Splash2.Height = Menu.Height;
+    Splash2.R = 128;
+    Splash2.AlphaBlend = 200;
+
     Solid Splash(&Menu);
     Splash.Width = Menu.Width;
     Splash.Height = Menu.Height;
-    Splash.AlphaBlend = 128;
-
+    Splash.Test = &Splash2;
+    Splash.B = 128;
+    Splash.AlphaBlend = 200;
+/*
     Image SplashImg(&Splash, "resources/logo.png");
     SplashImg.Left = (Menu.Width - SplashImg.Width) >> 1;
     SplashImg.Top = (Menu.Height - SplashImg.Height) >> 1;
