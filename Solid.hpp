@@ -19,6 +19,7 @@
 #pragma once
 
 #include "Element.hpp"
+//#define SolidEffects
 
 namespace Scale
 {
@@ -29,18 +30,20 @@ namespace Scale
             Solid(Element* AOwner);
             virtual ~Solid();
 
-            int Step;
-            int Position;
-            int Max;
+            #ifdef SolidEffects
+                int Step;
+                int Position;
+                int Max;
 
-            Solid* Test;
+                Solid* Test;
 
-            bool Up;
+                bool Up;
 
-            void Fade();
-            void MouseDown(int X, int Y, bool Hovered);
-            void MouseUp(int X, int Y, bool Hovered);
-            void Animate(int Delta);
+                void Fade();
+                void MouseDown(int X, int Y, bool Hovered);
+                void MouseUp(int X, int Y, bool Hovered);
+                void Animate(int Delta);
+            #endif
 
             unsigned char R;
             unsigned char G;

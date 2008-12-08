@@ -780,8 +780,8 @@ namespace Scale
 
     void List::Draw(int X, int Y, unsigned char Alpha)
     {
-        glUniform1i(Screen->EffectUniform, 1);
-        glUniform2f(Screen->EffectOptionsUniform, Screen->Height - Y - Height, Height);//(GLfloat)(Screen->Height - Y) / Screen->Height, Height);
+        //glUniform1i(Screen->EffectUniform, 1);
+        //glUniform2f(Screen->EffectOptionsUniform, Screen->Height - Y - Height, Height);//(GLfloat)(Screen->Height - Y) / Screen->Height, Height);
 
         if(Message != "")
         {

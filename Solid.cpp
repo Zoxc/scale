@@ -22,7 +22,7 @@
 namespace Scale
 {
     #define FadeLength 300
-    #define Time 250
+    #define Time 150
 
     Solid::Solid(Element* AOwner) :
         Element::Element(AOwner),
@@ -30,60 +30,64 @@ namespace Scale
         G(0),
         B(0)
     {
-        Position = 0;
+        #ifdef SolidEffects
+            Position = 0;
+        #endif
     }
 
-    void Solid::Fade()
-    {
-        Up = true;
-        Step = 0;
-        Start();
-    }
-
-    void Solid::MouseUp(int X, int Y, bool Hovered)
-    {
-        Element::MouseUp(X, Y, Hovered);
-
-        if(Hovered)
+    #ifdef SolidEffects
+        void Solid::Fade()
         {
-            Up = false;
-            Test->Fade();
+            Up = true;
             Step = 0;
             Start();
         }
-    }
-    void Solid::MouseDown(int X, int Y, bool Hovered)
-    {
-        Element::MouseDown(X, Y, Hovered);
 
-        if(Hovered)
+        void Solid::MouseUp(int X, int Y, bool Hovered)
         {
-            Test->Position = 0;
-            Test->Up = true;
-            Test->Redraw();
+            Element::MouseUp(X, Y, Hovered);
 
-            Position = 0;
+            if(Hovered)
+            {
+                Up = false;
+                Test->Fade();
+                Step = 0;
+                Start();
+            }
+        }
+        void Solid::MouseDown(int X, int Y, bool Hovered)
+        {
+            Element::MouseDown(X, Y, Hovered);
 
-            Up = false;
+            if(Hovered)
+            {
+                Test->Position = 0;
+                Test->Up = true;
+                Test->Redraw();
+
+                Position = 0;
+
+                Up = false;
+
+                Redraw();
+            }
+        }
+
+        void Solid::Animate(int Delta)
+        {
+            Step += Delta;
+
+            if(Step > Time)
+            {
+                Step = Time;
+                Stop();
+            }
+
+            Position = Step * (Height + FadeLength) / Time;
 
             Redraw();
         }
-    }
-
-    void Solid::Animate(int Delta)
-    {
-        Step += Delta;
-
-        if(Step > Time)
-        {
-            Step = Time;
-            Stop();
-        }
-
-        Position = Step * (Height + FadeLength) / Time;
-
-        Redraw();
-    }
+    #endif
 
 
     Solid::~Solid()
@@ -92,19 +96,23 @@ namespace Scale
 
     void Solid::Draw(int X, int Y, unsigned char Alpha)
     {
-        if(Up)
-        {
-            glUniform1i(Screen->EffectUniform, 1);
-            glUniform2f(Screen->EffectOptionsUniform, Screen->Height - (Y - Position) - Height, -FadeLength);
-        }
-        else
-        {
-            glUniform1i(Screen->EffectUniform, 1);
-            glUniform2f(Screen->EffectOptionsUniform, Screen->Height - (Y + FadeLength - Position) - Height, FadeLength);
-        }
+        #ifdef SolidEffects
+            if(Up)
+            {
+                glUniform1i(Screen->EffectUniform, 1);
+                glUniform2f(Screen->EffectOptionsUniform, Screen->Height - (Y - Position) - Height, -FadeLength);
+            }
+            else
+            {
+                glUniform1i(Screen->EffectUniform, 1);
+                glUniform2f(Screen->EffectOptionsUniform, Screen->Height - (Y + FadeLength - Position) - Height, FadeLength);
+            }
+        #endif
 
         Graphics::Rect(X, Y, Width, Height, R, G, B, Alpha);
 
-        glUniform1i(Screen->EffectUniform, 0);
+        #ifdef SolidEffects
+            glUniform1i(Screen->EffectUniform, 0);
+        #endif
     }
 };
