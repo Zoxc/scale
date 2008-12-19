@@ -26,6 +26,9 @@ namespace Scale
     {
         void Texture(OpenGL::Texture* Tex, int X, int Y, unsigned char Alpha)
         {
+            if(Alpha == 0)
+                return;
+
             GLshort Positions[] = {
                 X, Y + Tex->Height,
                 X, Y,
@@ -46,6 +49,9 @@ namespace Scale
 
         void AlphaTexture(OpenGL::Texture* Tex, int X, int Y, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
         {
+            if(Alpha == 0)
+                return;
+
             GLshort Positions[] = {
                 X, Y + Tex->Height,
                 X, Y,
@@ -66,6 +72,9 @@ namespace Scale
 
         void Rect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
         {
+            if(Alpha == 0)
+                return;
+
             GLshort Positions[] = {
                 X, Y + Height,
                 X, Y,
@@ -82,6 +91,9 @@ namespace Scale
 
         void RoundRect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
         {
+            if(Alpha == 0)
+                return;
+
             const int RoundSize = 10;
 
             AlphaTexture(Resources::RoundCornerTopLeft, X, Y, R, G, B, Alpha);

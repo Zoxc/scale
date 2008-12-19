@@ -77,6 +77,8 @@ namespace Scale
             List(Element* Owner);
             virtual ~List();
 
+            void Activate();
+            void Deactivate();
             void Allocate();
             void Deallocate();
             void Draw(int X, int Y, unsigned char Alpha);
@@ -102,7 +104,7 @@ namespace Scale
             ListItemEvent OnItemAllocate;
             ListItemEvent OnItemDeallocate;
 
-            void SetFocused(ListItem* Item);
+            bool Focus(int Index, bool ScrollTo);
             void SetCount(int NewCount);
 
             DrawExtensionOptions DrawExtension;
@@ -123,6 +125,16 @@ namespace Scale
             Font* ItemFont;
 
             void* Tag;
+
+            int FocusedTopCurrent;
+            int FocusedTopTarget;
+            int FocusedTopStart;
+
+            int FocusedLeftCurrent;
+            int FocusedLeftTarget;
+            int FocusedLeftStart;
+
+            int FocusedStep;
 
             int Position;
             int Min;
@@ -165,6 +177,8 @@ namespace Scale
 
             int MessageTop;
             int MessageLeft;
+
+            bool Activated;
     };
 
     inline int List::GetItemIndex(ListItem* Item)
@@ -174,16 +188,13 @@ namespace Scale
 
     inline void List::DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha)
     {
-        if(Focused == Item)
-            Graphics::RoundRect(X, Y, ItemWidth, ItemHeight, 255, 255, 255, Alpha / 3);
-
         if(Icons != IconNone)
             Graphics::Texture(Item->Icon, X + Item->CoordIcon, Y + IconY, Alpha);
 
         if(Captions)
         {
-            ItemFont->Print(Item->Caption, ColorWhite, X + Item->CoordCaption + 1, Y + CaptionY + 1, Alpha / 3);
-            ItemFont->Print(Item->Caption, ColorBlack, X + Item->CoordCaption, Y + CaptionY, Alpha);
+            ItemFont->Print(Item->Caption, ColorBlack, X + Item->CoordCaption + 1, Y + CaptionY + 1, Alpha / 2);
+            ItemFont->Print(Item->Caption, ColorWhite, X + Item->CoordCaption, Y + CaptionY, Alpha);
         }
     }
 };

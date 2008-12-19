@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Scale" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Scale2" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Scale" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin\" />
+				<Option object_output="obj\Release\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-D_STDCALL_SUPPORTED -D_M_IX86" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Linker>
+			<Add option="-llibEGL" />
+			<Add library="libpng" />
+			<Add library="freetype" />
+			<Add library="libEGL" />
+			<Add library="libGLESv2" />
+		</Linker>
+		<Unit filename="Font.cpp" />
+		<Unit filename="Font.hpp" />
+		<Unit filename="Framework\Application.cpp" />
+		<Unit filename="Framework\Application.hpp" />
+		<Unit filename="Framework\Button.cpp" />
+		<Unit filename="Framework\Button.hpp" />
+		<Unit filename="Framework\Element.cpp" />
+		<Unit filename="Framework\Element.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Program.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Program.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Shader.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Shader.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Texture.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Texture.hpp" />
+		<Unit filename="Framework\Options.hpp" />
+		<Unit filename="Graphics.cpp" />
+		<Unit filename="Graphics.hpp" />
+		<Unit filename="Icon.cpp" />
+		<Unit filename="Icon.hpp" />
+		<Unit filename="Image.cpp" />
+		<Unit filename="Image.hpp" />
+		<Unit filename="Label.cpp" />
+		<Unit filename="Label.hpp" />
+		<Unit filename="List.cpp" />
+		<Unit filename="List.hpp" />
+		<Unit filename="ListSearch.cpp" />
+		<Unit filename="ListSearch.hpp" />
+		<Unit filename="Main2.cpp" />
+		<Unit filename="Main2.hpp" />
+		<Unit filename="Resources.cpp" />
+		<Unit filename="Resources.hpp" />
+		<Unit filename="Scroller.cpp" />
+		<Unit filename="Scroller.hpp" />
+		<Unit filename="Solid.cpp" />
+		<Unit filename="Solid.hpp" />
+		<Unit filename="Switcher.cpp" />
+		<Unit filename="Switcher.hpp" />
+		<Unit filename="VerticalBar.cpp" />
+		<Unit filename="VerticalBar.hpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

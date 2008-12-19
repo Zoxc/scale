@@ -54,7 +54,7 @@ namespace Scale
 
             FontSmall = new Font("resources/FreeSans.ttf", 16); // 19pt
             FontNormal = new Font("resources/FreeSans.ttf", 18); // 22pt
-            FontBig = new Font("resources/FreeSans.ttf", 20); // 24pt
+            FontBig = new Font("resources/FreeSans.ttf", 14); // 24pt
         }
 
         void Allocate()

@@ -83,17 +83,7 @@ namespace Scale
     void Window::KeyDown(ElementKey Key)
     {
         if(Focused != 0)
-        {
             Focused->KeyDown(Key);
-
-            if(Focused->Links != 0)
-                for (ElementLinks::iterator Link = Focused->Links->begin(); Link != Focused->Links->end(); Link++)
-                    if(Key == Link->first)
-                    {
-                        Focus(Link->second);
-                        break;
-                    }
-        }
     }
 
     void Window::KeyUp(ElementKey Key)
@@ -222,6 +212,13 @@ namespace Scale
 
     void Element::KeyDown(ElementKey Key)
     {
+            if(Links != 0)
+                for (ElementLinks::iterator Link = Links->begin(); Link != Links->end(); Link++)
+                    if(Key == Link->first)
+                    {
+                        Focus(Link->second);
+                        break;
+                    }
     }
 
     void Element::KeyUp(ElementKey Key)
