@@ -126,16 +126,6 @@ namespace Scale
 
             void* Tag;
 
-            int FocusedTopCurrent;
-            int FocusedTopTarget;
-            int FocusedTopStart;
-
-            int FocusedLeftCurrent;
-            int FocusedLeftTarget;
-            int FocusedLeftStart;
-
-            int FocusedStep;
-
             int Position;
             int Min;
             int Max;
@@ -188,6 +178,14 @@ namespace Scale
 
     inline void List::DrawItem(ListItem* Item, int X, int Y, unsigned char Alpha)
     {
+        if(Item == Focused)
+        {
+            if(Activated)
+                Graphics::RoundRect(X, Y, ItemWidth, ItemHeight, 0, 0, 0, Alpha * 7 / 20);
+            else
+                Graphics::RoundRect(X, Y, ItemWidth, ItemHeight, 0, 0, 0, Alpha * 3 / 20);
+        }
+
         if(Icons != IconNone)
             Graphics::Texture(Item->Icon, X + Item->CoordIcon, Y + IconY, Alpha);
 

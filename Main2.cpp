@@ -55,6 +55,11 @@ int main()
 
     Image Wallpaper(&Menu, "resources/back2.png");
 
+    Image Bluetooth(&Menu, "resources/bluetooth.png");
+    Bluetooth.Left = Screen->Width - Bluetooth.Width - 4;
+    Bluetooth.Top = 4;
+    Bluetooth.AlphaBlend = 210;
+
     Label Time(&Menu, "9:36 pm", Resources::FontBig, ColorWhite);
     Time.Left = Screen->Width - Time.Width >> 1;
     Time.Top = 8;

@@ -168,22 +168,6 @@ namespace Scale
             }
         }
 
-        if(FocusedStep >= 200)
-        {
-            FocusedLeftCurrent = FocusedLeftTarget;
-            FocusedTopCurrent = FocusedTopTarget;
-        }
-        else
-        {
-            FocusedStep += Delta;
-
-            Active = true;
-
-            float Sin = sin((float)FocusedStep / 200.0f * M_PI_2);
-
-            FocusedLeftCurrent = FocusedLeftStart + (int)((FocusedLeftTarget - FocusedLeftStart) * Sin);
-            FocusedTopCurrent = FocusedTopStart + (int)((FocusedTopTarget - FocusedTopStart) * Sin);
-        }
 
         if(!Active)
         {
@@ -312,7 +296,7 @@ namespace Scale
         if(Focused == 0)
             return;
 
-        int Index = GetItemIndex(Focused);
+        int Index = FocusedIndex;
 
         if(Direction == Horizontal)
         {
@@ -482,36 +466,6 @@ namespace Scale
 
         FocusedIndex = Index;
         Focused = Item;
-
-        int Column = Index % Columns;
-        int Row = Index / Columns;
-
-        int NewLeft = Column * ItemWidth;
-        int NewTop = Row * ItemHeight;
-
-        FocusedLeftTarget = NewLeft;
-        FocusedTopTarget = NewTop;
-
-        FocusedLeftStart = FocusedLeftCurrent;
-        FocusedTopStart = FocusedTopCurrent;
-
-        if(Allocated)
-        {
-            if(!Animated)
-            {
-                Animated = true;
-
-                Start();
-            }
-
-            FocusedStep = 0;
-        }
-        else
-        {
-            FocusedLeftCurrent = FocusedLeftTarget;
-            FocusedTopCurrent = FocusedTopTarget;
-            FocusedStep = 255;
-        }
 
         if(ScrollTo)
             TargetFocused();
@@ -827,14 +781,6 @@ namespace Scale
         {
             glScissor(X - DrawExtension.Start, Screen->Height - Y - Height, Width + DrawExtension.Start + DrawExtension.End, Height);
 
-            if(Focused != 0)
-            {
-                if(Activated)
-                    Graphics::RoundRect(X + FocusedLeftTarget - Position, Y + FocusedTopTarget, ItemWidth, ItemHeight, 0, 0, 0, Alpha * 7 / 20);
-                else
-                    Graphics::RoundRect(X + FocusedLeftTarget - Position, Y + FocusedTopTarget, ItemWidth, ItemHeight, 0, 0, 0, Alpha * 3 / 20);
-            }
-
             #ifdef RightToLeftEnabled
             if(RightToLeft)
             {
@@ -896,14 +842,6 @@ namespace Scale
         else
         {
             glScissor(X, Screen->Height - Y - Height - DrawExtension.End, Width, Height + DrawExtension.Start + DrawExtension.End);
-
-            if(Focused != 0)
-            {
-                if(Activated)
-                    Graphics::RoundRect(X + FocusedLeftCurrent, Y + FocusedTopCurrent - Position, ItemWidth, ItemHeight, 0, 0, 0, Alpha * 7 / 20);
-                else
-                    Graphics::RoundRect(X + FocusedLeftCurrent, Y + FocusedTopCurrent - Position, ItemWidth, ItemHeight, 0, 0, 0, Alpha * 3 / 20);
-            }
 
             #ifdef RightToLeftEnabled
             if(RightToLeft)

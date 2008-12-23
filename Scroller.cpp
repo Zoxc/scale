@@ -32,7 +32,12 @@ namespace Scale
 
     void Scroller::Draw(int X, int Y, unsigned char Alpha)
     {
-        Graphics::Rect(X, Y, Width, Height, 0, 0, 0, Alpha / 9);
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(X, Screen->Height - Y - Height, Width, Height);
+
+        Graphics::RoundRect(X - 10, Y, Width + 10, Height, 0, 0, 0, Alpha / 8);
+
+        glDisable(GL_SCISSOR_TEST);
 
         int RSize = Size * Height / (Size + Max);
 
@@ -41,6 +46,6 @@ namespace Scale
 
         int RY = (Height - RSize) * Position / Max;
 
-        Graphics::RoundRect(X, Y + RY, Width, RSize, 0, 0, 0, Alpha / 3);
+        Graphics::RoundRect(X, Y + RY, Width, RSize, 0, 0, 0, Alpha * 7 / 20);
     }
 };
