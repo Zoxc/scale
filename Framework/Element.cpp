@@ -16,6 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef POSIX
+    #include <sys/time.h>
+#endif
+
 #include "Element.hpp"
 
 namespace Scale
@@ -33,6 +37,15 @@ namespace Scale
     {
         #ifdef WIN32
             return GetTickCount();
+        #endif
+
+        #ifdef POSIX
+            struct timeval tv;
+
+            if(gettimeofday(&tv, 0) != 0)
+                return 0;
+
+            return tv.tv_sec * 1000 + tv.tv_usec / 1000;
         #endif
     }
 

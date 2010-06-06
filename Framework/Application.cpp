@@ -53,7 +53,7 @@ namespace Scale
     }
 
     #ifdef X11
-        Bool Application::WaitForMapNotify( Display *d, XEvent *e, char *arg )
+        Bool Application::WaitForMapNotify(Display *d, XEvent *e, char *arg)
         {
             return (e->type == MapNotify) && (e->xmap.window == (::Window)arg);
         }
@@ -116,7 +116,7 @@ namespace Scale
             sWA.colormap = x11Colormap;
             sWA.background_pixel = 0xFFFFFFFF;
             sWA.border_pixel = 0;
-            sWA.event_mask = StructureNotifyMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask;
+            sWA.event_mask = StructureNotifyMask | ExposureMask | ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask | PointerMotionMask | LeaveWindowMask;
 
             ui32Mask = CWBackPixel | CWBorderPixel | CWEventMask | CWColormap;
 
@@ -183,7 +183,7 @@ namespace Scale
         Shader = new OpenGL::Program();
 
         // Fragment and vertex shaders code
-        char* FragmentSource = "precision lowp float;\
+        const char* FragmentSource = "precision lowp float;\
             varying vec2 VCord;\
             uniform sampler2D Texture;\
             uniform vec4 Color;\
@@ -214,7 +214,7 @@ namespace Scale
                 }\
             }";
 
-        char* VertexSource = "precision lowp float;\
+        const char* VertexSource = "precision lowp float;\
             attribute vec2 APoint;\
             attribute vec2 ACord;\
             varying vec2 VCord;\
@@ -477,17 +477,32 @@ namespace Scale
             #endif
 
             #ifdef X11
-                int i32NumMessages = XPending( x11Display );
-                for( int i = 0; i < i32NumMessages; i++ )
+                int i32NumMessages = XPending(x11Display);
+                for(int i = 0; i < i32NumMessages; i++)
                 {
-                    XEvent	event;
-                    XNextEvent( x11Display, &event );
+                    XEvent event;
+                    XNextEvent(x11Display, &event);
 
                     switch(event.type)
                     {
-                        // Exit on mouse click
+                        case KeyPress:
+                            Screen->KeyDown(XLookupKeysym(&event.xkey, 0));
+                            break;
+
+                        case KeyRelease:
+                            Screen->KeyUp(XLookupKeysym(&event.xkey, 0));
+                            break;
+
                         case ButtonPress:
-                        //  Running = false;
+                            Screen->MouseDown(event.xbutton.x, event.xbutton.y, 0);
+                            break;
+
+                        case ButtonRelease:
+                            Screen->MouseUp(event.xbutton.x, event.xbutton.y, 0);
+                            break;
+
+                        case MotionNotify:
+                            Screen->MouseMove(event.xmotion.x, event.xmotion.y, 0);
                             break;
 
                         default:

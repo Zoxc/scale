@@ -1,11 +1,11 @@
 #include <iostream>
 #include "OpenGL.Shader.hpp"
 
-OpenGL::Shader::Shader(GLenum type, char* Source)
+OpenGL::Shader::Shader(GLenum type, const char* Source)
 {
     Handle = glCreateShader(type);
 
-    glShaderSource(Handle, 1, (const char**)&Source, 0);
+    glShaderSource(Handle, 1, &Source, 0);
 
     glCompileShader(Handle);
 

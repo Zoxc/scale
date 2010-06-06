@@ -7,7 +7,7 @@ namespace OpenGL
     class Shader
     {
         public:
-            Shader(GLenum type, char* Source);
+            Shader(GLenum type, const char* Source);
             ~Shader();
 
             GLuint Handle;

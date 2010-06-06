@@ -56,12 +56,12 @@ int main()
     Image Wallpaper(&Menu, "resources/back2.png");
 
     Image Bluetooth(&Menu, "resources/bluetooth.png");
-    Bluetooth.Left = Screen->Width - Bluetooth.Width - 4;
+    Bluetooth.Left = Scale::Screen->Width - Bluetooth.Width - 4;
     Bluetooth.Top = 4;
     Bluetooth.AlphaBlend = 210;
 
     Label Time(&Menu, "9:36 pm", Resources::FontBig, ColorWhite);
-    Time.Left = Screen->Width - Time.Width >> 1;
+    Time.Left = Scale::Screen->Width - Time.Width >> 1;
     Time.Top = 8;
     Time.AlphaBlend = 210;
 
@@ -121,7 +121,7 @@ int main()
     ListView.Left = Bar.Left + Bar.Width + 25;
     ListView.Top = Bar.Top;
     ListView.Height = Bar.Height;
-    ListView.Width = Screen->Width - 25 - ListView.Left - 3;
+    ListView.Width = Scale::Screen->Width - 25 - ListView.Left - 3;
 
     ListView.Link(ElementLeft, &Bar);
     Bar.Link(ElementRight, &ListView);

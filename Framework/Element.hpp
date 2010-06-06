@@ -27,6 +27,7 @@
 #ifdef X11
     #include "X11/Xlib.h"
     #include "X11/Xutil.h"
+    #include "X11/keysym.h"
 #endif
 
 #include "OpenGL/OpenGL.Texture.hpp"
@@ -58,11 +59,11 @@ namespace Scale
     #endif
 
     #ifdef X11
-        #define ElementUp 0
-        #define ElementDown 1
-        #define ElementLeft 2
-        #define ElementRight 3
-        #define ElementGo 4
+        #define ElementUp XK_Up
+        #define ElementDown XK_Down
+        #define ElementLeft XK_Left
+        #define ElementRight XK_Right
+        #define ElementGo XK_Return
     #endif
 
     class Element
