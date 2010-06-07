@@ -22,7 +22,7 @@
 namespace Scale
 {
     ListSearch::ListSearch(List* AOwner):
-        Element::Element((Element*)AOwner),
+        Element((Element*)AOwner),
         Owner(AOwner),
         Count(0)
     {

@@ -24,7 +24,7 @@
 namespace Scale
 {
     List::List(Element* Owner):
-        Element::Element(Owner),
+        Element(Owner),
         Focused(0),
         Items(0),
         OnItemCreate(0),

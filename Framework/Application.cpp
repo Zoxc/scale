@@ -71,7 +71,7 @@ namespace Scale
             sWC.hIcon = 0;
             sWC.hCursor = 0;
             sWC.lpszMenuName = 0;
-            sWC.hbrBackground = (HBRUSH) GetStockObject(WHITE_BRUSH);
+            sWC.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
             sWC.lpszClassName = "WindowHandle";
             ATOM registerClass = RegisterClass(&sWC);
 
@@ -154,7 +154,7 @@ namespace Scale
 
         const EGLint pi32ConfigAttribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE,EGL_OPENGL_ES2_BIT, EGL_NONE};
 
-        int iConfigs;
+        EGLint iConfigs;
         if (!eglChooseConfig(eglDisplay, pi32ConfigAttribs, &eglConfig, 1, &iConfigs) || (iConfigs != 1))
             throw "eglChooseConfig() failed.";
 
@@ -529,22 +529,27 @@ namespace Scale
             if(!Running)
                 break;
 
+            #ifndef NO_FRAME_LIMIT
             if(DoRedraw)
             {
-                glClear(GL_COLOR_BUFFER_BIT);
+            #endif
 
-                for (Child = Children->begin(); Child != Children->end(); Child++)
-                    (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-                #ifdef FRAME_EVENT
-                if(EventFrame != 0)
-                    EventFrame();
-                #endif
+            for (Child = Children->begin(); Child != Children->end(); Child++)
+                (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
 
-                eglSwapBuffers(eglDisplay, eglSurface);
+            #ifdef FRAME_EVENT
+            if(EventFrame != 0)
+                EventFrame();
+            #endif
 
+            eglSwapBuffers(eglDisplay, eglSurface);
+
+            #ifndef NO_FRAME_LIMIT
                 DoRedraw = false;
             }
+            #endif
 
             #ifdef WIN32
                 #ifndef NO_FRAME_LIMIT

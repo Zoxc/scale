@@ -16,9 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <algorithm>
-
 #include "Element.hpp"
+#include <algorithm>
 #include "Font.hpp"
 #include "Resources.hpp"
 
@@ -45,7 +44,7 @@ namespace Scale
             Error = FT_Load_Glyph(Data->FontFace, FT_Get_Char_Index(Data->FontFace, (unsigned char)i), FT_LOAD_DEFAULT);
 
             if(Error)
-                continue;
+                assert(0);
 
             Data->Glyphs[i].Width = Data->Bitmap->Width;
 
@@ -67,12 +66,12 @@ namespace Scale
             Error = FT_Load_Glyph(Data->FontFace, FT_Get_Char_Index(Data->FontFace, (unsigned char)i), FT_LOAD_DEFAULT);
 
             if(Error)
-                return;
+                assert(0);
 
             Error = FT_Render_Glyph(Data->FontFace->glyph, FT_RENDER_MODE_NORMAL);
 
             if(Error)
-                return;
+               assert(0);
 
             #ifdef NO_GL_ALPHA
                 unsigned int* PixelData = new unsigned int[Data->FontFace->glyph->bitmap.width * Data->FontFace->glyph->bitmap.rows];

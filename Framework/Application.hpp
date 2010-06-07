@@ -69,7 +69,7 @@ namespace Scale
 
             #ifdef WIN32
                 HDC hDC;
-                static LRESULT CALLBACK Application::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+                static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
             #endif
 
             #ifdef X11

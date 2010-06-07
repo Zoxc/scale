@@ -25,7 +25,7 @@ namespace Scale
     #define Time 150
 
     Solid::Solid(Element* AOwner) :
-        Element::Element(AOwner),
+        Element(AOwner),
         R(0),
         G(0),
         B(0)

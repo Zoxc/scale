@@ -24,7 +24,7 @@
 namespace Scale
 {
     Image::Image(Element* Owner, std::string Path):
-        Element::Element(Owner),
+        Element(Owner),
         NeedAlpha(true)
     {
         Filename = Path;

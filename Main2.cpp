@@ -16,9 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Main.hpp"
 #include <iostream>
 #include <sstream>
-#include "Main.hpp"
 #include "Resources.hpp"
 #include "Label.hpp"
 #include "List.hpp"
@@ -30,6 +30,34 @@ Application Menu;
 
 OpenGL::Texture* SharedIcon;
 
+#ifdef FRAME_EVENT
+    Label* FPS;
+    int LastUpdate = 0;
+    int Frames = 0;
+#endif
+
+#ifdef FRAME_EVENT
+void OnFrame()
+{
+    Frames++;
+
+    if( GetTicks() - LastUpdate > 100)
+    {
+            std::stringstream Caption;
+
+            Caption << "FPS: ";
+
+            Caption << Frames / ((GetTicks() - LastUpdate) / 1000.f);
+
+            FPS->Caption = Caption.str();
+
+            LastUpdate = GetTicks();
+
+            Frames = 0;
+    }
+
+}
+#endif
 
 void ItemCreate(List* Owner, ListItem* Item)
 {
@@ -133,6 +161,14 @@ int main()
     ListView.SetCount(55);
 
     Menu.Title = "Scale Demo";
+
+    #ifdef FRAME_EVENT
+    FPS = new Label(&Menu, "FPS:       ", Resources::FontSmall, ColorWhite);
+    FPS->Left = 800 - 150;
+    FPS->Top = 60;
+
+    Menu.EventFrame = &OnFrame;
+    #endif
 
     Menu.Allocate();
 

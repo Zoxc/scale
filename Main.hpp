@@ -17,9 +17,8 @@
 */
 
 #pragma once
-#include <vector>
-
 #include "Element.hpp"
+#include <vector>
 #include "Options.hpp"
 #include "Application.hpp"
 #include "Image.hpp"

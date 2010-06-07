@@ -21,7 +21,7 @@
 namespace Scale
 {
     Label::Label(Element* Owner, std::string ACaption, Font* AFont, unsigned int AColor) :
-        Element::Element(Owner),
+        Element(Owner),
         LabelFont(AFont),
         Color(AColor)
     {

@@ -17,6 +17,8 @@
 */
 
 #pragma once
+#define NOMINMAX
+
 #include "EGL/egl.h"
 #include "GLES2/gl2.h"
 
@@ -34,8 +36,10 @@
 #include "OpenGL/OpenGL.Shader.hpp"
 #include "OpenGL/OpenGL.Program.hpp"
 
+#include <assert.h>
 #include <list>
 #include <map>
+#include <iostream>
 
 namespace Scale
 {
@@ -57,6 +61,10 @@ namespace Scale
         #define ElementRight VK_RIGHT
         #define ElementGo VK_RETURN
     #endif
+	
+	#ifndef M_PI_2
+		#define M_PI_2 1.5707963267948966192E0
+	#endif
 
     #ifdef X11
         #define ElementUp XK_Up

@@ -22,7 +22,7 @@
 namespace Scale
 {
     Scroller::Scroller(Element* AOwner) :
-        Element::Element(AOwner)
+        Element(AOwner)
     {
     }
 

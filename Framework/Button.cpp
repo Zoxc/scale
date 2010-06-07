@@ -20,7 +20,7 @@
 
 namespace Scale
 {
-    Button::Button(Element* Owner) : Element::Element(Owner)
+    Button::Button(Element* Owner) : Element(Owner)
     {
     }
 

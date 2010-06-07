@@ -26,7 +26,7 @@
 namespace Scale
 {
     VerticalBar::VerticalBar(Element* AOwner) :
-        Element::Element(AOwner),
+        Element(AOwner),
         Animating(false),
         Activated(false),
         Focused(0)
@@ -97,6 +97,7 @@ namespace Scale
             IconTop += ItemHeight;
 
             (*Item)->Step = 255;
+            (*Item)->IconCurrent = 255;
 
             (*Item)->CaptionLeft = Width - ItemFont->Size((*Item)->Caption, 0) >> 1;
         }

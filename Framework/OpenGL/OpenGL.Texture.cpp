@@ -3,14 +3,14 @@
 #include <stdarg.h>
 #include "OpenGL.Texture.hpp"
 
-OpenGL::Texture::Texture()
+OpenGL::Texture::Texture() : Allocated(false)
 {
-    glGenTextures(1, &Handle);
 }
 
 OpenGL::Texture::~Texture()
 {
-    glDeleteTextures(1, &Handle);
+    if(Allocated)
+        glDeleteTextures(1, &Handle);
 }
 
 void OpenGL::Texture::Load(const char* FileName)
@@ -21,6 +21,9 @@ void OpenGL::Texture::Load(const char* FileName)
     unsigned char* ImageData;
 
 	char Header[8];
+
+	if(!Allocated)
+        glGenTextures(1, &Handle);
 
 	FILE *File = fopen(FileName, "rb");
 	if(!File)

@@ -12,6 +12,7 @@
 				<Option object_output="obj\Debug\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
@@ -24,7 +25,6 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-D_STDCALL_SUPPORTED -D_M_IX86" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -34,13 +34,15 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add option="-DNO_FRAME_LIMIT" />
+			<Add directory="Framework" />
 		</Compiler>
 		<Linker>
 			<Add option="-llibEGL" />
+			<Add option="-llibGLESv2" />
 			<Add library="libpng" />
 			<Add library="freetype" />
-			<Add library="libEGL" />
-			<Add library="libGLESv2" />
+			<Add library="gdi32" />
 		</Linker>
 		<Unit filename="Font.cpp" />
 		<Unit filename="Font.hpp" />

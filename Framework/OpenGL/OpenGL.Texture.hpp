@@ -11,6 +11,8 @@ namespace OpenGL
 
             void Load(const char* FileName);
 
+            bool Allocated;
+
             int Width;
             int Height;
 

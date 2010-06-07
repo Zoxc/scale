@@ -21,7 +21,7 @@
 
 namespace Scale
 {
-    Switcher::Switcher(Element* AOwner) : Element::Element(AOwner)
+    Switcher::Switcher(Element* AOwner) : Element(AOwner)
     {
     }
 
