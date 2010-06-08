@@ -41,7 +41,7 @@ void OnFrame()
 {
     Frames++;
 
-    if( GetTicks() - LastUpdate > 100)
+    if( GetTicks() - LastUpdate > 300)
     {
             std::stringstream Caption;
 

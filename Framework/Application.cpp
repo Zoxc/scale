@@ -152,7 +152,9 @@ namespace Scale
         if (!eglInitialize(eglDisplay, &iMajorVersion, &iMinorVersion))
             throw "eglInitialize() failed.";
 
-        const EGLint pi32ConfigAttribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE,EGL_OPENGL_ES2_BIT, EGL_NONE};
+        eglSwapInterval(eglDisplay, 0);
+
+        const EGLint pi32ConfigAttribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT, EGL_NONE, EGL_MIN_SWAP_INTERVAL, 0};
 
         EGLint iConfigs;
         if (!eglChooseConfig(eglDisplay, pi32ConfigAttribs, &eglConfig, 1, &iConfigs) || (iConfigs != 1))

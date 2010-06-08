@@ -17,7 +17,9 @@
 */
 
 #pragma once
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 
 #include "EGL/egl.h"
 #include "GLES2/gl2.h"
@@ -61,7 +63,7 @@ namespace Scale
         #define ElementRight VK_RIGHT
         #define ElementGo VK_RETURN
     #endif
-	
+
 	#ifndef M_PI_2
 		#define M_PI_2 1.5707963267948966192E0
 	#endif

@@ -52,7 +52,7 @@ namespace Scale
 
             FontSmallAdv = new AdvancedFont("resources/FreeSans.ttf", "resources/FreeSansBold.ttf", 16); // 19pt
 
-            FontSmall = new Font("resources/FreeSans.ttf", 16); // 19pt
+            FontSmall = new Font("resources/FreeSans.ttf", 14); // 19pt
             FontNormal = new Font("resources/FreeSans.ttf", 18); // 22pt
             FontBig = new Font("resources/FreeSans.ttf", 14); // 24pt
         }
