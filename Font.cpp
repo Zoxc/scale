@@ -191,6 +191,139 @@ namespace Scale
         return Width;
     }
 
+    void Font::Buffer::Print(unsigned int Color, int X, int Y, unsigned char Alpha)
+    {
+        #ifndef NO_FREETYPE
+        glBindTexture(GL_TEXTURE_2D, bitmap->Handle);
+
+        Screen->ChangeMode(3);
+
+        glUniform2f(Screen->OffsetUniforms[3], X, Y);
+        glUniform1i(Screen->TextureUniforms[3], 0);
+        glUniform4f(Screen->ColorUniforms[3], reinterpret_cast<unsigned char*>(&Color)[0] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[1] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[2] / 255.0f, Alpha / 255.0f);
+
+        vertex_buffer->Bind();
+        glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, 0);
+
+        coords_buffer->Bind();
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 5 * chars);
+        DrawCalls++;
+
+        glUniform2f(Screen->OffsetUniforms[3], 0.0, 0.0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        #endif
+    }
+
+    GLshort *Font::BufferQuad(int Position, Glyph* Char, GLshort *buffer, bool first)
+    {
+        if(!first)
+        {
+            *buffer++ = Position; *buffer++ = Char->Height - Char->Top;
+        }
+
+        *buffer++ = Position; *buffer++ = Char->Height - Char->Top;
+        *buffer++ = Position; *buffer++ = 0 - Char->Top;
+        *buffer++ = Position + Char->Width; *buffer++ = Char->Height - Char->Top;
+        *buffer++ = Position + Char->Width; *buffer++ = 0 - Char->Top;
+
+        if(first)
+        {
+            *buffer++ = Char->Width; *buffer++ = 0 - Char->Top;
+        }
+
+        return buffer;
+    }
+
+    GLfloat *Font::BufferCoords(Glyph* Char, GLfloat *buffer, bool first)
+    {
+        if(!first)
+        {
+            *buffer++ = Char->Cords[0]; *buffer++ = Char->Cords[1];
+        }
+
+        for(int i = 0; i < 8; i++)
+            *buffer++ = Char->Cords[i];
+
+        if(first)
+        {
+            *buffer++ = Char->Cords[6]; *buffer++ = Char->Cords[7];
+        }
+
+        return buffer;
+    }
+
+    Font::Buffer *Font::AllocBuffer(const char* Text)
+    {
+        Buffer *buffer = new Buffer();
+
+        #ifndef NO_FREETYPE
+        int Position = 0;
+
+        buffer->chars = 0;
+
+        const char *c = Text;
+
+        while(*c != 0)
+        {
+            if((unsigned char)*c > 32)
+                buffer->chars++;
+
+            c++;
+        }
+
+        buffer->bitmap = Normal.Bitmap;
+        buffer->vertex_buffer = new OpenGL::Buffer(GL_ARRAY_BUFFER, buffer->chars * 10 * sizeof(GLshort));
+        buffer->coords_buffer = new OpenGL::Buffer(GL_ARRAY_BUFFER, buffer->chars * 10 * sizeof(GLfloat));
+
+        GLshort *buffer1 = (GLshort *)buffer->vertex_buffer->Map();
+
+        bool first = true;
+
+        c = Text;
+        while(*c != 0)
+        {
+            Glyph* Char = &Normal.Glyphs[(unsigned char)*c];
+
+            if((unsigned char)*c > 32)
+            {
+                buffer1 = BufferQuad(Position, Char, buffer1, first);
+                first = false;
+            }
+            Position += Char->Advance;
+
+            c++;
+        }
+
+        buffer->vertex_buffer->UnMap();
+
+        GLfloat *buffer2 = (GLfloat *)buffer->coords_buffer->Map();
+
+        first = true;
+
+        c = Text;
+        while(*c != 0)
+        {
+            Glyph* Char = &Normal.Glyphs[(unsigned char)*c];
+
+            if((unsigned char)*c > 32)
+            {
+                buffer2 = BufferCoords(Char, buffer2, first);
+                first = false;
+            }
+
+            c++;
+        }
+
+        buffer->coords_buffer->UnMap();
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        #endif
+
+        return buffer;
+    }
+
     void Font::Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha)
     {
         #ifndef NO_FREETYPE

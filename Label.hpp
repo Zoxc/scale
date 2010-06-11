@@ -35,6 +35,7 @@ namespace Scale
 
             void Draw(int X, int Y, unsigned char Alpha);
 
+            Font::Buffer *Buffer;
             Font* LabelFont;
             unsigned int Color;
 

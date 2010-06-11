@@ -31,6 +31,8 @@ namespace Scale
         const char* IconPath;
         OpenGL::Texture* Icon;
 
+        Font::Buffer *Buffer;
+
         short IconCurrent;
         short IconStart;
         short IconTarget;

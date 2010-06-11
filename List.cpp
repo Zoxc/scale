@@ -733,6 +733,8 @@ namespace Scale
                 {
                     FontWidth = ItemFont->Size(Item->Caption, 0);
 
+                    Item->Buffer = ItemFont->AllocBuffer(Item->Caption);
+
                     switch(Icons)
                     {
                         case IconNone:

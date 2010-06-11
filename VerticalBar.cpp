@@ -89,6 +89,7 @@ namespace Scale
 
         for(std::vector<VerticalBarItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
         {
+            (*Item)->Buffer = ItemFont->AllocBuffer((*Item)->Caption);
             (*Item)->Icon = new OpenGL::Texture();
             (*Item)->Icon->Load((*Item)->IconPath);
 
@@ -324,8 +325,8 @@ namespace Scale
 
         for(std::vector<VerticalBarItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
         {
-            ItemFont->Print((*Item)->Caption, 0, X + (*Item)->CaptionLeft + 1, Y + (*Item)->Current + FontTop + 1, Alpha >> 1);
-            ItemFont->Print((*Item)->Caption, 0xFFFFFFFF, X + (*Item)->CaptionLeft, Y + (*Item)->Current + FontTop, Alpha);
+            (*Item)->Buffer->Print(0, X + (*Item)->CaptionLeft + 1, Y + (*Item)->Current + FontTop + 1, Alpha >> 1);
+            (*Item)->Buffer->Print(0xFFFFFFFF, X + (*Item)->CaptionLeft, Y + (*Item)->Current + FontTop, Alpha);
         }
     }
 };

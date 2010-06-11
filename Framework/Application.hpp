@@ -24,7 +24,7 @@
 #include "Element.hpp"
 
 #ifdef SHADER_BENCH
-    #define SHADER_COUNT 3
+    #define SHADER_COUNT 4
 #else
     #define SHADER_COUNT 1
 #endif

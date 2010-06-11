@@ -22,6 +22,7 @@ namespace Scale
 {
     Label::Label(Element* Owner, std::string ACaption, Font* AFont, unsigned int AColor) :
         Element(Owner),
+        Buffer(0),
         LabelFont(AFont),
         Color(AColor)
     {
@@ -32,22 +33,24 @@ namespace Scale
 
     Label::~Label()
     {
-
     }
 
     void Label::Draw(int X, int Y, unsigned char Alpha)
     {
+        if(!Buffer)
+            Buffer = LabelFont->AllocBuffer(Caption.c_str());
+
         if(Color == ColorBlack)
         {
-            LabelFont->Print(Caption.c_str(), ColorWhite, X + 1, Y + 1, Alpha / 3);
-            LabelFont->Print(Caption.c_str(), ColorBlack, X, Y, Alpha);
+            Buffer->Print(ColorWhite, X + 1, Y + 1, Alpha / 3);
+            Buffer->Print(ColorBlack, X, Y, Alpha);
         }
         else if(Color == ColorWhite)
         {
-            LabelFont->Print(Caption.c_str(), ColorBlack, X + 2, Y + 2, Alpha / 2);
-            LabelFont->Print(Caption.c_str(), ColorWhite, X, Y, Alpha);
+            Buffer->Print(ColorBlack, X + 2, Y + 2, Alpha / 2);
+            Buffer->Print(ColorWhite, X, Y, Alpha);
         }
         else
-            LabelFont->Print(Caption.c_str(), Color, X, Y, Alpha);
+            Buffer->Print(Color, X, Y, Alpha);
     }
 };

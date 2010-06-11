@@ -185,7 +185,6 @@ namespace Scale
         #ifdef SHADER_BENCH
             const char* FragmentSources[] = {
                 "precision lowp float;\
-                varying vec2 VCord;\
                 uniform vec4 Color;\
                 void main (void)\
                 {\
@@ -210,6 +209,61 @@ namespace Scale
                 {\
                     gl_FragColor = Color;\
                     gl_FragColor.a *= texture2D(Texture, VCord).a;\
+                }",
+
+                "precision lowp float;\
+                varying vec2 VCord;\
+                uniform sampler2D Texture;\
+                uniform vec4 Color;\
+                void main (void)\
+                {\
+                    gl_FragColor = Color;\
+                    gl_FragColor.a *= texture2D(Texture, VCord).a;\
+                }"};
+
+
+            const char* VertexSources[] = {
+                "precision lowp float;\
+                attribute vec2 APoint;\
+                varying vec2 VCord;\
+                void main(void)\
+                {\
+                    gl_Position.x = APoint.x / 400.0 - 1.0;\
+                    gl_Position.y = -(APoint.y / 240.0 - 1.0);\
+                }",
+
+                "precision lowp float;\
+                attribute vec2 APoint;\
+                attribute vec2 ACord;\
+                varying vec2 VCord;\
+                void main(void)\
+                {\
+                    gl_Position.x = APoint.x / 400.0 - 1.0;\
+                    gl_Position.y = -(APoint.y / 240.0 - 1.0);\
+                    VCord = ACord;\
+                }",
+
+                "precision lowp float;\
+                attribute vec2 APoint;\
+                attribute vec2 ACord;\
+                varying vec2 VCord;\
+                void main(void)\
+                {\
+                    gl_Position.x = APoint.x / 400.0 - 1.0;\
+                    gl_Position.y = -(APoint.y / 240.0 - 1.0);\
+                    VCord = ACord;\
+                }",
+
+                "precision lowp float;\
+                attribute vec2 APoint;\
+                attribute vec2 ACord;\
+                uniform vec2 Offset;\
+                varying vec2 VCord;\
+                void main(void)\
+                {\
+                    gl_Position.x = (Offset.x + APoint.x) / 400.0 - 1.0;\
+                    gl_Position.y = -((Offset.y + APoint.y) / 240.0 - 1.0);\
+                    VCord = ACord;\
                 }"};
         #else
             const char* FragmentSources[] = {"precision lowp float;\
@@ -242,25 +296,27 @@ namespace Scale
                             gl_FragColor.a *= Temp;\
                     }\
                 }"};
+
+            const char* VertexSources[] = {"precision lowp float;\
+                attribute vec2 APoint;\
+                attribute vec2 ACord;\
+                varying vec2 VCord;\
+                uniform vec2 Offset;\
+                void main(void)\
+                {\
+                    gl_Position.x = (Offset.x + APoint.x) / 400.0 - 1.0;\
+                    gl_Position.y = -((Offset.y + APoint.y) / 240.0 - 1.0);\
+                    VCord = ACord;\
+                }"};
         #endif
 
-        const char* VertexSource = "precision lowp float;\
-            attribute vec2 APoint;\
-            attribute vec2 ACord;\
-            varying vec2 VCord;\
-            void main(void)\
-            {\
-                gl_Position.x = APoint.x / 400.0 - 1.0;\
-                gl_Position.y = -(APoint.y / 240.0 - 1.0);\
-                VCord = ACord;\
-            }";
 
         for(int i = 0; i < SHADER_COUNT; i++)
         {
             Shaders[i] = new OpenGL::Program();
 
             OpenGL::Shader FragmentShader(GL_FRAGMENT_SHADER, FragmentSources[i]);
-            OpenGL::Shader VertexShader(GL_VERTEX_SHADER, VertexSource);
+            OpenGL::Shader VertexShader(GL_VERTEX_SHADER, VertexSources[i]);
 
             *(Shaders[i]) << FragmentShader;
             *(Shaders[i]) << VertexShader;
@@ -269,11 +325,13 @@ namespace Scale
             glBindAttribLocation(Shaders[i]->Handle, 1, "ACord");
 
             Shaders[i]->Assign();
+
             #ifdef SHADER_BENCH
                 ModeUniform = i;
             #endif
 
             TextureUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Texture");
+            OffsetUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Offset");
 
             #ifndef SHADER_BENCH
                 ModeUniform = glGetUniformLocation(Shaders[i]->Handle, "Mode");
@@ -285,12 +343,15 @@ namespace Scale
         }
 
         #ifndef SHADER_BENCH
-            for(int i = 1; i < SHADER_COUNT; i++)
+            for(int i = 1; i < 4; i++)
             {
-                TextureUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Texture");
-                ColorUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Color");
+                TextureUniforms[i] = TextureUniforms[0];
+                ColorUniforms[i] = ColorUniforms[0];
+                OffsetUniforms[i] = OffsetUniforms[0];
             }
         #endif
+
+        ChangeMode(0);
     }
 
     void Application::ChangeMode(unsigned int Mode)

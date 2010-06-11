@@ -23,6 +23,7 @@
 
 #include "EGL/egl.h"
 #include "GLES2/gl2.h"
+#include "GLES2/gl2ext.h"
 
 #ifdef WIN32
     #include "windows.h"
@@ -37,6 +38,7 @@
 #include "OpenGL/OpenGL.Texture.hpp"
 #include "OpenGL/OpenGL.Shader.hpp"
 #include "OpenGL/OpenGL.Program.hpp"
+#include "OpenGL/OpenGL.Buffer.hpp"
 
 #include <assert.h>
 #include <list>
@@ -170,10 +172,11 @@ namespace Scale
 
             Element* Captured;
 
-            GLuint EffectUniforms[3];
-            GLuint EffectOptionsUniforms[3];
-            GLuint TextureUniforms[3];
-            GLuint ColorUniforms[3];
+            GLuint EffectUniforms[4];
+            GLuint EffectOptionsUniforms[4];
+            GLuint TextureUniforms[4];
+            GLuint ColorUniforms[4];
+            GLuint OffsetUniforms[4];
 
             bool Running;
             bool Terminated;

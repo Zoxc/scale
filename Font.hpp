@@ -32,11 +32,24 @@ namespace Scale
             Font(const char* Filename, int APointHeight);
             virtual ~Font();
 
+            struct Buffer
+            {
+                OpenGL::Texture* bitmap;
+                GLuint text;
+                size_t chars;
+                OpenGL::Buffer *vertex_buffer;
+                OpenGL::Buffer *coords_buffer;
+
+                void Print(unsigned int Color, int X, int Y, unsigned char Alpha);
+            };
+
             virtual void Allocate();
             virtual void Deallocate();
 
             virtual void Print(const char* Text, unsigned int Color, int X, int Y, unsigned char Alpha);
             virtual int Size(const char* Text, int* Height);
+
+            Buffer *AllocBuffer(const char* Text);
 
             int PointHeight;
 
@@ -68,7 +81,8 @@ namespace Scale
 
             static void Allocate(int PointHeight, FontData* Data);
             static void Measure(int PointHeight, FontData* Data);
-
+            GLshort *BufferQuad(int Position, Glyph* Char, GLshort *buffer, bool first);
+            GLfloat *BufferCoords(Glyph* Char, GLfloat *buffer, bool first);
 
     };
 

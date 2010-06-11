@@ -39,6 +39,7 @@ namespace Scale
         void* Data;
         const char* Caption;
         OpenGL::Texture* Icon;
+        Font::Buffer *Buffer;
 
         // Coordinates
         unsigned char CoordCaption;
@@ -191,8 +192,8 @@ namespace Scale
 
         if(Captions)
         {
-            ItemFont->Print(Item->Caption, ColorBlack, X + Item->CoordCaption + 1, Y + CaptionY + 1, Alpha / 2);
-            ItemFont->Print(Item->Caption, ColorWhite, X + Item->CoordCaption, Y + CaptionY, Alpha);
+            Item->Buffer->Print(ColorBlack, X + Item->CoordCaption + 1, Y + CaptionY + 1, Alpha / 2);
+            Item->Buffer->Print(ColorWhite, X + Item->CoordCaption, Y + CaptionY, Alpha);
         }
     }
 };
