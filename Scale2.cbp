@@ -37,6 +37,7 @@
 			<Add option="-DNO_FRAME_LIMIT" />
 			<Add option="-DNO_GL_ALPHA" />
 			<Add option="-DFRAME_EVENT" />
+			<Add option="-DSHADER_BENCH" />
 			<Add directory="Framework" />
 		</Compiler>
 		<Linker>
@@ -54,6 +55,8 @@
 		<Unit filename="Framework\Button.hpp" />
 		<Unit filename="Framework\Element.cpp" />
 		<Unit filename="Framework\Element.hpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Buffer.cpp" />
+		<Unit filename="Framework\OpenGL\OpenGL.Buffer.hpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Program.cpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Program.hpp" />
 		<Unit filename="Framework\OpenGL\OpenGL.Shader.cpp" />

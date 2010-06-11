@@ -14,7 +14,7 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -g
 endif
 
-SRCS = Font.cpp Font.hpp Framework\Application.cpp Framework/Application.hpp Framework/Button.cpp Framework/Button.hpp Framework/Element.cpp Framework/Element.hpp Framework/OpenGL\OpenGL.Program.cpp Framework/OpenGL/OpenGL.Program.hpp Framework/OpenGL/OpenGL.Shader.cpp Framework/OpenGL/OpenGL.Shader.hpp Framework/OpenGL/OpenGL.Texture.cpp Framework/OpenGL/OpenGL.Texture.hpp Framework/Options.hpp Graphics.cpp Graphics.hpp Icon.cpp Icon.hpp Image.cpp Image.hpp Label.cpp Label.hpp List.cpp List.hpp ListSearch.cpp ListSearch.hpp Main2.cpp Main2.hpp Resources.cpp Resources.hpp Scroller.cpp Scroller.hpp Solid.cpp Solid.hpp Switcher.cpp Switcher.hpp VerticalBar.cpp VerticalBar.hpp
+SRCS = Font.cpp Framework\Application.cpp Framework/Button.cpp Framework/Element.cpp Framework/OpenGL\OpenGL.Program.cpp Framework/OpenGL/OpenGL.Shader.cpp Framework/OpenGL/OpenGL.Buffer.cpp Framework/OpenGL/OpenGL.Texture.cpp Graphics.cpp Icon.cpp Image.cpp Label.cpp List.cpp ListSearch.cpp Main2.cpp Resources.cpp Scroller.cpp Solid.cpp Switcher.cpp VerticalBar.cpp
 
 OBJS = $(patsubst %.cpp, $(BUILDDIR)/%.o, $(SRCS) )
 
