@@ -45,6 +45,8 @@
 
 namespace Scale
 {
+    extern int DrawCalls;
+
     class Element;
     class Window;
 
@@ -168,17 +170,16 @@ namespace Scale
 
             Element* Captured;
 
-            OpenGL::Program* Shader;
-
-            GLuint ModeUniform;
-            GLuint EffectUniform;
-            GLuint EffectOptionsUniform;
-            GLuint TextureUniform;
-            GLuint ColorUniform;
+            GLuint EffectUniforms[3];
+            GLuint EffectOptionsUniforms[3];
+            GLuint TextureUniforms[3];
+            GLuint ColorUniforms[3];
 
             bool Running;
             bool Terminated;
             bool DoRedraw;
+
+            virtual void ChangeMode(unsigned int Mode) = 0;
 
             virtual void Capture(Element* Owner) = 0;
             virtual void Release() = 0;

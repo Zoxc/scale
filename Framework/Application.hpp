@@ -23,6 +23,12 @@
 #include "Options.hpp"
 #include "Element.hpp"
 
+#ifdef SHADER_BENCH
+    #define SHADER_COUNT 3
+#else
+    #define SHADER_COUNT 1
+#endif
+
 namespace Scale
 {
     typedef void (*KeyEvent)(ElementKey Key);
@@ -39,6 +45,8 @@ namespace Scale
 
             void Allocate();
             void Deallocate();
+
+            void ChangeMode(unsigned int Mode);
 
             void MouseUp(int X, int Y, bool Hovered);
             void MouseMove(int X, int Y, bool Hovered);
@@ -66,6 +74,9 @@ namespace Scale
             EGLSurface eglSurface;
             EGLContext eglContext;
             EGLNativeWindowType eglHandle;
+
+            GLuint ModeUniform;
+            OpenGL::Program* Shaders[SHADER_COUNT];
 
             #ifdef WIN32
                 HDC hDC;

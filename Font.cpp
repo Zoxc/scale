@@ -197,9 +197,9 @@ namespace Scale
         int Position = X;
 
         glBindTexture(GL_TEXTURE_2D, Normal.Bitmap->Handle);
-        glUniform1i(Screen->ModeUniform, 2);
-        glUniform1i(Screen->TextureUniform, 0);
-        glUniform4f(Screen->ColorUniform, reinterpret_cast<unsigned char*>(&Color)[0] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[1] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[2] / 255.0f, Alpha / 255.0f);
+        Screen->ChangeMode(2);
+        glUniform1i(Screen->TextureUniforms[2], 0);
+        glUniform4f(Screen->ColorUniforms[2], reinterpret_cast<unsigned char*>(&Color)[0] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[1] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[2] / 255.0f, Alpha / 255.0f);
 
         while(*Text != 0)
         {
@@ -218,6 +218,7 @@ namespace Scale
                 glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, Char->Cords);
 
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                DrawCalls++;
             }
 
             Position += Char->Advance;
@@ -259,9 +260,9 @@ namespace Scale
 
         glBindTexture(GL_TEXTURE_2D, Data->Bitmap->Handle);
 
-        glUniform1i(Screen->ModeUniform, 2);
-        glUniform1i(Screen->TextureUniform, 0);
-        glUniform4f(Screen->ColorUniform, reinterpret_cast<unsigned char*>(&Color)[0] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[1] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[2] / 255.0f, Alpha / 255.0f);
+        Screen->ChangeMode(2);
+        glUniform1i(Screen->TextureUniforms[2], 0);
+        glUniform4f(Screen->ColorUniforms[2], reinterpret_cast<unsigned char*>(&Color)[0] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[1] / 255.0f, reinterpret_cast<unsigned char*>(&Color)[2] / 255.0f, Alpha / 255.0f);
 
         while(*Text != 0)
         {
@@ -293,6 +294,7 @@ namespace Scale
                         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, Char->Cords);
 
                         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                        DrawCalls++;
                     }
 
                     Position += Char->Advance;

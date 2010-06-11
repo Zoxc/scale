@@ -576,6 +576,7 @@ namespace Scale
         Scrollbar->Width = 36;
         Scrollbar->Height = Height;
         Scrollbar->Top = Top;
+        Scrollbar->Visible = Visible;
 
         Width -= Scrollbar->Width;
 

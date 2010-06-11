@@ -320,7 +320,10 @@ namespace Scale
         for(std::vector<VerticalBarItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
         {
             Graphics::Texture((*Item)->Icon, X + IconLeft, Y + (*Item)->IconTop, (*Item)->IconCurrent * Alpha >> 8);
+        }
 
+        for(std::vector<VerticalBarItem*>::iterator Item = Items.begin(); Item != Items.end(); Item++)
+        {
             ItemFont->Print((*Item)->Caption, 0, X + (*Item)->CaptionLeft + 1, Y + (*Item)->Current + FontTop + 1, Alpha >> 1);
             ItemFont->Print((*Item)->Caption, 0xFFFFFFFF, X + (*Item)->CaptionLeft, Y + (*Item)->Current + FontTop, Alpha);
         }

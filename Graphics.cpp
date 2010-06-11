@@ -37,14 +37,15 @@ namespace Scale
             };
 
             glBindTexture(GL_TEXTURE_2D, Tex->Handle);
-            glUniform1i(Screen->ModeUniform, 1);
-            glUniform1i(Screen->TextureUniform, 0);
-            glUniform4f(Screen->ColorUniform, 0, 0, 0, Alpha / 255.0f);
+            Screen->ChangeMode(1);
+            glUniform1i(Screen->TextureUniforms[1], 0);
+            glUniform4f(Screen->ColorUniforms[1], 0, 0, 0, Alpha / 255.0f);
 
             glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
             glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_FALSE, 0, TextureCoordinate);
 
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            DrawCalls++;
         }
 
         void AlphaTexture(OpenGL::Texture* Tex, int X, int Y, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
@@ -60,14 +61,15 @@ namespace Scale
             };
 
             glBindTexture(GL_TEXTURE_2D, Tex->Handle);
-            glUniform1i(Screen->ModeUniform, 2);
-            glUniform1i(Screen->TextureUniform, 0);
-            glUniform4f(Screen->ColorUniform, R / 255.0f, G / 255.0f, B / 255.0f, Alpha / 255.0f);
+            Screen->ChangeMode(2);
+            glUniform1i(Screen->TextureUniforms[2], 0);
+            glUniform4f(Screen->ColorUniforms[2], R / 255.0f, G / 255.0f, B / 255.0f, Alpha / 255.0f);
 
             glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
             glVertexAttribPointer(1, 2, GL_UNSIGNED_BYTE, GL_FALSE, 0, TextureCoordinate);
 
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            DrawCalls++;
         }
 
         void Rect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)
@@ -83,10 +85,11 @@ namespace Scale
             };
 
             glVertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 0, Positions);
-            glUniform1i(Screen->ModeUniform, 0);
-            glUniform4f(Screen->ColorUniform, R / 255.0f, G / 255.0f, B / 255.0f, Alpha / 255.0f);
+            Screen->ChangeMode(0);
+            glUniform4f(Screen->ColorUniforms[0], R / 255.0f, G / 255.0f, B / 255.0f, Alpha / 255.0f);
 
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            DrawCalls++;
         }
 
         void RoundRect(int X, int Y, int Width, int Height, unsigned char R, unsigned char G, unsigned char B, unsigned char Alpha)

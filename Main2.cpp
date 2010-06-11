@@ -31,9 +31,16 @@ Application Menu;
 OpenGL::Texture* SharedIcon;
 
 #ifdef FRAME_EVENT
-    Label* FPS;
     int LastUpdate = 0;
     int Frames = 0;
+    int LocalGPUSwitches = 0;
+    int LocalDrawCalls = 0;
+    int DrawCallsCount = 0;
+    int GPUSwitchesCount = 0;
+    namespace Scale {
+        int GPUSwitches = 0;
+        int DrawCalls = 0;
+    }
 #endif
 
 #ifdef FRAME_EVENT
@@ -41,21 +48,29 @@ void OnFrame()
 {
     Frames++;
 
-    if( GetTicks() - LastUpdate > 300)
+    LocalGPUSwitches += GPUSwitches;
+    LocalDrawCalls += DrawCalls;
+
+    GPUSwitches = 0;
+    DrawCalls = 0;
+
+    if( GetTicks() - LastUpdate > 3000)
     {
-            std::stringstream Caption;
+            std::cout << "Fps: " << Frames / ((GetTicks() - LastUpdate) / 1000.f) << "\n";
 
-            Caption << "FPS: ";
+            #ifdef SHADER_BENCH
+                std::cout << "Shader Switches: " << (float)LocalGPUSwitches / (float)Frames << "\n";
+                LocalGPUSwitches = 0;
+            #endif
 
-            Caption << Frames / ((GetTicks() - LastUpdate) / 1000.f);
-
-            FPS->Caption = Caption.str();
+            std::cout << "Draw Calls: " << (float)LocalDrawCalls / (float)Frames << "\n";
+            LocalDrawCalls = 0;
 
             LastUpdate = GetTicks();
 
+
             Frames = 0;
     }
-
 }
 #endif
 
@@ -163,10 +178,6 @@ int main()
     Menu.Title = "Scale Demo";
 
     #ifdef FRAME_EVENT
-    FPS = new Label(&Menu, "FPS:       ", Resources::FontSmall, ColorWhite);
-    FPS->Left = 800 - 150;
-    FPS->Top = 60;
-
     Menu.EventFrame = &OnFrame;
     #endif
 

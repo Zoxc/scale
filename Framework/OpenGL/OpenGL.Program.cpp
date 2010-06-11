@@ -24,10 +24,10 @@ void OpenGL::Program::Link()
     glLinkProgram(Handle);
 
     // Check if linking succeeded in the same way we checked for compilation success
-    GLint Linked;
-    glGetProgramiv(Handle, GL_LINK_STATUS, &Linked);
+    GLint LinkedStatus;
+    glGetProgramiv(Handle, GL_LINK_STATUS, &LinkedStatus);
 
-    if (!Linked)
+    if (!LinkedStatus)
     {
         int LogLength, CharsWritten;
 
@@ -43,6 +43,8 @@ void OpenGL::Program::Link()
 
         throw "Failed to link program";
     }
+
+    Linked = true;
 }
 
 void OpenGL::Program::Assign()

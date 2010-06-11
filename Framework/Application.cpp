@@ -182,39 +182,67 @@ namespace Scale
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 
-        Shader = new OpenGL::Program();
+        #ifdef SHADER_BENCH
+            const char* FragmentSources[] = {
+                "precision lowp float;\
+                varying vec2 VCord;\
+                uniform vec4 Color;\
+                void main (void)\
+                {\
+                    gl_FragColor = Color;\
+                }",
 
-        // Fragment and vertex shaders code
-        const char* FragmentSource = "precision lowp float;\
-            varying vec2 VCord;\
-            uniform sampler2D Texture;\
-            uniform vec4 Color;\
-            uniform int Mode;\
-            uniform int Effect;\
-            uniform vec2 EffectOptions;\
-            float Temp;\
-            void main (void)\
-            {\
-                if(Mode == 1)\
+                "precision lowp float;\
+                varying vec2 VCord;\
+                uniform sampler2D Texture;\
+                uniform vec4 Color;\
+                void main (void)\
                 {\
                     gl_FragColor = texture2D(Texture, VCord);\
                     gl_FragColor.a *= Color.a;\
-                }\
-                else if(Mode == 0)\
-                    gl_FragColor = Color;\
-                else\
+                }",
+
+                "precision lowp float;\
+                varying vec2 VCord;\
+                uniform sampler2D Texture;\
+                uniform vec4 Color;\
+                void main (void)\
                 {\
                     gl_FragColor = Color;\
                     gl_FragColor.a *= texture2D(Texture, VCord).a;\
-                }\
-                \
-                if(Effect == 1)\
+                }"};
+        #else
+            const char* FragmentSources[] = {"precision lowp float;\
+                varying vec2 VCord;\
+                uniform sampler2D Texture;\
+                uniform vec4 Color;\
+                uniform int Mode;\
+                uniform int Effect;\
+                uniform vec2 EffectOptions;\
+                float Temp;\
+                void main (void)\
                 {\
-                    Temp = (gl_FragCoord.y - EffectOptions.x) / EffectOptions.y ;\
-                    if(Temp < 1.0)\
-                        gl_FragColor.a *= Temp;\
-                }\
-            }";
+                    if(Mode == 1)\
+                    {\
+                        gl_FragColor = texture2D(Texture, VCord);\
+                        gl_FragColor.a *= Color.a;\
+                    }\
+                    else if(Mode == 0)\
+                        gl_FragColor = Color;\
+                    else\
+                    {\
+                        gl_FragColor = Color;\
+                        gl_FragColor.a *= texture2D(Texture, VCord).a;\
+                    }\
+                    \
+                    if(Effect == 1)\
+                    {\
+                        Temp = (gl_FragCoord.y - EffectOptions.x) / EffectOptions.y ;\
+                        if(Temp < 1.0)\
+                            gl_FragColor.a *= Temp;\
+                    }\
+                }"};
+        #endif
 
         const char* VertexSource = "precision lowp float;\
             attribute vec2 APoint;\
@@ -227,29 +255,66 @@ namespace Scale
                 VCord = ACord;\
             }";
 
-        OpenGL::Shader FragmentShader(GL_FRAGMENT_SHADER, FragmentSource);
-        OpenGL::Shader VertexShader(GL_VERTEX_SHADER, VertexSource);
+        for(int i = 0; i < SHADER_COUNT; i++)
+        {
+            Shaders[i] = new OpenGL::Program();
 
-        *Shader << FragmentShader;
-        *Shader << VertexShader;
+            OpenGL::Shader FragmentShader(GL_FRAGMENT_SHADER, FragmentSources[i]);
+            OpenGL::Shader VertexShader(GL_VERTEX_SHADER, VertexSource);
 
-        glBindAttribLocation(Shader->Handle, 0, "APoint");
-        glBindAttribLocation(Shader->Handle, 1, "ACord");
+            *(Shaders[i]) << FragmentShader;
+            *(Shaders[i]) << VertexShader;
 
-        Shader->Assign();
+            glBindAttribLocation(Shaders[i]->Handle, 0, "APoint");
+            glBindAttribLocation(Shaders[i]->Handle, 1, "ACord");
 
-        TextureUniform = glGetUniformLocation(Shader->Handle, "Texture");
-        ModeUniform = glGetUniformLocation(Shader->Handle, "Mode");
-        EffectUniform = glGetUniformLocation(Shader->Handle, "Effect");
-        EffectOptionsUniform = glGetUniformLocation(Shader->Handle, "EffectOptions");
-        ColorUniform = glGetUniformLocation(Shader->Handle, "Color");
+            Shaders[i]->Assign();
+            #ifdef SHADER_BENCH
+                ModeUniform = i;
+            #endif
+
+            TextureUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Texture");
+
+            #ifndef SHADER_BENCH
+                ModeUniform = glGetUniformLocation(Shaders[i]->Handle, "Mode");
+            #endif
+
+            //EffectUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Effect");
+            //EffectOptionsUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "EffectOptions");
+            ColorUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Color");
+        }
+
+        #ifndef SHADER_BENCH
+            for(int i = 1; i < SHADER_COUNT; i++)
+            {
+                TextureUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Texture");
+                ColorUniforms[i] = glGetUniformLocation(Shaders[i]->Handle, "Color");
+            }
+        #endif
+    }
+
+    void Application::ChangeMode(unsigned int Mode)
+    {
+        #ifdef SHADER_BENCH
+            extern int GPUSwitches;
+
+            if(Mode != ModeUniform)
+            {
+                GPUSwitches++;
+                ModeUniform = Mode;
+                Shaders[Mode]->Assign();
+            }
+        #else
+            glUniform1i(ModeUniform, Mode);
+        #endif
     }
 
     void Application::Deallocate()
     {
         Element::Deallocate();
 
-        delete Shader;
+        for(int i = 0; i < SHADER_COUNT; i++)
+            delete Shaders[i];
 
         eglMakeCurrent(eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT) ;
         eglTerminate(eglDisplay);
@@ -535,8 +600,6 @@ namespace Scale
             if(DoRedraw)
             {
             #endif
-
-            glClear(GL_COLOR_BUFFER_BIT);
 
             for (Child = Children->begin(); Child != Children->end(); Child++)
                 (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
