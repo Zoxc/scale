@@ -1,7 +1,6 @@
 #pragma once
 
-#define GL_GLEXT_PROTOTYPES
-
+#include "EGL/egl.h"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
@@ -16,6 +15,8 @@ namespace OpenGL
             void Bind();
             void *Map();
             void UnMap();
+
+            static void Init();
 
             GLuint Handle;
             GLenum Target;

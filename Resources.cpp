@@ -41,6 +41,8 @@ namespace Scale
 
         void Init()
         {
+            OpenGL::Buffer::Init();
+
             #ifndef NO_FREETYPE
             FT_Init_FreeType(&FreeType);
             #endif

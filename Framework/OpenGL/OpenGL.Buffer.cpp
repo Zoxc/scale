@@ -1,6 +1,15 @@
 #include <iostream>
 #include "OpenGL.Buffer.hpp"
 
+PFNGLMAPBUFFEROESPROC glMapBufferOES;
+PFNGLUNMAPBUFFEROESPROC glUnmapBufferOES;
+
+void OpenGL::Buffer::Init()
+{
+    glMapBufferOES = (PFNGLMAPBUFFEROESPROC)eglGetProcAddress("glMapBufferOES");
+    glUnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)eglGetProcAddress("glUnmapBufferOES");
+}
+
 OpenGL::Buffer::Buffer(GLenum target, GLsizeiptr size) : Target(target)
 {
     glGenBuffers(1, &Handle);
