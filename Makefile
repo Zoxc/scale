@@ -4,7 +4,7 @@ CPP = $(CROSS_COMPILE)g++
 LD = $(CROSS_COMPILE)ld
 STRIP = $(CROSS_COMPILE)strip
 CFLAGS += -pipe -X11 -DNO_FRAME_LIMIT -DFRAME_EVENT -DSHADER_BENCH -DNO_GL_ALPHA  -Wall `freetype-config --cflags` -I./Framework -O3 -mfloat-abi=softfp -mfpu=neon -mcpu=cortex-a8 -mtune=cortex-a8
-LDFLAGS += -lpng `freetype-config --libs` -lEGL -lGLESv2
+LDFLAGS += -lpng `freetype-config --libs` -lEGL -lGLESv2 -lX11
 
 TARGET = ./bin/scale
 BUILDDIR = ./obj
