@@ -18,6 +18,8 @@ namespace OpenGL
 
             static void Init();
 
+            size_t Size;
+            void *Mapped;
             GLuint Handle;
             GLenum Target;
     };

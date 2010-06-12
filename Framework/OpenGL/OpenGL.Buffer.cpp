@@ -1,5 +1,7 @@
 #include <iostream>
+#include <malloc.h>
 #include "OpenGL.Buffer.hpp"
+
 
 PFNGLMAPBUFFEROESPROC glMapBufferOES;
 PFNGLUNMAPBUFFEROESPROC glUnmapBufferOES;
@@ -10,7 +12,7 @@ void OpenGL::Buffer::Init()
     glUnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)eglGetProcAddress("glUnmapBufferOES");
 }
 
-OpenGL::Buffer::Buffer(GLenum target, GLsizeiptr size) : Target(target)
+OpenGL::Buffer::Buffer(GLenum target, GLsizeiptr size) : Target(target), Size(size)
 {
     glGenBuffers(1, &Handle);
     Bind();
@@ -24,13 +26,18 @@ void OpenGL::Buffer::Bind()
 
 void *OpenGL::Buffer::Map()
 {
-    Bind();
-    return glMapBufferOES(Target, GL_WRITE_ONLY_OES);
+    /*Bind();
+    return glMapBufferOES(Target, GL_WRITE_ONLY_OES);*/
+    Mapped = malloc(Size);
+    return Mapped;
 }
 
 void OpenGL::Buffer::UnMap()
 {
-    glUnmapBufferOES(Target);
+    /*glUnmapBufferOES(Target);*/
+    Bind();
+    glBufferData(Target, Size, Mapped, GL_STATIC_DRAW);
+    free(Mapped);
 }
 
 OpenGL::Buffer::~Buffer()
