@@ -128,15 +128,6 @@ namespace Scale
 
             XMapWindow(x11Display, x11Window);
 
-            XEvent event;
-
-            XIfEvent(x11Display, &event, WaitForMapNotify, (char*)x11Window);
-
-            Atom wmDelete = XInternAtom(x11Display, "WM_DELETE_WINDOW", True);
-            XSetWMProtocols(x11Display, x11Window, &wmDelete, 1);
-
-            XSetWMColormapWindows(x11Display, x11Window, &x11Window, 1 );
-
             XFlush(x11Display);
 
             eglHandle = (EGLNativeWindowType)x11Window;
@@ -152,9 +143,9 @@ namespace Scale
         if (!eglInitialize(eglDisplay, &iMajorVersion, &iMinorVersion))
             throw "eglInitialize() failed.";
 
-        eglSwapInterval(eglDisplay, 0);
+        eglBindAPI(EGL_OPENGL_ES_API);
 
-        const EGLint pi32ConfigAttribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT, EGL_NONE, EGL_MIN_SWAP_INTERVAL, 0};
+        const EGLint pi32ConfigAttribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT/*, EGL_MIN_SWAP_INTERVAL, 0*/, EGL_NONE};
 
         EGLint iConfigs;
         if (!eglChooseConfig(eglDisplay, pi32ConfigAttribs, &eglConfig, 1, &iConfigs) || (iConfigs != 1))
@@ -173,6 +164,8 @@ namespace Scale
         eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 
         eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+
+        //eglSwapInterval(eglDisplay, 0);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -661,7 +654,7 @@ namespace Scale
             if(DoRedraw)
             {
             #endif
-
+glClear(GL_COLOR_BUFFER_BIT);
             for (Child = Children->begin(); Child != Children->end(); Child++)
                 (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
 
