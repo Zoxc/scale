@@ -184,6 +184,8 @@ namespace Scale
 
             virtual void ChangeMode(unsigned int Mode) = 0;
 
+
+            virtual void RaiseGLError() = 0;
             virtual void Capture(Element* Owner) = 0;
             virtual void Release() = 0;
             virtual void Start(Element* Owner) = 0;

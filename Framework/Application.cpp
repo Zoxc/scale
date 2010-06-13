@@ -59,6 +59,28 @@ namespace Scale
         }
     #endif
 
+    void Application::RaiseEGLError()
+    {
+        EGLint err = eglGetError();
+        if (err != EGL_SUCCESS)
+        {
+            std::stringstream str;
+            str << "EGL error state is set to " << err;
+            throw str.str();
+        }
+    }
+
+    void Application::RaiseGLError()
+    {
+        GLenum err = glGetError();
+        if (err != GL_NO_ERROR)
+        {
+            std::stringstream str;
+            str << "GL error state is set to " << err;
+            throw str.str();
+        }
+    }
+
     void Application::Allocate()
     {
         #ifdef WIN32
@@ -145,6 +167,8 @@ namespace Scale
 
         eglBindAPI(EGL_OPENGL_ES_API);
 
+        RaiseEGLError();
+
         const EGLint pi32ConfigAttribs[] = {EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT/*, EGL_MIN_SWAP_INTERVAL, 0*/, EGL_NONE};
 
         EGLint iConfigs;
@@ -159,11 +183,15 @@ namespace Scale
             eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, NULL, NULL);
         }
 
+        RaiseEGLError();
+
         EGLint ai32ContextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
 
         eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, ai32ContextAttribs);
 
         eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+
+        RaiseEGLError();
 
         //eglSwapInterval(eglDisplay, 0);
 
@@ -664,6 +692,9 @@ glClear(GL_COLOR_BUFFER_BIT);
             #endif
 
             eglSwapBuffers(eglDisplay, eglSurface);
+
+            RaiseGLError();
+            RaiseEGLError();
 
             #ifndef NO_FRAME_LIMIT
                 DoRedraw = false;

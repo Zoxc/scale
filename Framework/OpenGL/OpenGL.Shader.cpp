@@ -30,8 +30,8 @@ OpenGL::Shader::Shader(GLenum type, const char* Source)
 
 OpenGL::Shader::~Shader()
 {
-    if(Handle != 0)
-        glDeleteShader(Handle);
+    /*if(Handle != 0)
+        glDeleteShader(Handle);*/
 }
 
 

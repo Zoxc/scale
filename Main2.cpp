@@ -94,105 +94,116 @@ void ItemDeallocate(List* Owner, ListItem* Item)
 
 int main()
 {
-    Resources::Init();
+    try
+    {
+        Resources::Init();
 
-    Image Wallpaper(&Menu, "resources/back2.png");
+        Image Wallpaper(&Menu, "resources/back2.png");
 
-    Image Bluetooth(&Menu, "resources/bluetooth.png");
-    Bluetooth.Left = Scale::Screen->Width - Bluetooth.Width - 4;
-    Bluetooth.Top = 4;
-    Bluetooth.AlphaBlend = 210;
+        Image Bluetooth(&Menu, "resources/bluetooth.png");
+        Bluetooth.Left = Scale::Screen->Width - Bluetooth.Width - 4;
+        Bluetooth.Top = 4;
+        Bluetooth.AlphaBlend = 210;
 
-    Label Time(&Menu, "9:36 pm", Resources::FontBig, ColorWhite);
-    Time.Left = Scale::Screen->Width - Time.Width >> 1;
-    Time.Top = 8;
-    Time.AlphaBlend = 210;
+        Label Time(&Menu, "9:36 pm", Resources::FontBig, ColorWhite);
+        Time.Left = Scale::Screen->Width - Time.Width >> 1;
+        Time.Top = 8;
+        Time.AlphaBlend = 210;
 
-    Label AppTitle(&Menu, "Scale", Resources::FontBig, ColorWhite);
-    AppTitle.Left = 10;
-    AppTitle.Top = Time.Top;
-    AppTitle.AlphaBlend = 210;
+        Label AppTitle(&Menu, "Scale", Resources::FontBig, ColorWhite);
+        AppTitle.Left = 10;
+        AppTitle.Top = Time.Top;
+        AppTitle.AlphaBlend = 210;
 
-    VerticalBar Bar(&Menu);
+        VerticalBar Bar(&Menu);
 
-    Bar.Left = 25;
-    Bar.Top = 65;
-    Bar.Height = Menu.Height - 25 - 65;
-    Bar.Width = 150;
-    Bar.ItemFont = Resources::FontSmall;
+        Bar.Left = 25;
+        Bar.Top = 65;
+        Bar.Height = Menu.Height - 25 - 65;
+        Bar.Width = 150;
+        Bar.ItemFont = Resources::FontSmall;
 
-    VerticalBarItem BarApplications;
-    BarApplications.Caption = "Applications";
-    BarApplications.IconPath = "resources/icons_large/editor.png";
-    Bar.Items.push_back(&BarApplications);
+        VerticalBarItem BarApplications;
+        BarApplications.Caption = "Applications";
+        BarApplications.IconPath = "resources/icons_large/editor.png";
+        Bar.Items.push_back(&BarApplications);
 
-    VerticalBarItem BarGames;
-    BarGames.Caption = "Games";
-    BarGames.IconPath = "resources/icons_large/games.png";
-    Bar.Items.push_back(&BarGames);
+        VerticalBarItem BarGames;
+        BarGames.Caption = "Games";
+        BarGames.IconPath = "resources/icons_large/games.png";
+        Bar.Items.push_back(&BarGames);
 
-    VerticalBarItem BarMedia;
-    BarMedia.Caption = "Media";
-    BarMedia.IconPath = "resources/icons_large/media.png";
-    Bar.Items.push_back(&BarMedia);
+        VerticalBarItem BarMedia;
+        BarMedia.Caption = "Media";
+        BarMedia.IconPath = "resources/icons_large/media.png";
+        Bar.Items.push_back(&BarMedia);
 
-    VerticalBarItem BarEmulators;
-    BarEmulators.Caption = "Emulators";
-    BarEmulators.IconPath = "resources/icons_large/application.png";
-    Bar.Items.push_back(&BarEmulators);
+        VerticalBarItem BarEmulators;
+        BarEmulators.Caption = "Emulators";
+        BarEmulators.IconPath = "resources/icons_large/application.png";
+        Bar.Items.push_back(&BarEmulators);
 
-    VerticalBarItem BarWeb;
-    BarWeb.Caption = "Web";
-    BarWeb.IconPath = "resources/icons_large/web-browser.png";
-    Bar.Items.push_back(&BarWeb);
+        VerticalBarItem BarWeb;
+        BarWeb.Caption = "Web";
+        BarWeb.IconPath = "resources/icons_large/web-browser.png";
+        Bar.Items.push_back(&BarWeb);
 
-    VerticalBarItem BarSytem;
-    BarSytem.Caption = "System";
-    BarSytem.IconPath = "resources/icons_large/terminal.png";
-    Bar.Items.push_back(&BarSytem);
+        VerticalBarItem BarSytem;
+        BarSytem.Caption = "System";
+        BarSytem.IconPath = "resources/icons_large/terminal.png";
+        Bar.Items.push_back(&BarSytem);
 
-    List ListView(&Menu);
+        List ListView(&Menu);
 
-    ListView.Icons = List::IconAbove;
-    ListView.Direction = List::Vertical;
+        ListView.Icons = List::IconAbove;
+        ListView.Direction = List::Vertical;
 
-    ListView.OnItemCreate = ItemCreate;
-    ListView.OnItemFree = ItemFree;
-    ListView.OnItemAllocate = ItemAllocate;
-    ListView.OnItemDeallocate = ItemDeallocate;
+        ListView.OnItemCreate = ItemCreate;
+        ListView.OnItemFree = ItemFree;
+        ListView.OnItemAllocate = ItemAllocate;
+        ListView.OnItemDeallocate = ItemDeallocate;
 
-    ListView.Left = Bar.Left + Bar.Width + 25;
-    ListView.Top = Bar.Top;
-    ListView.Height = Bar.Height;
-    ListView.Width = Scale::Screen->Width - 25 - ListView.Left - 3;
+        ListView.Left = Bar.Left + Bar.Width + 25;
+        ListView.Top = Bar.Top;
+        ListView.Height = Bar.Height;
+        ListView.Width = Scale::Screen->Width - 25 - ListView.Left - 3;
 
-    ListView.Link(ElementLeft, &Bar);
-    Bar.Link(ElementRight, &ListView);
+        ListView.Link(ElementLeft, &Bar);
+        Bar.Link(ElementRight, &ListView);
 
-    std::cout << "x1: " << ListView.Left << "\n"<< "x2: " << (ListView.Left + ListView.Width) << "\n";
+        std::cout << "x1: " << ListView.Left << "\n"<< "x2: " << (ListView.Left + ListView.Width) << "\n";
 
-    ListView.ItemFont = Resources::FontSmall;
+        ListView.ItemFont = Resources::FontSmall;
 
-    ListView.SetCount(55);
+        ListView.SetCount(55);
 
-    Menu.Title = "Scale Demo";
+        Menu.Title = "Scale Demo";
 
-    #ifdef FRAME_EVENT
-    Menu.EventFrame = &OnFrame;
-    #endif
+        #ifdef FRAME_EVENT
+        Menu.EventFrame = &OnFrame;
+        #endif
 
-    Menu.Allocate();
+        Menu.Allocate();
 
-    Resources::Allocate();
+        Resources::Allocate();
 
-    SharedIcon = new OpenGL::Texture();
-    SharedIcon->Load("resources/icons_large/application.png");
+        SharedIcon = new OpenGL::Texture();
+        SharedIcon->Load("resources/icons_large/application.png");
 
-    Menu.Run();
+        Menu.Run();
 
-    delete SharedIcon;
+        delete SharedIcon;
 
-    Resources::Deallocate();
+        Resources::Deallocate();
+    }
+    catch(const std::string &str)
+    {
+        printf("Exited from exception: %s\n", str.c_str());
+    }
+    catch(const char *str)
+    {
+        printf("Exited from exception: %s\n", str);
+    }
 
     return 0;
 }

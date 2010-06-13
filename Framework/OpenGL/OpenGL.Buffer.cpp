@@ -8,11 +8,11 @@ PFNGLUNMAPBUFFEROESPROC glUnmapBufferOES;
 
 void OpenGL::Buffer::Init()
 {
-    glMapBufferOES = (PFNGLMAPBUFFEROESPROC)eglGetProcAddress("glMapBufferOES");
-    glUnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)eglGetProcAddress("glUnmapBufferOES");
+    /*glMapBufferOES = (PFNGLMAPBUFFEROESPROC)eglGetProcAddress("glMapBufferOES");
+    glUnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)eglGetProcAddress("glUnmapBufferOES");*/
 }
 
-OpenGL::Buffer::Buffer(GLenum target, GLsizeiptr size) : Target(target), Size(size)
+OpenGL::Buffer::Buffer(GLenum target, GLsizeiptr size) : Size(size), Target(target)
 {
     glGenBuffers(1, &Handle);
     Bind();

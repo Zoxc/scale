@@ -18,6 +18,7 @@
 
 #pragma once
 #include <string>
+#include <sstream>
 #include <list>
 
 #include "Options.hpp"
@@ -60,6 +61,8 @@ namespace Scale
 
             Element* GetTrapped();
 
+            void RaiseGLError();
+
             #ifdef FRAME_EVENT
             FrameEvent EventFrame;
             #endif
@@ -74,6 +77,8 @@ namespace Scale
             EGLSurface eglSurface;
             EGLContext eglContext;
             EGLNativeWindowType eglHandle;
+
+            void RaiseEGLError();
 
             GLuint ModeUniform;
             OpenGL::Program* Shaders[SHADER_COUNT];
