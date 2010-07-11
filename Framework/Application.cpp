@@ -251,6 +251,8 @@ namespace Scale
                 {\
                     gl_Position.x = APoint.x / 400.0 - 1.0;\
                     gl_Position.y = -(APoint.y / 240.0 - 1.0);\
+					gl_Position.z = 0.0;\
+					gl_Position.w = 1.0;\
                 }",
 
                 "precision lowp float;\
@@ -261,6 +263,8 @@ namespace Scale
                 {\
                     gl_Position.x = APoint.x / 400.0 - 1.0;\
                     gl_Position.y = -(APoint.y / 240.0 - 1.0);\
+					gl_Position.z = 0.0;\
+					gl_Position.w = 1.0;\
                     VCord = ACord;\
                 }",
 
@@ -272,6 +276,8 @@ namespace Scale
                 {\
                     gl_Position.x = APoint.x / 400.0 - 1.0;\
                     gl_Position.y = -(APoint.y / 240.0 - 1.0);\
+					gl_Position.z = 0.0;\
+					gl_Position.w = 1.0;\
                     VCord = ACord;\
                 }",
 
@@ -284,6 +290,8 @@ namespace Scale
                 {\
                     gl_Position.x = (Offset.x + APoint.x) / 400.0 - 1.0;\
                     gl_Position.y = -((Offset.y + APoint.y) / 240.0 - 1.0);\
+					gl_Position.z = 0.0;\
+					gl_Position.w = 1.0;\
                     VCord = ACord;\
                 }"};
         #else
@@ -327,6 +335,8 @@ namespace Scale
                 {\
                     gl_Position.x = (Offset.x + APoint.x) / 400.0 - 1.0;\
                     gl_Position.y = -((Offset.y + APoint.y) / 240.0 - 1.0);\
+					gl_Position.z = 0.0;\
+					gl_Position.w = 1.0;\
                     VCord = ACord;\
                 }"};
         #endif
@@ -682,7 +692,7 @@ namespace Scale
             if(DoRedraw)
             {
             #endif
-glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT);
             for (Child = Children->begin(); Child != Children->end(); Child++)
                 (*Child)->DrawChildren(0, 0, (*Child)->AlphaBlend);
 
