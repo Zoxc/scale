@@ -35,7 +35,6 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 			<Add option="-DNO_FRAME_LIMIT" />
-			<Add option="-DNO_GL_ALPHA" />
 			<Add option="-DFRAME_EVENT" />
 			<Add option="-DSHADER_BENCH" />
 			<Add directory="Framework" />

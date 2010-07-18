@@ -73,26 +73,7 @@ namespace Scale
             if(Error)
                assert(0);
 
-            #ifdef NO_GL_ALPHA
-                unsigned int* PixelData = new unsigned int[Data->FontFace->glyph->bitmap.width * Data->FontFace->glyph->bitmap.rows];
-
-                unsigned int* Pixel = PixelData;
-                unsigned int* PixelEnd = PixelData + Data->FontFace->glyph->bitmap.rows * Data->FontFace->glyph->bitmap.width;
-
-                unsigned char* Buffer = Data->FontFace->glyph->bitmap.buffer;
-
-                while(Pixel != PixelEnd)
-                {
-                    *Pixel = 0;
-                    reinterpret_cast<unsigned char*>(Pixel++)[3] = *Buffer++;
-                }
-
-                glTexSubImage2D(GL_TEXTURE_2D, 0, Data->Glyphs[i].Width, 0, Data->FontFace->glyph->bitmap.width, Data->FontFace->glyph->bitmap.rows, GL_RGBA, GL_UNSIGNED_BYTE, PixelData);
-
-                delete[] PixelData;
-            #else
-                glTexSubImage2D(GL_TEXTURE_2D, 0, Data->Glyphs[i].Width, 0, Data->FontFace->glyph->bitmap.width, Data->FontFace->glyph->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, Data->FontFace->glyph->bitmap.buffer);
-            #endif
+            glTexSubImage2D(GL_TEXTURE_2D, 0, Data->Glyphs[i].Width, 0, Data->FontFace->glyph->bitmap.width, Data->FontFace->glyph->bitmap.rows, GL_ALPHA, GL_UNSIGNED_BYTE, Data->FontFace->glyph->bitmap.buffer);
 
             Data->Glyphs[i].Cords[0] = (float)Data->Glyphs[i].Width / (float)Data->Bitmap->Width; // X
             Data->Glyphs[i].Cords[1] = (float)Data->FontFace->glyph->bitmap.rows / (float)Data->Bitmap->Height; // Height
